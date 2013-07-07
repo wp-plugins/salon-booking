@@ -1,7 +1,7 @@
 === Salon Booking ===
 Contributors: kuu(Tanaka Hisao)
 Donate link: http://salon.mallory.jp/
-Tags: salon, booking, reservation, beauty parlor, dental clinit, hospital, mutilingual
+Tags: salon, booking, reservation, beauty parlor, dental clinic, hospital, mutilingual
 Requires at least: 3.5
 Tested up to: 3.5
 Stable tag: 0.1.0
