@@ -1,7 +1,3 @@
-/*
-This software is allowed to use under GPL.
-Please contact sales@dhtmlx.com for details
-*/
 window.dhtmlx||(dhtmlx=function(a){for(var b in a)dhtmlx[b]=a[b];return dhtmlx});
 dhtmlx.extend_api=function(a,b,c){var d=window[a];if(d)window[a]=function(a){if(a&&typeof a=="object"&&!a.tagName){var c=d.apply(this,b._init?b._init(a):arguments),g;for(g in dhtmlx)if(b[g])this[b[g]](dhtmlx[g]);for(g in a)if(b[g])this[b[g]](a[g]);else g.indexOf("on")==0&&this.attachEvent(g,a[g])}else c=d.apply(this,arguments);b._patch&&b._patch(this);return c||this},window[a].prototype=d.prototype,c&&dhtmlXHeir(window[a].prototype,c)};
 dhtmlxAjax={get:function(a,b){var c=new dtmlXMLLoaderObject(!0);c.async=arguments.length<3;c.waitCall=b;c.loadXML(a);return c},post:function(a,b,c){var d=new dtmlXMLLoaderObject(!0);d.async=arguments.length<4;d.waitCall=c;d.loadXML(a,!0,b);return d},getSync:function(a){return this.get(a,null,!0)},postSync:function(a,b){return this.post(a,b,null,!0)}};
