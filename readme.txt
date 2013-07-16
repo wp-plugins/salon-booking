@@ -1,10 +1,10 @@
 === Salon Booking ===
 Contributors: kuu(Tanaka Hisao)
-Donate link: http://salon.mallory.jp/
+Donate link: http://salon.mallory.jp/en/
 Tags: salon, booking, reservation, beauty parlor, dental clinic, hospital, mutilingual
 Requires at least: 3.5
 Tested up to: 3.5
-Stable tag: 0.1.0
+Stable tag: 0.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,9 +65,12 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 10. Admin form(timecard)
 
 == Changelog ==
-= 0.1.0-alpha =
-* alpha version first release. 
+
+= 0.2.0 =
+* Staff can regist without mail-input.
+* If today is holiday ,init display is next day.
+* "Number of the Shops" is "plural shops" as a default.
 
 == Upgrade Notice ==
 
-This is alpha version.
+

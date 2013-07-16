@@ -137,7 +137,7 @@ class Booking_Page extends Salon_Page {
 			scheduler.config.mark_now = false;
 			scheduler.config.check_limits = false;
 	<?php //休業日
-			parent::echoSetHoliday($this->branch_datas,$this->target_year);
+			$is_todayholiday = parent::echoSetHoliday($this->branch_datas,$this->target_year);
 			//スタッフの設定	
 			$tmp_staff_index = array();
 			$index = 1;
@@ -474,6 +474,10 @@ EOT3;
 			$j("#detail_out span").addClass("sl_detail_out");			
 			$j("#detail_out label").addClass("sl_detail_out");			
 
+			<?php if ($is_todayholiday) : ?>
+				scheduler.setCurrentView(scheduler.date.add( scheduler.date[scheduler._mode+"_start"](scheduler._date),(1),scheduler._mode)); 
+			<?php endif; ?>
+
 
 		});
 
@@ -539,7 +543,14 @@ EOT3;
 				<?php parent::echo_clear_error(); ?>
 			}
 		}
-		<?php parent::echoClientItem(array('customer_name','mail','customer_tel','staff_cd','item_cds','start_time','remark','booking_user_login','booking_user_password','regist_customer')); ?>	
+		<?php 
+			if ($this->_is_editBooking() ) {
+				parent::echoClientItem(array('customer_name','mail_norequired','booking_tel','staff_cd','item_cds','start_time','remark','booking_user_login','booking_user_password','regist_customer')); 
+			}
+			else {
+				parent::echoClientItem(array('customer_name','mail','branch_tel','staff_cd','item_cds','start_time','remark','booking_user_login','booking_user_password','regist_customer')); 
+			}
+		?>	
 		
 		
 		scheduler.showLightbox = function(id){
@@ -745,7 +756,7 @@ EOT3;
 			$j(".lightbox").colorbox({rel:"staffs"});
 		}
 		
-		<?php parent::echoCheckClinet(array('chk_required','chkMail','chkTime','lenmax','reqCheck','chkSpace','chkTel')); ?>		
+		<?php parent::echoCheckClinet(array('chk_required','chkMail','chkTime','lenmax','reqCheck','chkSpace','chkTel','reqOther')); ?>		
 		<?php parent::echoRemoveModal(); ?>
 
 	</script>

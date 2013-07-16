@@ -1001,6 +1001,7 @@ EOT2;
 	
 	
 	static function echoSetHoliday($branch_datas,$target_year,$is_block = true) {
+			$is_todayHoliday = false;
 			if (!empty($branch_datas['closed']) || $branch_datas['closed']==0 ) {
 				$set_days = '['.$branch_datas['closed'].']';
 				$set_html = __('Holiday',SL_DOMAIN);
@@ -1016,17 +1017,21 @@ EOT2;
 				};
 				scheduler.addMarkedTimespan(options);
 EOT;
+				if (strpos($branch_datas['closed'],date('w') ) !== false ) $is_todayHoliday = true;
 				//特殊な日の設定（定休日だけど営業するor営業日だけど休むなど）
 				$sp_dates = unserialize($branch_datas['sp_dates']);
 				$on_business_array = array();
 				$holiday_array = array();
+				$today_check_array = array();
 				for ($i=0;$i<2;$i++) {	//指定年と＋１(年末のことを考えて）
 					$tmp_year = intval($target_year) + $i;
 					if ($sp_dates && !empty($sp_dates[$tmp_year])) {
 						foreach ($sp_dates[$tmp_year] as $k1 => $d1) {
+							$today_check_array[$k1] = $d1;
 							$tmp = 'new Date('.$tmp_year.','.(string)(intval(substr($k1,4,2))-1).','.(string)(intval(substr($k1,6,2))+0).')';
 							if ($d1== Salon_Status::OPEN ) {
 								$on_business_array[] = $tmp;
+								
 							}
 							elseif ($d1== Salon_Status::CLOSE ) {
 								$holiday_array[] = $tmp;
@@ -1064,7 +1069,13 @@ EOT;
 				}
 	
 EOT2;
+
+				if (isset($today_check_array[date('Ymd')]) ) {
+					if ($today_check_array[date('Ymd')] == Salon_Status::OPEN ) $is_todayHoliday = false;
+					else $is_todayHoliday = true;
+				}
 			}
+			return $is_todayHoliday;
 		
 	}
 
@@ -1410,7 +1421,7 @@ EOT2;
 		 ,'class' => array()
 		 ,'check' => array( 'chk_required','lenmax30','chkSpace')
 		 ,'label' => __('Name',SL_DOMAIN)
-		 ,'tips' => __('space input between fires-name and last-name',SL_DOMAIN)
+		 ,'tips' => __('space input between first-name and last-name',SL_DOMAIN)
 		 ,'table' => array(  'class'=>'sl_editable'
 							,'width'=>self::LONG_WIDTH
 							,'sort'=>'true'
@@ -1421,7 +1432,7 @@ EOT2;
 		 ,'class' => array()
 		 ,'check' => array( 'chk_required','lenmax30','chkSpace')
 		 ,'label' => __('Name',SL_DOMAIN)
-		 ,'tips' => __('space input between fires-name and last-name',SL_DOMAIN)
+		 ,'tips' => __('space input between first-name and last-name',SL_DOMAIN)
 		 ,'table' => array(  'class'=>'sl_editable'
 							,'width'=>self::LONG_WIDTH
 							,'sort'=>'true'
@@ -1555,6 +1566,19 @@ EOT2;
 		 ,'check' => array( 'chk_required','chkMail')
 		 ,'label' => __('Mail',SL_DOMAIN)
 		 ,'tips' => __('please XXX@XXX.XXX format',SL_DOMAIN));
+
+		$item_contents['booking_tel'] =array('id'=>'tel'
+		 ,'class' => array()
+		 ,'check' => array( 'chkTel','reqOther_mail')
+		 ,'label' => __('Tel',SL_DOMAIN)
+		 ,'tips' => __('please XXXX-XXX-XXXX format',SL_DOMAIN));
+
+		$item_contents['mail_norequired'] =array('id'=>'mail'
+		 ,'class' => array()
+		 ,'check' => array( 'chkMail','reqOther_tel')
+		 ,'label' => __('Mail',SL_DOMAIN)
+		 ,'tips' => __('please XXX@XXX.XXX format',SL_DOMAIN));
+
 	
 		$item_contents['customer_mail'] =array('id'=>'mail'
 		 ,'class' => array()
@@ -2172,7 +2196,7 @@ EOT2;
 						if ($j('.$target.').hasClass("chkSpace") ) {
 							val = val.replace("　"," ");
 							if( ! val.match(/^.+\s+.+$/) ){
-								item_errors.push( "'.__('space input between fires-name and last-name',SL_DOMAIN).'");
+								item_errors.push( "'.__('space input between first-name and last-name',SL_DOMAIN).'");
 							}
 						}';
 							
