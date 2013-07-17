@@ -4,7 +4,7 @@ Donate link: http://salon.mallory.jp/en/
 Tags: salon, booking, reservation, beauty parlor, dental clinic, hospital, mutilingual
 Requires at least: 3.5
 Tested up to: 3.5
-Stable tag: 0.2.0
+Stable tag: 0.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -66,10 +66,18 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 
 == Changelog ==
 
+= 0.3.0 =
+* Fixed: At the screen of "Reservation Detail",staff can use the function of search.
+* Fixed: Button's display changed "display details" -> "show details".
+
 = 0.2.0 =
-* Staff can regist without mail-input.
-* If today is holiday ,init display is next day.
-* "Number of the Shops" is "plural shops" as a default.
+* Changed: Staff can regist without mail-input.
+* Changed: If today is holiday ,init display is next day.
+* Changed: "Number of the Shops" is "plural shops" as a default.
+
+= 0.1.0 =
+* alpha version first release. 
+
 
 == Upgrade Notice ==
 

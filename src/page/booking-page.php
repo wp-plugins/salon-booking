@@ -116,7 +116,7 @@ class Booking_Page extends Salon_Page {
 		var save_tel = "";
 
 		$j(document).ready(function() {
-			<?php parent::echoSearchCustomer(); //検索画面 ?>	
+			<?php parent::echoSearchCustomer($this->url); //検索画面 ?>	
 
 			<?php $this->echo_customize_dhtmlx(); ?>
 			scheduler.config.multi_day = true;

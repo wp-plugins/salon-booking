@@ -140,7 +140,7 @@ EOT2;
 
 
 	static function echoCommonButton($add_operation = '"inserted"'){
-		$show = __('Display Details',SL_DOMAIN);
+		$show = __('Show Details',SL_DOMAIN);
 		$hide = __('Hide Details',SL_DOMAIN);
 		echo <<<EOT
 			\$j("#salon_button_div input").addClass("sl_button");
@@ -703,8 +703,9 @@ EOT;
 			
 	}
 
-	static function echoSearchCustomer() {
-		$target_src = get_bloginfo( 'wpurl' ).'/wp-admin/admin-ajax.php?action=search';
+	static function echoSearchCustomer($url = '') {
+		if (empty($url) ) $url = get_bloginfo( 'wpurl' );
+		$target_src = $url.'/wp-admin/admin-ajax.php?action=search';
 		
 		echo <<<EOT
 			\$j("#button_search").click(function(){
