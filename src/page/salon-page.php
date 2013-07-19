@@ -706,7 +706,7 @@ EOT;
 	static function echoSearchCustomer($url = '') {
 		if (empty($url) ) $url = get_bloginfo( 'wpurl' );
 		$target_src = $url.'/wp-admin/admin-ajax.php?action=search';
-		
+		$check_char = __('No',SL_DOMAIN);
 		echo <<<EOT
 			\$j("#button_search").click(function(){
 				\$j.ajax({
@@ -734,6 +734,7 @@ EOT;
 							\$j("#sl_search_result").html(data.set_data);
 							if (+data.cnt > 0 ) {
 								\$j("#sl_search_result tr").click(function(event) {
+									if (this.children[0].innerHTML == "{$check_char}" ) return;
 									\$j("#name").val(this.children[1].innerHTML);
 									var tel = this.children[2].innerHTML;
 									if (! tel) tel = this.children[3].innerHTML;

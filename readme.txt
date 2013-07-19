@@ -4,7 +4,7 @@ Donate link: http://salon.mallory.jp/en/
 Tags: salon, booking, reservation, beauty parlor, dental clinic, hospital, mutilingual
 Requires at least: 3.5
 Tested up to: 3.5
-Stable tag: 0.3.0
+Stable tag: 0.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,11 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 10. Admin form(timecard)
 
 == Changelog ==
+
+= 0.4.0 =
+* Fixed: At the screen of "Search",selected header line don't filled in.
+* Fixed: At the screen of "Search",missing the sequence of Sur name and Given name.
+* Fixed: missig the display name of non registerd staff.
 
 = 0.3.0 =
 * Fixed: At the screen of "Reservation Detail",staff can use the function of search.

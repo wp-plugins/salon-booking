@@ -19,7 +19,7 @@ class Search_Component {
 		if (count($datas) == 0 ) {
 			return false;
 		}
-		$html .= '<table><thead><tr><th>No</th><th>'.__('name',SL_DOMAIN).'</th><th>'.__('tel',SL_DOMAIN).'</th><th>'.__('mobile',SL_DOMAIN).'</th><th>'.__('mail',SL_DOMAIN).'</th></tr></thead><tbody>';
+		$html .= '<table><thead><tr><th>'.__('No',SL_DOMAIN).'</th><th>'.__('name',SL_DOMAIN).'</th><th>'.__('tel',SL_DOMAIN).'</th><th>'.__('mobile',SL_DOMAIN).'</th><th>'.__('mail',SL_DOMAIN).'</th></tr></thead><tbody>';
 		$cnt = 0;
 
 		global $wpdb;
@@ -27,7 +27,12 @@ class Search_Component {
 			$is_exist = false;
 			if (strstr($d1[$wpdb->prefix.'capabilities'],'subscriber') ) {
 				$tr = '';
-				if ( $this->_setSearchCustomerDataEditTr($keys['name'],$d1['last_name'].' '.$d1['first_name'],$tr) ) $is_exist = true;
+				if ($this->datas->getConfigData('SALON_CONFIG_NAME_ORDER') == Salon_Config::NAME_ORDER_JAPAN ) {
+					if ( $this->_setSearchCustomerDataEditTr($keys['name'],$d1['last_name'].' '.$d1['first_name'],$tr) ) $is_exist = true;
+				}
+				else {
+					if ( $this->_setSearchCustomerDataEditTr($keys['name'],$d1['first_name'].' '.$d1['last_name'],$tr) ) $is_exist = true;
+				}
 				if ( $this->_setSearchCustomerDataEditTr($keys['tel'],$d1['tel'],$tr) ) $is_exist = true;
 				if ( $this->_setSearchCustomerDataEditTr($keys['tel'],$d1['mobile'],$tr) ) $is_exist = true;
 				if ( $this->_setSearchCustomerDataEditTr($keys['mail'],$d1['mail'],$tr) ) $is_exist = true;
