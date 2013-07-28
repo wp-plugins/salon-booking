@@ -15,7 +15,7 @@ abstract class Salon_Data {
 	public function __construct() {
 		$result =  unserialize(get_option( 'SALON_CONFIG'));
 		if (empty($result['SALON_CONFIG_BRANCH']) ) $result['SALON_CONFIG_BRANCH'] =  Salon_Config::MULTI_BRANCH;
-		if (empty($result['SALON_CONFIG_USER_LOGIN']) ) $result['SALON_CONFIG_USER_LOGIN'] = Salon_Config::USER_LOGIN_NG;
+		if (empty($result['SALON_CONFIG_USER_LOGIN']) ) $result['SALON_CONFIG_USER_LOGIN'] = Salon_Config::USER_LOGIN_OK;
 		if (empty($result['SALON_CONFIG_SEND_MAIL_TEXT']) ) $result['SALON_CONFIG_SEND_MAIL_TEXT'] = __('Mr/Ms {X-TO_NAME} Please Fixed this reservation.Click the following URL</br>{X-SHOP}',SL_DOMAIN);
 		if (empty($result['SALON_CONFIG_SEND_MAIL_TEXT_USER']) ) $result['SALON_CONFIG_SEND_MAIL_TEXT_USER'] = __('Mr/Ms {X-TO_NAME} Thank you for registration .your User_id is %s,your initial password is %s',SL_DOMAIN);
 		if (empty($result['SALON_CONFIG_STAFF_HOLIDAY_SET']) ) $result['SALON_CONFIG_STAFF_HOLIDAY_SET'] =  Salon_Config::SET_STAFF_NORMAL;
@@ -24,8 +24,8 @@ abstract class Salon_Data {
 		if (empty($result['SALON_CONFIG_TIMELINE_Y_CNT']) ) $result['SALON_CONFIG_TIMELINE_Y_CNT'] =  Salon_Config::DEFALUT_TIMELINE_Y_CNT;
 		if (empty($result['SALON_CONFIG_SHOW_DETAIL_MSG']) ) $result['SALON_CONFIG_SHOW_DETAIL_MSG'] =  Salon_Config::DETAIL_MSG_NG;
 		if (empty($result['SALON_CONFIG_NAME_ORDER']) ) $result['SALON_CONFIG_NAME_ORDER'] =  Salon_Config::NAME_ORDER_JAPAN;
-		if (empty($result['SALON_CONFIG_NO_PREFERENCE']) ) $result['SALON_CONFIG_NO_PREFERENCE']  = Salon_Config::NO_PREFERNCE_NG;
-		if (empty($result['SALON_CONFIG_LOG']) ) $result['SALON_CONFIG_LOG']  = Salon_Config::LOG_NO_NEED;
+		if (empty($result['SALON_CONFIG_NO_PREFERENCE']) ) $result['SALON_CONFIG_NO_PREFERENCE']  = Salon_Config::NO_PREFERNCE_OK;
+		if (empty($result['SALON_CONFIG_LOG']) ) $result['SALON_CONFIG_LOG']  = Salon_Config::LOG_NEED;
 		if (empty($result['SALON_CONFIG_DELETE_RECORD']) ) $result['SALON_CONFIG_DELETE_RECORD'] =  Salon_Config::DELETE_RECORD_NO;
 		if (empty($result['SALON_CONFIG_DELETE_RECORD_PERIOD']) ) $result['SALON_CONFIG_DELETE_RECORD_PERIOD'] =  Salon_Config::DELETE_RECORD_PERIOD;
 		$this->config = $result;
@@ -346,7 +346,7 @@ abstract class Salon_Data {
 			$this->_dbAccessAbnormalEnd();
 		}
 		$save_id = mysql_insert_id();
-		if ($this->config['SALON_CONFIG_LOG'] == Salon_Config::LOG_NEED ) {
+		if ((defined ( 'SALON_DEMO' ) && SALON_DEMO   ) || ($this->config['SALON_CONFIG_LOG'] == Salon_Config::LOG_NEED )) {
 			$this->_writeLog($exec_sql);
 		}
 		//int‚Ì‘O’ñ
@@ -360,7 +360,7 @@ abstract class Salon_Data {
 		$sql = 'INSERT INTO '.$wpdb->prefix.'salon_log'.
 				' (`sql`,remark,insert_time ) '.
 				' VALUES  (%s,%s,%s) ';
-		$result = $wpdb->query($wpdb->prepare($sql,$setdata,$_SERVER['REMOTE_ADDR'].':'.$_SERVER['REMOTE_ADDR'].':'.$_SERVER['HTTP_REFERER'].':'.$this->getUserLogin( ) ,$current_time));
+		$result = $wpdb->query($wpdb->prepare($sql,$setdata,$_SERVER['REMOTE_ADDR'].':'.$_SERVER['HTTP_REFERER'].':'.$this->getUserLogin( ) ,$current_time));
 		if ($result === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
@@ -380,7 +380,7 @@ abstract class Salon_Data {
 		if ($result === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
-		if ($this->config['SALON_CONFIG_LOG'] == Salon_Config::LOG_NEED ) {
+		if ((defined ( 'SALON_DEMO' ) && SALON_DEMO   ) || ($this->config['SALON_CONFIG_LOG'] == Salon_Config::LOG_NEED )) {
 			$this->_writeLog($exec_sql);
 		}
 		if (!$result) {
@@ -402,7 +402,7 @@ abstract class Salon_Data {
 		if ($result === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
-		if ($this->config['SALON_CONFIG_LOG'] == Salon_Config::LOG_NEED ) {
+		if ((defined ( 'SALON_DEMO' ) && SALON_DEMO   ) || ($this->config['SALON_CONFIG_LOG'] == Salon_Config::LOG_NEED )) {
 			$this->_writeLog($exec_sql);
 		}
 		if (!$result) {
@@ -769,6 +769,9 @@ abstract class Salon_Data {
 		}
 		update_option('SALON_CONFIG',serialize($this->config));
 		update_option('SALON_CONFIG_BRANCH',$this->config['SALON_CONFIG_BRANCH']);
+		
+		$this->_writeLog(serialize($this->config));
+
 	}
 
 

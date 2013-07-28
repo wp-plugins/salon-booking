@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Salon\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-07-19 10:51+0900\n"
-"PO-Revision-Date: 2013-07-19 10:51+0900\n"
+"POT-Creation-Date: 2013-07-28 09:29+0900\n"
+"PO-Revision-Date: 2013-07-28 09:30+0900\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -16,28 +16,28 @@ msgstr ""
 "X-Generator: Poedit 1.5.5\n"
 "X-Poedit-SearchPath-0: salon-booking\n"
 
-#: salon-booking/salon.php:129
+#: salon-booking/salon.php:128
 msgid "Log Out"
 msgstr "ログアウト"
 
-#: salon-booking/salon.php:249 salon-booking/salon.php:688
+#: salon-booking/salon.php:248 salon-booking/salon.php:700
 #: salon-booking/src/comp/staff-component.php:105
 #: salon-booking/src/comp/customer-component.php:66
 msgid "zip"
 msgstr "郵便番号"
 
-#: salon-booking/salon.php:250 salon-booking/salon.php:690
+#: salon-booking/salon.php:249 salon-booking/salon.php:702
 #: salon-booking/src/comp/staff-component.php:106
 #: salon-booking/src/comp/customer-component.php:67
 msgid "address"
 msgstr "住所"
 
-#: salon-booking/salon.php:251 salon-booking/src/comp/search-component.php:22
+#: salon-booking/salon.php:250 salon-booking/src/comp/search-component.php:22
 #: salon-booking/src/data/salon-data.php:587
 msgid "tel"
 msgstr "電話"
 
-#: salon-booking/salon.php:252 salon-booking/src/comp/search-component.php:22
+#: salon-booking/salon.php:251 salon-booking/src/comp/search-component.php:22
 msgid "mobile"
 msgstr "携帯電話"
 
@@ -79,95 +79,101 @@ msgstr "環境設定"
 msgid "Position Information"
 msgstr "地位情報"
 
-#: salon-booking/salon.php:351
+#: salon-booking/salon.php:349
+#: salon-booking/src/comp/position-component.php:47
+#: salon-booking/src/page/log-page.php:135
+msgid "View Log"
+msgstr "ログ参照"
+
+#: salon-booking/salon.php:355
 msgid "Salon Management"
 msgstr "サロン管理"
 
-#: salon-booking/salon.php:354
+#: salon-booking/salon.php:358
 #: salon-booking/src/comp/position-component.php:41
 msgid "Reservation Regist"
 msgstr "予約登録"
 
-#: salon-booking/salon.php:358
+#: salon-booking/salon.php:362
 #: salon-booking/src/comp/position-component.php:42
 #: salon-booking/src/page/sales-page.php:386
 #: salon-booking/src/page/sales-page.php:405
 msgid "Performance Regist"
 msgstr "実績登録"
 
-#: salon-booking/salon.php:362
+#: salon-booking/salon.php:366
 #: salon-booking/src/comp/position-component.php:43
 #: salon-booking/src/page/working-page.php:508
 msgid "Time Card"
 msgstr "出退勤"
 
-#: salon-booking/salon.php:366
+#: salon-booking/salon.php:370
 #: salon-booking/src/comp/position-component.php:45
 #: salon-booking/src/page/basic-page.php:249
 msgid "Basic Information"
 msgstr "基本情報"
 
-#: salon-booking/salon.php:511
+#: salon-booking/salon.php:519
 msgid "Reservation Confirm"
 msgstr "予約確定"
 
-#: salon-booking/salon.php:681
+#: salon-booking/salon.php:693
 msgid "SAMPLE SHOP NAME"
 msgstr "サンプルショップ"
 
-#: salon-booking/salon.php:681
+#: salon-booking/salon.php:693
 msgid "SAMPLE SHOOP ADDRESS"
 msgstr "東京都千代田区１－１"
 
-#: salon-booking/salon.php:682
+#: salon-booking/salon.php:694
 msgid "SAMPLE MENU CUT"
 msgstr "カット"
 
-#: salon-booking/salon.php:682
+#: salon-booking/salon.php:694
 msgid "30,50"
 msgstr "30,5000"
 
-#: salon-booking/salon.php:683
+#: salon-booking/salon.php:695
 msgid "SAMPLE MENU PERM"
 msgstr "パーマ"
 
-#: salon-booking/salon.php:683
+#: salon-booking/salon.php:695
 msgid "90,100"
 msgstr "90,10000"
 
-#: salon-booking/salon.php:692 salon-booking/salon.php:694
+#: salon-booking/salon.php:704 salon-booking/salon.php:706
 msgid "999-999-999"
 msgstr "9999-99-9999"
 
-#: salon-booking/salon.php:701 salon-booking/salon.php:710
+#: salon-booking/salon.php:713 salon-booking/salon.php:722
 msgid "PRESIDENT"
 msgstr "社長"
 
-#: salon-booking/salon.php:702 salon-booking/salon.php:711
+#: salon-booking/salon.php:714 salon-booking/salon.php:723
 msgid "DIRECTER"
 msgstr "部長"
 
-#: salon-booking/salon.php:703 salon-booking/salon.php:712
+#: salon-booking/salon.php:715 salon-booking/salon.php:724
 msgid "SHOP MANAGER"
 msgstr "店長"
 
-#: salon-booking/salon.php:704 salon-booking/salon.php:713
+#: salon-booking/salon.php:716 salon-booking/salon.php:725
 msgid "CHIEF"
 msgstr "主任"
 
-#: salon-booking/salon.php:705 salon-booking/salon.php:714
+#: salon-booking/salon.php:717 salon-booking/salon.php:726
 msgid "STAFF"
 msgstr "スタッフ"
 
-#: salon-booking/salon.php:706 salon-booking/salon.php:715
+#: salon-booking/salon.php:718 salon-booking/salon.php:727
 msgid "TEMPORARY"
 msgstr "アルバイト"
 
-#: salon-booking/salon.php:707 salon-booking/salon.php:716
+#: salon-booking/salon.php:719 salon-booking/salon.php:728
 msgid "MAINTENANCE"
 msgstr "保守管理者"
 
-#: salon-booking/salon.php:707 salon-booking/salon.php:716
+#: salon-booking/salon.php:719 salon-booking/salon.php:728
 msgid "this data can not delete or update"
 msgstr "このデータは削除も編集もできません"
 
@@ -186,7 +192,7 @@ msgstr "クラスがありません"
 #: salon-booking/src/comp/confirm-component.php:29
 #: salon-booking/src/comp/salon-component.php:107
 #: salon-booking/src/page/booking-page.php:145
-#: salon-booking/src/page/salon-page.php:614
+#: salon-booking/src/page/salon-page.php:615
 msgid "no preference"
 msgstr "指名なし"
 
@@ -429,24 +435,24 @@ msgid "message not found"
 msgstr "該当メッセージがありません"
 
 #: salon-booking/src/comp/salon-component.php:440
-#: salon-booking/src/page/salon-page.php:2034
+#: salon-booking/src/page/salon-page.php:2079
 msgid "(?<month>\\d{1,2})[\\/\\.\\-](?<day>\\d{1,2})[\\/\\.\\-](?<year>\\d{4})"
 msgstr ""
 "(?<year>\\d{4})[\\/\\.\\-](?<month>\\d{1,2})[\\/\\.\\-](?<day>\\d{1,2})"
 
 #: salon-booking/src/comp/salon-component.php:441
-#: salon-booking/src/page/salon-page.php:2035
+#: salon-booking/src/page/salon-page.php:2080
 msgid "(?<month>\\d{2})(?<day>\\d{2})(?<year>\\d{4})"
 msgstr "(?<year>\\d{4})(?<month>\\d{2})(?<day>\\d{2})"
 
 #: salon-booking/src/comp/search-component.php:17
 #: salon-booking/src/page/basic-edit.php:51
-#: salon-booking/src/page/salon-page.php:949
+#: salon-booking/src/page/salon-page.php:950
 msgid "close"
 msgstr "終了"
 
 #: salon-booking/src/comp/search-component.php:22
-#: salon-booking/src/page/salon-page.php:709
+#: salon-booking/src/page/salon-page.php:710
 msgid "No"
 msgstr "No"
 
@@ -487,9 +493,10 @@ msgid "Authoriy of Management"
 msgstr "管理者権限"
 
 #: salon-booking/src/comp/staff-component.php:103
-#: salon-booking/src/comp/customer-component.php:64
-msgid "last name"
-msgstr "姓"
+#: salon-booking/src/comp/customer-component.php:65
+#: salon-booking/src/page/salon-page.php:1364
+msgid "first name"
+msgstr "名"
 
 #: salon-booking/src/comp/staff-component.php:103
 #: salon-booking/src/comp/staff-component.php:104
@@ -505,16 +512,15 @@ msgstr "姓"
 #: salon-booking/src/data/salon-data.php:557
 #: salon-booking/src/data/salon-data.php:558
 #: salon-booking/src/data/salon-data.php:559
-#: salon-booking/src/page/salon-page.php:390
-#: salon-booking/src/page/salon-page.php:413
+#: salon-booking/src/page/salon-page.php:391
+#: salon-booking/src/page/salon-page.php:414
 msgid "not registered"
 msgstr "未登録"
 
 #: salon-booking/src/comp/staff-component.php:104
-#: salon-booking/src/comp/customer-component.php:65
-#: salon-booking/src/page/salon-page.php:1363
-msgid "first name"
-msgstr "名"
+#: salon-booking/src/comp/customer-component.php:64
+msgid "last name"
+msgstr "姓"
 
 #: salon-booking/src/comp/customer-component.php:71
 msgid "registerd salon "
@@ -537,15 +543,17 @@ msgstr "店舗名"
 #: salon-booking/src/page/working-page.php:544
 #: salon-booking/src/page/booking-page.php:797
 #: salon-booking/src/page/basic-page.php:98
-#: salon-booking/src/page/salon-page.php:1625
-#: salon-booking/src/page/salon-page.php:1811
-#: salon-booking/src/page/salon-page.php:2211
-#: salon-booking/src/page/salon-page.php:2219
+#: salon-booking/src/page/salon-page.php:1626
+#: salon-booking/src/page/salon-page.php:1812
+#: salon-booking/src/page/salon-page.php:1874
+#: salon-booking/src/page/salon-page.php:2256
+#: salon-booking/src/page/salon-page.php:2264
 msgid "Date"
 msgstr "日付"
 
 #: salon-booking/src/data/confirm-data.php:19
 #: salon-booking/src/data/basic-data.php:23
+#: salon-booking/src/data/log-data.php:21
 #: salon-booking/src/data/salon-data.php:220
 #: salon-booking/src/data/salon-data.php:228
 #: salon-booking/src/data/salon-data.php:275
@@ -557,8 +565,8 @@ msgstr "%%Y/%%m/%%d"
 #: salon-booking/src/data/staff-data.php:108
 #: salon-booking/src/data/staff-data.php:109
 #: salon-booking/src/page/booking-page.php:508
-#: salon-booking/src/page/salon-page.php:2210
-#: salon-booking/src/page/salon-page.php:2218
+#: salon-booking/src/page/salon-page.php:2255
+#: salon-booking/src/page/salon-page.php:2263
 msgid "%m/%d/%Y"
 msgstr "%Y/%m/%d"
 
@@ -567,7 +575,7 @@ msgid "special holiday"
 msgstr "特別に休む"
 
 #: salon-booking/src/data/basic-data.php:22
-#: salon-booking/src/page/salon-page.php:930
+#: salon-booking/src/page/salon-page.php:931
 msgid "on business"
 msgstr "営業"
 
@@ -641,10 +649,10 @@ msgstr "休み"
 
 #: salon-booking/src/page/working-page.php:542
 #: salon-booking/src/page/sales-page.php:426
-#: salon-booking/src/page/salon-page.php:1425
-#: salon-booking/src/page/salon-page.php:1436
-#: salon-booking/src/page/salon-page.php:2212
-#: salon-booking/src/page/salon-page.php:2220
+#: salon-booking/src/page/salon-page.php:1426
+#: salon-booking/src/page/salon-page.php:1437
+#: salon-booking/src/page/salon-page.php:2257
+#: salon-booking/src/page/salon-page.php:2265
 msgid "Name"
 msgstr "名前"
 
@@ -675,6 +683,8 @@ msgstr "の実績を削除します"
 #: salon-booking/src/page/branch-page.php:79
 #: salon-booking/src/page/branch-page.php:146
 #: salon-booking/src/page/staff-page.php:166
+#: salon-booking/src/page/log-page.php:52
+#: salon-booking/src/page/log-page.php:111
 msgid "Hide Details"
 msgstr "詳細を隠す"
 
@@ -720,6 +730,7 @@ msgstr "年前"
 #: salon-booking/src/page/sales-page.php:417
 #: salon-booking/src/page/reservation-page.php:405
 #: salon-booking/src/page/basic-page.php:254
+#: salon-booking/src/page/log-page.php:141
 msgid "Redisplay"
 msgstr "再表示"
 
@@ -745,7 +756,7 @@ msgid "Reserved menu"
 msgstr "予約内容"
 
 #: salon-booking/src/page/sales-page.php:434
-#: salon-booking/src/page/salon-page.php:2215
+#: salon-booking/src/page/salon-page.php:2260
 msgid "Wishes"
 msgstr "要望"
 
@@ -780,7 +791,7 @@ msgid "year after"
 msgstr "年後"
 
 #: salon-booking/src/page/booking-page.php:190
-#: salon-booking/src/page/salon-page.php:1009
+#: salon-booking/src/page/salon-page.php:1010
 msgid "Holiday"
 msgstr "休み"
 
@@ -859,7 +870,7 @@ msgid "price"
 msgstr "値段"
 
 #: salon-booking/src/page/basic-page.php:99
-#: salon-booking/src/page/salon-page.php:1684
+#: salon-booking/src/page/salon-page.php:1685
 msgid "Irregular Open/Closing day"
 msgstr "不定期な営業日／休み"
 
@@ -916,11 +927,11 @@ msgstr ""
 "定してください。"
 
 #: salon-booking/src/page/customer-page.php:254
-#: salon-booking/src/page/salon-page.php:443
-#: salon-booking/src/page/salon-page.php:617
-#: salon-booking/src/page/salon-page.php:1522
-#: salon-booking/src/page/salon-page.php:1661
-#: salon-booking/src/page/salon-page.php:1667
+#: salon-booking/src/page/salon-page.php:444
+#: salon-booking/src/page/salon-page.php:618
+#: salon-booking/src/page/salon-page.php:1523
+#: salon-booking/src/page/salon-page.php:1662
+#: salon-booking/src/page/salon-page.php:1668
 msgid "select please"
 msgstr "選択してください"
 
@@ -941,8 +952,9 @@ msgid "reserved menu"
 msgstr "予約内容"
 
 #: salon-booking/src/page/confirm-page.php:66
-#: salon-booking/src/page/salon-page.php:1509
-#: salon-booking/src/page/salon-page.php:1613
+#: salon-booking/src/page/salon-page.php:1510
+#: salon-booking/src/page/salon-page.php:1614
+#: salon-booking/src/page/salon-page.php:1907
 msgid "Remark"
 msgstr "備考"
 
@@ -976,6 +988,8 @@ msgid "reservated cancel"
 msgstr "予約キャンセル"
 
 #: salon-booking/src/page/salon-page.php:143
+#: salon-booking/src/page/log-page.php:53
+#: salon-booking/src/page/log-page.php:57
 msgid "Show Details"
 msgstr "詳細を表示する"
 
@@ -1015,101 +1029,102 @@ msgstr "データがありません"
 msgid "No matching records found"
 msgstr "検索文字列に該当するデータはありませんでした。"
 
-#: salon-booking/src/page/salon-page.php:235
+#: salon-booking/src/page/salon-page.php:236
+#: salon-booking/src/page/salon-page.php:1896
 msgid "Operation"
 msgstr "操作"
 
-#: salon-booking/src/page/salon-page.php:277
+#: salon-booking/src/page/salon-page.php:278
 msgid "change"
 msgstr "変更"
 
-#: salon-booking/src/page/salon-page.php:278
+#: salon-booking/src/page/salon-page.php:279
 msgid "cancel"
 msgstr "中止"
 
-#: salon-booking/src/page/salon-page.php:279
+#: salon-booking/src/page/salon-page.php:280
 msgid "click edit"
 msgstr "クリックすると更新できます"
 
-#: salon-booking/src/page/salon-page.php:342
+#: salon-booking/src/page/salon-page.php:343
 msgid "Delete "
 msgstr "削除"
 
-#: salon-booking/src/page/salon-page.php:343
+#: salon-booking/src/page/salon-page.php:344
 msgid "Delete ok?"
 msgstr "を削除します"
 
-#: salon-booking/src/page/salon-page.php:344
+#: salon-booking/src/page/salon-page.php:345
 msgid "Select"
 msgstr "選択"
 
-#: salon-booking/src/page/salon-page.php:534
+#: salon-booking/src/page/salon-page.php:535
 msgid "sun"
 msgstr "日"
 
-#: salon-booking/src/page/salon-page.php:534
+#: salon-booking/src/page/salon-page.php:535
 msgid "mon"
 msgstr "月"
 
-#: salon-booking/src/page/salon-page.php:534
+#: salon-booking/src/page/salon-page.php:535
 msgid "tue"
 msgstr "火"
 
-#: salon-booking/src/page/salon-page.php:534
+#: salon-booking/src/page/salon-page.php:535
 msgid "wed"
 msgstr "水"
 
-#: salon-booking/src/page/salon-page.php:534
+#: salon-booking/src/page/salon-page.php:535
 msgid "thr"
 msgstr "木"
 
-#: salon-booking/src/page/salon-page.php:534
+#: salon-booking/src/page/salon-page.php:535
 msgid "fri"
 msgstr "金"
 
-#: salon-booking/src/page/salon-page.php:534
+#: salon-booking/src/page/salon-page.php:535
 msgid "sat"
 msgstr "土"
 
-#: salon-booking/src/page/salon-page.php:840
+#: salon-booking/src/page/salon-page.php:841
 msgid "Regular Duty"
 msgstr "通常勤務"
 
-#: salon-booking/src/page/salon-page.php:841
+#: salon-booking/src/page/salon-page.php:842
 msgid "Day Off"
 msgstr "休み"
 
-#: salon-booking/src/page/salon-page.php:844
+#: salon-booking/src/page/salon-page.php:845
 msgid "Late In"
 msgstr "遅刻"
 
-#: salon-booking/src/page/salon-page.php:845
+#: salon-booking/src/page/salon-page.php:846
 msgid "Early Out"
 msgstr "早退"
 
-#: salon-booking/src/page/salon-page.php:846
+#: salon-booking/src/page/salon-page.php:847
 msgid "Holiday Shift"
 msgstr "休日出勤"
 
-#: salon-booking/src/page/salon-page.php:930
-#: salon-booking/src/page/salon-page.php:983
+#: salon-booking/src/page/salon-page.php:931
+#: salon-booking/src/page/salon-page.php:984
 msgid "holiday"
 msgstr "定休日"
 
-#: salon-booking/src/page/salon-page.php:950
+#: salon-booking/src/page/salon-page.php:951
 msgid "prevText: \"&#x3C;\""
 msgstr "前: \"&#x3C;\""
 
-#: salon-booking/src/page/salon-page.php:951
+#: salon-booking/src/page/salon-page.php:952
 msgid "nextText: \"&#x3E;\""
 msgstr "次: \"&#x3E;\""
 
-#: salon-booking/src/page/salon-page.php:952
+#: salon-booking/src/page/salon-page.php:953
 msgid "today"
 msgstr "今日"
 
-#: salon-booking/src/page/salon-page.php:953
 #: salon-booking/src/page/salon-page.php:954
+#: salon-booking/src/page/salon-page.php:955
 msgid ""
 "\"Jan\",\"Feb\",\"Mar\",\"Apr\",\"May\",\"Jun\",\"Jul\",\"Aug\",\"Sep\",\"Oct"
 "\",\"Nov\",\"Dec\""
@@ -1117,264 +1132,264 @@ msgstr ""
 "\"1月\",\"2月\",\"3月\",\"4月\",\"5月\",\"6月\",\"7月\",\"8月\",\"9月\",\"10"
 "月\",\"11月\",\"12月\""
 
-#: salon-booking/src/page/salon-page.php:955
+#: salon-booking/src/page/salon-page.php:956
 msgid ""
 "\"Sunday\",\"Monday\",\"Tuesday\",\"Wednesday\",\"Thursday\",\"Friday\","
 "\"Saturday\""
 msgstr ""
 "\"日曜日n\",\"月曜日\",\"火曜日\",\"水曜日\",\"木曜日\",\"金曜日\",\"土曜日\""
 
-#: salon-booking/src/page/salon-page.php:956
 #: salon-booking/src/page/salon-page.php:957
+#: salon-booking/src/page/salon-page.php:958
 msgid "\"Sun\",\"Mon\",\"Tue\",\"Wed\",\"Thu\",\"Fri\",\"Sat\""
 msgstr "\"日\",\"月\",\"火\",\"水\",\"木\",\"金\",\"土\""
 
-#: salon-booking/src/page/salon-page.php:958
+#: salon-booking/src/page/salon-page.php:959
 msgid "week"
 msgstr "週"
 
-#: salon-booking/src/page/salon-page.php:959
+#: salon-booking/src/page/salon-page.php:960
 msgid "mm/dd/yy"
 msgstr "yy/mm/dd"
 
-#: salon-booking/src/page/salon-page.php:965
+#: salon-booking/src/page/salon-page.php:966
 msgid "yearSuffix:\"\" "
 msgstr "yearSuffix:\"年\" "
 
-#: salon-booking/src/page/salon-page.php:1047
+#: salon-booking/src/page/salon-page.php:1048
 msgid "On business"
 msgstr "営業"
 
-#: salon-booking/src/page/salon-page.php:1364
-#: salon-booking/src/page/salon-page.php:1376
+#: salon-booking/src/page/salon-page.php:1365
+#: salon-booking/src/page/salon-page.php:1377
 msgid "within 10 charactors"
 msgstr "１０文字以内で"
 
-#: salon-booking/src/page/salon-page.php:1375
+#: salon-booking/src/page/salon-page.php:1376
 msgid "Last Name"
 msgstr "姓"
 
-#: salon-booking/src/page/salon-page.php:1386
+#: salon-booking/src/page/salon-page.php:1387
 msgid "Salon Name"
 msgstr "店名"
 
-#: salon-booking/src/page/salon-page.php:1387
+#: salon-booking/src/page/salon-page.php:1388
 msgid "within 10 charctors"
 msgstr "１０文字以内で"
 
-#: salon-booking/src/page/salon-page.php:1397
+#: salon-booking/src/page/salon-page.php:1398
 msgid "Menu Name"
 msgstr "名称"
 
-#: salon-booking/src/page/salon-page.php:1398
-#: salon-booking/src/page/salon-page.php:1409
+#: salon-booking/src/page/salon-page.php:1399
+#: salon-booking/src/page/salon-page.php:1410
 msgid "within 30 charctors"
 msgstr "３０文字以内"
 
-#: salon-booking/src/page/salon-page.php:1408
+#: salon-booking/src/page/salon-page.php:1409
 msgid "Position Name"
 msgstr "地位"
 
-#: salon-booking/src/page/salon-page.php:1419
+#: salon-booking/src/page/salon-page.php:1420
 msgid "Short Name"
 msgstr "略称"
 
-#: salon-booking/src/page/salon-page.php:1420
+#: salon-booking/src/page/salon-page.php:1421
 msgid "within 5 charctors"
 msgstr "５文字以内で"
 
-#: salon-booking/src/page/salon-page.php:1426
-#: salon-booking/src/page/salon-page.php:1437
-#: salon-booking/src/page/salon-page.php:2201
+#: salon-booking/src/page/salon-page.php:1427
+#: salon-booking/src/page/salon-page.php:1438
+#: salon-booking/src/page/salon-page.php:2246
 msgid "space input between first-name and last-name"
 msgstr "姓と名に空白をお願いします"
 
-#: salon-booking/src/page/salon-page.php:1447
+#: salon-booking/src/page/salon-page.php:1448
 msgid "Shop"
 msgstr "店舗"
 
-#: salon-booking/src/page/salon-page.php:1448
+#: salon-booking/src/page/salon-page.php:1449
 msgid "select shop"
 msgstr "店舗を選択してください"
 
-#: salon-booking/src/page/salon-page.php:1469
+#: salon-booking/src/page/salon-page.php:1470
 msgid "Position"
 msgstr "地位"
 
-#: salon-booking/src/page/salon-page.php:1470
+#: salon-booking/src/page/salon-page.php:1471
 msgid "when unknown, choose staff"
 msgstr "不明な時はスタッフを"
 
-#: salon-booking/src/page/salon-page.php:1492
+#: salon-booking/src/page/salon-page.php:1493
 msgid "wp_role"
 msgstr "WordPressでの権限"
 
-#: salon-booking/src/page/salon-page.php:1493
+#: salon-booking/src/page/salon-page.php:1494
 msgid "when unknown, choose author"
 msgstr "不明な時は投稿者を"
 
-#: salon-booking/src/page/salon-page.php:1503
+#: salon-booking/src/page/salon-page.php:1504
 msgid "Role"
 msgstr "権限"
 
-#: salon-booking/src/page/salon-page.php:1504
+#: salon-booking/src/page/salon-page.php:1505
 msgid "check permit process"
 msgstr "許可する処理"
 
-#: salon-booking/src/page/salon-page.php:1510
-#: salon-booking/src/page/salon-page.php:1614
+#: salon-booking/src/page/salon-page.php:1511
+#: salon-booking/src/page/salon-page.php:1615
 msgid "within 300 charctors"
 msgstr "３００文字以内"
 
-#: salon-booking/src/page/salon-page.php:1521
+#: salon-booking/src/page/salon-page.php:1522
 msgid "Representative"
 msgstr "担当"
 
-#: salon-booking/src/page/salon-page.php:1527
+#: salon-booking/src/page/salon-page.php:1528
 msgid "Zip"
 msgstr "郵便番号"
 
-#: salon-booking/src/page/salon-page.php:1528
-#: salon-booking/src/page/salon-page.php:2092
+#: salon-booking/src/page/salon-page.php:1529
+#: salon-booking/src/page/salon-page.php:2137
 msgid "please XXXXX-XXXX format"
 msgstr "郵便暗号はXXX－XXXXの形式で"
 
-#: salon-booking/src/page/salon-page.php:1533
+#: salon-booking/src/page/salon-page.php:1534
 msgid "Address"
 msgstr "住所"
 
-#: salon-booking/src/page/salon-page.php:1534
+#: salon-booking/src/page/salon-page.php:1535
 msgid "within 200 charctors"
 msgstr "２００文字以内"
-
-#: salon-booking/src/page/salon-page.php:1539
-#: salon-booking/src/page/salon-page.php:1545
-#: salon-booking/src/page/salon-page.php:1551
-#: salon-booking/src/page/salon-page.php:1575
-#: salon-booking/src/page/salon-page.php:1594
-msgid "Tel"
-msgstr "電話"
 
 #: salon-booking/src/page/salon-page.php:1540
 #: salon-booking/src/page/salon-page.php:1546
 #: salon-booking/src/page/salon-page.php:1552
-#: salon-booking/src/page/salon-page.php:1558
-#: salon-booking/src/page/salon-page.php:1564
 #: salon-booking/src/page/salon-page.php:1576
 #: salon-booking/src/page/salon-page.php:1595
-#: salon-booking/src/page/salon-page.php:2101
+msgid "Tel"
+msgstr "電話"
+
+#: salon-booking/src/page/salon-page.php:1541
+#: salon-booking/src/page/salon-page.php:1547
+#: salon-booking/src/page/salon-page.php:1553
+#: salon-booking/src/page/salon-page.php:1559
+#: salon-booking/src/page/salon-page.php:1565
+#: salon-booking/src/page/salon-page.php:1577
+#: salon-booking/src/page/salon-page.php:1596
+#: salon-booking/src/page/salon-page.php:2146
 msgid "please XXXX-XXX-XXXX format"
 msgstr "電話は数字をXXXX-XXX-XXXXで"
 
-#: salon-booking/src/page/salon-page.php:1557
-#: salon-booking/src/page/salon-page.php:1563
+#: salon-booking/src/page/salon-page.php:1558
+#: salon-booking/src/page/salon-page.php:1564
 msgid "Mobile"
 msgstr "携帯電話"
 
-#: salon-booking/src/page/salon-page.php:1569
-#: salon-booking/src/page/salon-page.php:1581
-#: salon-booking/src/page/salon-page.php:1588
-#: salon-booking/src/page/salon-page.php:1600
+#: salon-booking/src/page/salon-page.php:1570
+#: salon-booking/src/page/salon-page.php:1582
+#: salon-booking/src/page/salon-page.php:1589
+#: salon-booking/src/page/salon-page.php:1601
 msgid "Mail"
 msgstr "メール"
 
-#: salon-booking/src/page/salon-page.php:1570
-#: salon-booking/src/page/salon-page.php:1582
-#: salon-booking/src/page/salon-page.php:2107
+#: salon-booking/src/page/salon-page.php:1571
+#: salon-booking/src/page/salon-page.php:1583
+#: salon-booking/src/page/salon-page.php:2152
 msgid "please XXX@XXX.XXX format"
 msgstr "メールの形式はXXX@XXX.XXXで"
 
-#: salon-booking/src/page/salon-page.php:1589
-#: salon-booking/src/page/salon-page.php:1601
+#: salon-booking/src/page/salon-page.php:1590
+#: salon-booking/src/page/salon-page.php:1602
 msgid "when no mail , nothing input"
 msgstr "メールがない場合は何も設定しない"
 
-#: salon-booking/src/page/salon-page.php:1607
-#: salon-booking/src/page/salon-page.php:1781
+#: salon-booking/src/page/salon-page.php:1608
+#: salon-booking/src/page/salon-page.php:1782
 msgid "User Login"
 msgstr "ログイン名"
 
-#: salon-booking/src/page/salon-page.php:1608
+#: salon-booking/src/page/salon-page.php:1609
 msgid "when possible ,same mail"
 msgstr "メールアドレスと同じが良いかと"
 
-#: salon-booking/src/page/salon-page.php:1626
-#: salon-booking/src/page/salon-page.php:1637
-#: salon-booking/src/page/salon-page.php:1643
-#: salon-booking/src/page/salon-page.php:2131
+#: salon-booking/src/page/salon-page.php:1627
+#: salon-booking/src/page/salon-page.php:1638
+#: salon-booking/src/page/salon-page.php:1644
+#: salon-booking/src/page/salon-page.php:2176
 msgid "please MM/DD/YYYY or MMDDYYYY format"
 msgstr "YYYY/MM/DDかYYYYMMDDで"
 
-#: salon-booking/src/page/salon-page.php:1636
+#: salon-booking/src/page/salon-page.php:1637
 msgid "Entering Day"
 msgstr "入社日"
 
-#: salon-booking/src/page/salon-page.php:1642
+#: salon-booking/src/page/salon-page.php:1643
 msgid "Leaving Day"
 msgstr "退社日"
 
-#: salon-booking/src/page/salon-page.php:1648
+#: salon-booking/src/page/salon-page.php:1649
 msgid "Open Time"
 msgstr "開店時刻"
 
-#: salon-booking/src/page/salon-page.php:1649
-#: salon-booking/src/page/salon-page.php:1655
-#: salon-booking/src/page/salon-page.php:2114
+#: salon-booking/src/page/salon-page.php:1650
+#: salon-booking/src/page/salon-page.php:1656
+#: salon-booking/src/page/salon-page.php:2159
 msgid "please HH:MM or HHMM format"
 msgstr "コロン（：）で区切るか４桁ぴったりで"
 
-#: salon-booking/src/page/salon-page.php:1654
+#: salon-booking/src/page/salon-page.php:1655
 msgid "Close Time"
 msgstr "閉店時刻"
 
-#: salon-booking/src/page/salon-page.php:1660
+#: salon-booking/src/page/salon-page.php:1661
 msgid "Unit of Time (minutes)"
 msgstr "入力時間単位（分）"
 
-#: salon-booking/src/page/salon-page.php:1666
+#: salon-booking/src/page/salon-page.php:1667
 msgid "Required Time(min)"
 msgstr "所要時間(分）"
 
-#: salon-booking/src/page/salon-page.php:1672
+#: salon-booking/src/page/salon-page.php:1673
 msgid "Price"
 msgstr "値段"
 
-#: salon-booking/src/page/salon-page.php:1673
-#: salon-booking/src/page/salon-page.php:2073
+#: salon-booking/src/page/salon-page.php:1674
+#: salon-booking/src/page/salon-page.php:2118
 msgid "please enter numeric"
 msgstr "数値で"
 
-#: salon-booking/src/page/salon-page.php:1685
+#: salon-booking/src/page/salon-page.php:1686
 msgid "holiday but does bussiness"
 msgstr "定休日だけど営業する場合など"
 
-#: salon-booking/src/page/salon-page.php:1690
+#: salon-booking/src/page/salon-page.php:1691
 msgid "Regular Closing Day"
 msgstr "定休日"
 
-#: salon-booking/src/page/salon-page.php:1691
+#: salon-booking/src/page/salon-page.php:1692
 msgid "check please"
 msgstr "選択してください"
 
-#: salon-booking/src/page/salon-page.php:1696
-#: salon-booking/src/page/salon-page.php:2214
-#: salon-booking/src/page/salon-page.php:2222
+#: salon-booking/src/page/salon-page.php:1697
+#: salon-booking/src/page/salon-page.php:2259
+#: salon-booking/src/page/salon-page.php:2267
 msgid "Menu"
 msgstr "メニュー"
 
-#: salon-booking/src/page/salon-page.php:1697
-#: salon-booking/src/page/salon-page.php:1806
+#: salon-booking/src/page/salon-page.php:1698
+#: salon-booking/src/page/salon-page.php:1807
 #: salon-booking/src/page/item-page.php:203
 #: salon-booking/src/page/staff-page.php:297
 #: salon-booking/src/page/staff-page.php:308
 msgid "please select"
 msgstr "選択してください"
 
-#: salon-booking/src/page/salon-page.php:1702
+#: salon-booking/src/page/salon-page.php:1703
 msgid "Photo"
 msgstr "写真"
 
-#: salon-booking/src/page/salon-page.php:1703
+#: salon-booking/src/page/salon-page.php:1704
 msgid ""
 "plese select [From Computer] or [Media Libraly].and click [Insert into Post]."
 "forget not to click the button either [add] or [update]"
@@ -1384,251 +1399,271 @@ msgstr ""
 "ことにより設定ができます。最後に「追加」「更新」ボタンを忘れずにクリックして"
 "ください。"
 
-#: salon-booking/src/page/salon-page.php:1708
+#: salon-booking/src/page/salon-page.php:1709
 msgid "Number of the Shops"
 msgstr "店舗形態"
 
-#: salon-booking/src/page/salon-page.php:1709
+#: salon-booking/src/page/salon-page.php:1710
 msgid "plural shops ,check here"
 msgstr "複数店舗がある場合はここに設定を"
 
-#: salon-booking/src/page/salon-page.php:1714
+#: salon-booking/src/page/salon-page.php:1715
 msgid "Approval of the Login by the Clients"
 msgstr "顧客のログイン許可"
 
-#: salon-booking/src/page/salon-page.php:1715
+#: salon-booking/src/page/salon-page.php:1716
 msgid "if customer login possible ,check here"
 msgstr "ログイン可能にする場合チェック"
 
-#: salon-booking/src/page/salon-page.php:1720
+#: salon-booking/src/page/salon-page.php:1721
 msgid "Opration Log Setting"
 msgstr "更新ログを有効に"
 
-#: salon-booking/src/page/salon-page.php:1721
+#: salon-booking/src/page/salon-page.php:1722
 msgid "if write operation  to log ,check here"
 msgstr "DBへの更新ログをとる場合"
 
-#: salon-booking/src/page/salon-page.php:1726
+#: salon-booking/src/page/salon-page.php:1727
 msgid "Automatic Deletion"
 msgstr "自動削除"
 
-#: salon-booking/src/page/salon-page.php:1727
+#: salon-booking/src/page/salon-page.php:1728
 msgid "if mask the personal information ,check here"
 msgstr "予約を自動で削除する（個人情報法保護法関連）"
 
-#: salon-booking/src/page/salon-page.php:1732
+#: salon-booking/src/page/salon-page.php:1733
 msgid "Months when to delete "
 msgstr "予約データを自動で削除する期間"
 
-#: salon-booking/src/page/salon-page.php:1733
+#: salon-booking/src/page/salon-page.php:1734
 msgid "enter the designated months "
 msgstr "予約データを自動で削除する期間"
 
-#: salon-booking/src/page/salon-page.php:1738
+#: salon-booking/src/page/salon-page.php:1739
 msgid "Display Details"
 msgstr "詳細出力"
 
-#: salon-booking/src/page/salon-page.php:1739
+#: salon-booking/src/page/salon-page.php:1740
 msgid "when debgug, check here"
 msgstr "テスト中はチェックする"
 
-#: salon-booking/src/page/salon-page.php:1744
+#: salon-booking/src/page/salon-page.php:1745
 msgid "Registered as a Member"
 msgstr "顧客登録も行う"
 
-#: salon-booking/src/page/salon-page.php:1745
+#: salon-booking/src/page/salon-page.php:1746
 msgid "when join as a member, check here"
 msgstr "ログイン可能にする場合はチェックを"
 
-#: salon-booking/src/page/salon-page.php:1750
+#: salon-booking/src/page/salon-page.php:1751
 msgid "The Content of the Mail to Confirming Notice to the Client"
 msgstr "確認メールの文面"
 
-#: salon-booking/src/page/salon-page.php:1751
+#: salon-booking/src/page/salon-page.php:1752
 msgid "within 200 charctors. {X-TO_NAME} in the content replace customer name"
 msgstr ""
 "２００字以内で、メールの本文を。 {X-TO_NAME} を記述しとくと顧客名に置き換わり"
 "ます。"
 
-#: salon-booking/src/page/salon-page.php:1756
+#: salon-booking/src/page/salon-page.php:1757
 msgid ""
 "The Content of the Mail to respond to the Client newly registered as a Member"
 msgstr "会員登録メールの文面"
 
-#: salon-booking/src/page/salon-page.php:1757
+#: salon-booking/src/page/salon-page.php:1758
 msgid "within 200 charctors.  {X-TO_NAME} in the content replace customer name"
 msgstr ""
 "２００字以内で、メールの本文を。 {X-TO_NAME} を記述しとくと顧客名に置き換わり"
 "ます。"
 
-#: salon-booking/src/page/salon-page.php:1762
+#: salon-booking/src/page/salon-page.php:1763
 msgid "Staff Holiday Settings"
 msgstr "スタッフの出退勤と予約可能時間帯"
 
-#: salon-booking/src/page/salon-page.php:1763
+#: salon-booking/src/page/salon-page.php:1764
 msgid ""
 "you may select “unable to enter other than when attendant”if you could "
 "register your attendance and the absence correctly in advance"
 msgstr "出勤時間のみ予約可能にする場合"
 
-#: salon-booking/src/page/salon-page.php:1768
+#: salon-booking/src/page/salon-page.php:1769
 msgid "Sequence of Sur Name and Given Name"
 msgstr "姓と名の順番"
 
-#: salon-booking/src/page/salon-page.php:1769
+#: salon-booking/src/page/salon-page.php:1770
 msgid "please select Sur Name First or Given Name first"
 msgstr "姓名の表記順番"
 
-#: salon-booking/src/page/salon-page.php:1774
+#: salon-booking/src/page/salon-page.php:1775
 msgid "No Designation of Staff"
 msgstr "「指名なし」を入力可能にする？"
 
-#: salon-booking/src/page/salon-page.php:1775
+#: salon-booking/src/page/salon-page.php:1776
 msgid ""
 "if allow the reservation without nomination of a certain staff ,check here"
 msgstr "指名なしを可能にする場合チェック"
 
-#: salon-booking/src/page/salon-page.php:1782
+#: salon-booking/src/page/salon-page.php:1783
 msgid "plese enter your loginid"
 msgstr "ログイン名を（お忘れの場合はご連絡ください）"
 
-#: salon-booking/src/page/salon-page.php:1787
+#: salon-booking/src/page/salon-page.php:1788
 msgid "Password"
 msgstr "パスワード"
 
-#: salon-booking/src/page/salon-page.php:1788
+#: salon-booking/src/page/salon-page.php:1789
 msgid "plese enter your password"
 msgstr "パスワードを（お忘れの場合はご連絡ください）"
 
-#: salon-booking/src/page/salon-page.php:1793
+#: salon-booking/src/page/salon-page.php:1794
 msgid "Start time"
 msgstr "開店時刻"
 
-#: salon-booking/src/page/salon-page.php:1799
+#: salon-booking/src/page/salon-page.php:1800
 msgid "End time"
 msgstr "閉店時刻"
 
-#: salon-booking/src/page/salon-page.php:1805
+#: salon-booking/src/page/salon-page.php:1806
 msgid "Reserved time"
 msgstr "予約時間"
 
-#: salon-booking/src/page/salon-page.php:1823
+#: salon-booking/src/page/salon-page.php:1824
 msgid "In Time"
 msgstr "出勤"
 
-#: salon-booking/src/page/salon-page.php:1829
+#: salon-booking/src/page/salon-page.php:1830
 msgid "Out Time"
 msgstr "退勤"
 
-#: salon-booking/src/page/salon-page.php:1835
+#: salon-booking/src/page/salon-page.php:1836
 msgid "Working Status"
 msgstr "勤務状態"
 
-#: salon-booking/src/page/salon-page.php:1841
-#: salon-booking/src/page/salon-page.php:1847
+#: salon-booking/src/page/salon-page.php:1842
+#: salon-booking/src/page/salon-page.php:1848
 msgid "The Maximum Number of the Redundant Reservations"
 msgstr "重複可能数"
 
-#: salon-booking/src/page/salon-page.php:1842
+#: salon-booking/src/page/salon-page.php:1843
 msgid "redundant reservations a staff can handle at the same timeframe"
 msgstr "同一時間帯に重複して良い予約数"
 
-#: salon-booking/src/page/salon-page.php:1848
+#: salon-booking/src/page/salon-page.php:1849
 msgid "the maximum number of the reservations to coop simultaneously"
 msgstr "同一時間帯に店舗として重複可能な予約数"
 
-#: salon-booking/src/page/salon-page.php:1854
+#: salon-booking/src/page/salon-page.php:1855
 msgid "past X days"
 msgstr "X日前"
 
-#: salon-booking/src/page/salon-page.php:1855
+#: salon-booking/src/page/salon-page.php:1856
 msgid ""
 "the range of th days extarcted from the data base of the actual performance"
 msgstr "表示データとして何日分取得するか。（多い→遅くなる）"
 
-#: salon-booking/src/page/salon-page.php:1860
+#: salon-booking/src/page/salon-page.php:1861
 msgid "X days ahead"
 msgstr "X日後"
 
-#: salon-booking/src/page/salon-page.php:1861
+#: salon-booking/src/page/salon-page.php:1862
 msgid "the range of th days extarcted from the data base of the reservation"
 msgstr "表示データとして何日分取得するか。（多い→遅くなる）"
 
-#: salon-booking/src/page/salon-page.php:1867
+#: salon-booking/src/page/salon-page.php:1868
 msgid "Number of the staffs displayed"
 msgstr "スタッフ表示数"
 
-#: salon-booking/src/page/salon-page.php:1868
+#: salon-booking/src/page/salon-page.php:1869
 msgid "screen showing staffs for the reservation screen"
 msgstr "予約画面に何人スタッフを表示するか。（多い→１行が狭まる）"
 
-#: salon-booking/src/page/salon-page.php:2016
-#: salon-booking/src/page/salon-page.php:2091
+#: salon-booking/src/page/salon-page.php:1875
+msgid "Logged date "
+msgstr "記録日"
+
+#: salon-booking/src/page/salon-page.php:1885
+msgid "Time"
+msgstr "時間"
+
+#: salon-booking/src/page/salon-page.php:1886
+msgid "Logged time"
+msgstr "時間"
+
+#: salon-booking/src/page/salon-page.php:1897
+msgid "the operation to tables"
+msgstr "データ更新内容"
+
+#: salon-booking/src/page/salon-page.php:1908
+msgid "REMOTE_ADDR,REFERER"
+msgstr "REMOTE_ADDRとREFERER"
+
+#: salon-booking/src/page/salon-page.php:2061
+#: salon-booking/src/page/salon-page.php:2136
 msgid "^\\d{5}(?:[-\\s]\\d{4})?$"
 msgstr "^(?:\\d{3}\\-\\d{4})$|^(?:\\d{7})$"
 
-#: salon-booking/src/page/salon-page.php:2067
+#: salon-booking/src/page/salon-page.php:2112
 msgid "please enter"
 msgstr "必須項目です"
 
-#: salon-booking/src/page/salon-page.php:2080
+#: salon-booking/src/page/salon-page.php:2125
 msgid "please full width enter"
 msgstr "すべて全角文字で"
 
-#: salon-booking/src/page/salon-page.php:2120
+#: salon-booking/src/page/salon-page.php:2165
 msgid "(\\d{1,2})[\\/\\.\\-](\\d{1,2})[\\/\\.\\-](\\d{4})"
 msgstr "(\\d{4})[\\/\\.\\-](\\d{1,2})[\\/\\.\\-](\\d{1,2})"
 
-#: salon-booking/src/page/salon-page.php:2120
+#: salon-booking/src/page/salon-page.php:2165
 msgid "(\\d{2})(\\d{2})(\\d{4})"
 msgstr "(\\d{4})(\\d{2})(\\d{2})"
 
-#: salon-booking/src/page/salon-page.php:2121
+#: salon-booking/src/page/salon-page.php:2166
 msgid "RegExp.$3"
 msgstr "RegExp.$1"
 
-#: salon-booking/src/page/salon-page.php:2122
+#: salon-booking/src/page/salon-page.php:2167
 msgid "RegExp.$1"
 msgstr "RegExp.$2"
 
-#: salon-booking/src/page/salon-page.php:2123
+#: salon-booking/src/page/salon-page.php:2168
 msgid "RegExp.$2"
 msgstr "RegExp.$3"
 
-#: salon-booking/src/page/salon-page.php:2127
+#: salon-booking/src/page/salon-page.php:2172
 msgid "this day not exist?"
 msgstr "存在しない日では"
 
-#: salon-booking/src/page/salon-page.php:2142
+#: salon-booking/src/page/salon-page.php:2187
 msgid "within charactors"
 msgstr "文字以内"
 
-#: salon-booking/src/page/salon-page.php:2154
+#: salon-booking/src/page/salon-page.php:2199
 msgid "greater than"
 msgstr "以上"
 
-#: salon-booking/src/page/salon-page.php:2157
+#: salon-booking/src/page/salon-page.php:2202
 msgid "within"
 msgstr "以内"
 
-#: salon-booking/src/page/salon-page.php:2178
+#: salon-booking/src/page/salon-page.php:2223
 msgid "select one or more"
 msgstr "のいずれかを入力してください"
 
-#: salon-booking/src/page/salon-page.php:2193
+#: salon-booking/src/page/salon-page.php:2238
 msgid "please check"
 msgstr "ひとつはチェックしてください"
 
-#: salon-booking/src/page/salon-page.php:2213
-#: salon-booking/src/page/salon-page.php:2221
+#: salon-booking/src/page/salon-page.php:2258
+#: salon-booking/src/page/salon-page.php:2266
 msgid "Staff"
 msgstr "スタッフ"
 
-#: salon-booking/src/page/salon-page.php:2223
+#: salon-booking/src/page/salon-page.php:2268
 msgid "Comment"
 msgstr "コメント"
 
-#: salon-booking/src/page/salon-page.php:2251
+#: salon-booking/src/page/salon-page.php:2296
 msgid "mm/dd/yyyy"
 msgstr "yyyy/mm/dd"
 
@@ -1673,6 +1708,9 @@ msgstr "追加／変更"
 #: salon-booking/src/page/staff-page.php:327
 msgid "photo delete"
 msgstr "削除"
+
+#~ msgid "Display Log"
+#~ msgstr "ログの表示"
 
 #~ msgid "%s half width input please[%s]"
 #~ msgstr "%s 半角文字にしてください[%s]"

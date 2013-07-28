@@ -44,6 +44,7 @@ class Position_Component {
 		$set_data[10] = array('name'=>__('Time Card(full members)',SL_DOMAIN),'func'=>'edit_working_all');
 		$set_data[11] = array('name'=>__('Basic Information',SL_DOMAIN),'func'=>'edit_base');
 		$set_data[12] = array('name'=>__('Authoriy of Management',SL_DOMAIN),'func'=>'edit_admin');
+		$set_data[13] = array('name'=>__('View Log',SL_DOMAIN),'func'=>'edit_log');
 		return $set_data;
 	}
 }

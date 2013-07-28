@@ -3,17 +3,16 @@
 Plugin Name: Salon booking 
 Plugin URI: http://salon.mallory.jp/en
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff. 
-Version: 0.4.0
+Version: 1.0.0
 Author: kuu
 Author URI: http://salon.mallory.jp/en
 */
 
-define( 'SL_VERSION', '0.4.0' );
 define( 'SL_DOMAIN', 'salon' );
 define( 'SL_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 define( 'SL_PLUGIN_NAME', trim( dirname( SL_PLUGIN_BASENAME ), '/' ) );
 define( 'SL_PLUGIN_DIR', plugin_dir_path(__FILE__)  );
-define( 'SL_PLUGIN_SRC_DIR', SL_PLUGIN_DIR . '/src/' );
+define( 'SL_PLUGIN_SRC_DIR', SL_PLUGIN_DIR . 'src/' );
 define( 'SL_PLUGIN_URL',  plugin_dir_url(__FILE__) );
 define( 'SL_PLUGIN_SRC_URL', SL_PLUGIN_URL . '/' . 'src' );
 define( 'SL_LOG_DIR', '../../' );
@@ -28,7 +27,6 @@ $salon_booking = new Salon_Booking();
 
 class Salon_Booking {
 	
-	private $version = '1.0';
 	private $config_branch;
 	
 	
@@ -78,6 +76,7 @@ class Salon_Booking {
 		add_action('wp_ajax_sales', array( &$this,'edit_sales')); 
 		add_action('wp_ajax_search', array( &$this,'edit_search')); 
 		add_action('wp_ajax_working', array( &$this,'edit_working')); 
+		add_action('wp_ajax_log', array( &$this,'edit_log')); 
 
 		add_action('wp_ajax_nopriv_booking', array( &$this,'edit_booking')); 
 		add_action('wp_ajax_nopriv_confirm', array( &$this,'edit_confirm')); 
@@ -305,6 +304,7 @@ public function example_remove_dashboard_widgets() {
 		if (in_array('edit_branch',$show_menu) ) $edit_menu[$this->maintenance][] = 'edit_branch';
 		if (in_array('edit_config',$show_menu) ) $edit_menu[$this->maintenance][] = 'edit_config';
 		if (in_array('edit_position',$show_menu) )  $edit_menu[$this->maintenance][] = 'edit_position';
+		if (in_array('edit_log',$show_menu) )  $edit_menu[$this->maintenance][] = 'edit_log';
 		if (in_array('edit_reservation',$show_menu) ) $edit_menu[$this->management][] = 'edit_reservation';
 		if (in_array('edit_sales',$show_menu) ) $edit_menu[$this->management][] = 'edit_sales';
 		if (in_array('edit_working',$show_menu) ) $edit_menu[$this->management][] = 'edit_working';
@@ -343,6 +343,10 @@ public function example_remove_dashboard_widgets() {
 			if (in_array('edit_position',$show_menu[$this->maintenance]) )  {
 				$file = $show_menu[$this->maintenance][0] == 'edit_position' ? $this->maintenance : 'salon_position';
 				add_submenu_page(  $this->maintenance, __('Position Information',SL_DOMAIN), __('Position Information',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_position' ) );
+			}
+			if (in_array('edit_log',$show_menu[$this->maintenance]) )  {
+				$file = $show_menu[$this->maintenance][0] == 'edit_log' ? $this->maintenance : 'salon_log';
+				add_submenu_page(  $this->maintenance, __('View Log',SL_DOMAIN), __('View Log',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_log' ) );
 			}
 
 
@@ -422,6 +426,9 @@ public function example_remove_dashboard_widgets() {
 	public function edit_booking() {
 		require_once( SL_PLUGIN_SRC_DIR.'/control/booking-control.php' );
 	}
+	public function edit_log() {
+		require_once( SL_PLUGIN_SRC_DIR.'/control/log-control.php' );
+	}
 	public function edit_confirm() {
 		require_once( SL_PLUGIN_SRC_DIR.'/control/confirm-control.php' );
 	}
@@ -493,32 +500,38 @@ public function example_remove_dashboard_widgets() {
 	
 	function salon_install(){
 		
-		$post = array(
-			'ID' => '' 	//[ <投稿 ID> ] // 既存の投稿を更新する場合。
-			,'menu_order' => 999 //[ <順序値> ] // 追加する投稿が固定ページの場合、ページの並び順を番号で指定できます。
-			,'comment_status' => 'closed'	//[ 'closed' | 'open' ] // 'closed' はコメントを閉じます。
-			,'ping_status' => 'closed' //[ 'closed' | 'open' ] // 'closed' はピンバック／トラックバックをオフにします。
-			,'pinged' => '' //[ ? ] // ピンバック済。
-			,'post_author' => '' //[ <user ID> ] // 作成者のユーザー ID。
-			,'post_content' => '[salon-confirm]' //[ <投稿の本文> ] // 投稿の全文。
-			,'post_date' => date_i18n('Y-m-d H:i:s') //[ Y-m-d H:i:s ] // 投稿の作成日時。
-			,'post_date_gmt' => gmdate('Y-m-d H:i:s') //[ Y-m-d H:i:s ] // 投稿の作成日時（GMT）。
-			,'post_excerpt' => '' //[ <抜粋> ] // 投稿の抜粋。
-			,'post_name' => ''	//[ <スラッグ名> ] // 投稿スラッグ。
-			,'post_parent' => 0	//[ <投稿 ID> ] // 親投稿の ID。
-			,'post_password' => '' //[ <投稿パスワード> ] // 投稿の閲覧時にパスワードが必要になります。
-			,'post_status' => 'publish' //[ 'draft' | 'publish' | 'pending'| 'future' ] // 公開ステータス。 
-			,'post_title' => __('Reservation Confirm',SL_DOMAIN)	//[ <タイトル> ] // 投稿のタイトル。
-			,'post_type' => 'page' //[ 'post' | 'page' ] // 投稿タイプ名。
-			,'tags_input' => '' //[ '<タグ>, <タグ>, <...>' ] // 投稿タグ。
-			,'to_ping' => ''	//[ ? ] //?
-		); 
-		
-		$id = wp_insert_post( $post );
-		update_option('salon_confirm_page_id', $id);
+		if (!get_option('salon_confirm_page_id') ) {
+			$post = array(
+				'ID' => '' 	//[ <投稿 ID> ] // 既存の投稿を更新する場合。
+				,'menu_order' => 999 //[ <順序値> ] // 追加する投稿が固定ページの場合、ページの並び順を番号で指定できます。
+				,'comment_status' => 'closed'	//[ 'closed' | 'open' ] // 'closed' はコメントを閉じます。
+				,'ping_status' => 'closed' //[ 'closed' | 'open' ] // 'closed' はピンバック／トラックバックをオフにします。
+				,'pinged' => '' //[ ? ] // ピンバック済。
+				,'post_author' => '' //[ <user ID> ] // 作成者のユーザー ID。
+				,'post_content' => '[salon-confirm]' //[ <投稿の本文> ] // 投稿の全文。
+				,'post_date' => date_i18n('Y-m-d H:i:s') //[ Y-m-d H:i:s ] // 投稿の作成日時。
+				,'post_date_gmt' => gmdate('Y-m-d H:i:s') //[ Y-m-d H:i:s ] // 投稿の作成日時（GMT）。
+				,'post_excerpt' => '' //[ <抜粋> ] // 投稿の抜粋。
+				,'post_name' => ''	//[ <スラッグ名> ] // 投稿スラッグ。
+				,'post_parent' => 0	//[ <投稿 ID> ] // 親投稿の ID。
+				,'post_password' => '' //[ <投稿パスワード> ] // 投稿の閲覧時にパスワードが必要になります。
+				,'post_status' => 'publish' //[ 'draft' | 'publish' | 'pending'| 'future' ] // 公開ステータス。 
+				,'post_title' => __('Reservation Confirm',SL_DOMAIN)	//[ <タイトル> ] // 投稿のタイトル。
+				,'post_type' => 'page' //[ 'post' | 'page' ] // 投稿タイプ名。
+				,'tags_input' => '' //[ '<タグ>, <タグ>, <...>' ] // 投稿タグ。
+				,'to_ping' => ''	//[ ? ] //?
+			); 
+			
+			$id = wp_insert_post( $post );
+			update_option('salon_confirm_page_id', $id);
+		}
 		
 		global $wpdb;
-		if (!get_option('salon_installed') ) {
+		$current = date_i18n('Y-m-d H:i:s');
+		if (get_option('salon_installed') ) {
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."salon_position SET role = 'edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all,edit_log',update_time = %s WHERE position_cd = %d",$current,Salon_Position::MAINTENANCE));
+		}
+		else {
 			//status 会員の場合は、Icomplete
 			//       会員でない場合は、INIT→メールでactivate→complete
 			//[TODO]nameとemailは最後は落とすか？。会員登録しない人のために残すか？
@@ -675,8 +688,7 @@ public function example_remove_dashboard_widgets() {
 							  PRIMARY KEY  (`no`)
 							) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
 	
-			$current = date_i18n('Y-m-d H:i:s');
-	
+
 			
 			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_branch VALUES (".Salon_Default::BRANCH_CD.",'".__('SAMPLE SHOP NAME',SL_DOMAIN)."','100-0001','".__('SAMPLE SHOOP ADDRESS',SL_DOMAIN)."','223456789','mail@1.com','REMARK','MEMO','NOTES','1000','1900','2','',30,1,0,%s,%s);",$current,$current));
 			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_item VALUES (1,'".__('SAMPLE MENU CUT',SL_DOMAIN)."',".Salon_Default::BRANCH_CD.",'".__('SAMPLE MENU CUT',SL_DOMAIN)."',".__('30,50',SL_DOMAIN).",null,null,null,null,0,%s,%s);",$current,$current));
@@ -713,7 +725,7 @@ public function example_remove_dashboard_widgets() {
 				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (4,'".__('CHIEF',SL_DOMAIN)."','editor','edit_customer,edit_reservation,edit_sales,edit_working,edit_booking','',0,%s,%s);",$current,$current));
 				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (5,'".__('STAFF',SL_DOMAIN)."','author','edit_reservation,edit_sales,edit_working,edit_booking','',0,%s,%s);",$current,$current));
 				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (6,'".__('TEMPORARY',SL_DOMAIN)."','contributor','edit_reservation,edit_sales','',0,%s,%s);",$current,$current));
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (".Salon_Position::MAINTENANCE.",'".__('MAINTENANCE',SL_DOMAIN)."','administrator','edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all','".__('this data can not delete or update',SL_DOMAIN)."',0,%s,%s);",$current,$current));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (".Salon_Position::MAINTENANCE.",'".__('MAINTENANCE',SL_DOMAIN)."','administrator','edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all,edit_log','".__('this data can not delete or update',SL_DOMAIN)."',0,%s,%s);",$current,$current));
 			}
 					
 			

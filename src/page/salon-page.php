@@ -199,6 +199,7 @@ EOT;
 			            "sNext": "{$sNext}"
 			            ,"sPrevious": "{$sPrevious}"
 				    }
+					,"bPaginate": false
 		        	,"sInfo": "{$sInfo}"
 			        ,"sSearch": "{$sSearch}："
 					,"sEmptyTable":"{$sEmptyTable}"
@@ -1866,6 +1867,50 @@ EOT2;
 		 ,'check' => array( 'chk_required','num')
 		 ,'label' => __('Number of the staffs displayed',SL_DOMAIN)
 		 ,'tips' => __('screen showing staffs for the reservation screen',SL_DOMAIN));
+
+		$item_contents['logged_day'] =array('id'=>'logged_day'
+		 ,'class' => array()
+		 ,'check' => array()
+		 ,'label' => __('Date',SL_DOMAIN)
+		 ,'tips' => __('Logged date ',SL_DOMAIN)
+		 ,'table' => array(  'class'=>''
+							,'width'=>self::MIDDLE_WIDTH
+							,'sort'=>'true'
+							,'search'=>'true'
+							,'visible'=>'true' ));
+
+		$item_contents['logged_time'] =array('id'=>'logged_time'
+		 ,'class' => array()
+		 ,'check' => array()
+		 ,'label' => __('Time',SL_DOMAIN)
+		 ,'tips' => __('Logged time',SL_DOMAIN)
+		 ,'table' => array(  'class'=>''
+							,'width'=>self::MIDDLE_WIDTH
+							,'sort'=>'true'
+							,'search'=>'true'
+							,'visible'=>'true' ));
+
+		$item_contents['operation'] =array('id'=>'operation'
+		 ,'class' => array()
+		 ,'check' => array()
+		 ,'label' => __('Operation',SL_DOMAIN)
+		 ,'tips' => __('the operation to tables',SL_DOMAIN)
+		 ,'table' => array(  'class'=>''
+							,'width'=>self::LONG_WIDTH
+							,'sort'=>'true'
+							,'search'=>'true'
+							,'visible'=>'true' ));
+
+		$item_contents['logged_remark'] =array('id'=>'remark'
+		 ,'class' => array()
+		 ,'check' => array()
+		 ,'label' => __('Remark',SL_DOMAIN)
+		 ,'tips' => __('REMOTE_ADDR,REFERER',SL_DOMAIN)
+		 ,'table' => array(  'class'=>''
+							,'width'=>self::LONG_WIDTH
+							,'sort'=>'true'
+							,'search'=>'true'
+							,'visible'=>'true' ));
 
 		return $item_contents;	
 	

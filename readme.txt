@@ -4,7 +4,7 @@ Donate link: http://salon.mallory.jp/en/
 Tags: salon, booking, reservation, beauty parlor, dental clinic, hospital, mutilingual
 Requires at least: 3.5
 Tested up to: 3.5
-Stable tag: 0.4.0
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -45,8 +45,14 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 
 == Installation ==
 
-1. Upload `salon-booking` to the `/wp-content/plugins/` directory
-2. Activate the plugin through the 'Plugins' menu in WordPress
+1. Upload `salon-booking` to the `/wp-content/plugins/` directory.
+2. Activate the plugin through the 'Plugins' menu in WordPress.
+
+= alredey installed =
+
+1. Deactivate this plugin.(Input data don't lose)
+2. Upload `salon-booking` to the `/wp-content/plugins/` directory.
+3. Activate the plugin through the 'Plugins' menu in WordPress.
 
 == Frequently Asked Questions ==
 1. [Docs](http://salon.mallory.jp/en/?page_id=80)
@@ -65,6 +71,11 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 10. Admin form(timecard)
 
 == Changelog ==
+
+= 1.0.0 =
+* Added: Administrator can view log.
+* Fixed:missing no write of the "Config" log.
+* Changed: Default values of "Config".
 
 = 0.4.0 =
 * Fixed: At the screen of "Search",selected header line don't filled in.
