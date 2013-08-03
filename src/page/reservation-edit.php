@@ -6,9 +6,11 @@
 class Reservation_Edit extends Salon_Page {
 	
 	private $table_data = null;
+	private $user_pass = '';
 	
 	public function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch);
+		$user_pass = '';
 	}
 
 	
@@ -25,7 +27,9 @@ class Reservation_Edit extends Salon_Page {
 		return $this->table_data['branch_cd'];
 	}
 
-
+	public function set_user_pass($user_pass) {
+		$this->user_pass = $user_pass;
+	}
 	
 	public function check_request() {
 		if ( ($_POST['type'] != 'inserted' ) && empty($_POST['reservation_cd']) ) {
@@ -75,6 +79,7 @@ class Reservation_Edit extends Salon_Page {
 			$res['item_cd_array_aft'] = $this->table_data['item_cd_array_aft'];
 			$res['non_regist_activate_key'] = $this->table_data['non_regist_activate_key'];
 			$res['reserved_time'] = $this->table_data['reserved_time'];
+			if ($_POST['type'] == 'inserted' && !empty($_POST['regist_customer'] ) )	$res['regist_msg'] = Salon_Component::getMsg('I002',array($this->table_data['user_login'],$this->user_pass));
 		}
 //		else {
 //			$res['name'] = htmlspecialchars($this->table_data['non_regist_name'],ENT_QUOTES);

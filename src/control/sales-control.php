@@ -64,10 +64,13 @@ class Sales_Control extends Salon_Control  {
 		}
 		elseif ($this->action_class == 'Sales_Edit' ) {
 			$this->pages->check_request();
-			$res = $this->comp->editTableData();
+			$user_login = '';
+			$res = $this->comp->editTableData($user_login);
 
 			if (substr($_POST['type'],0,8) == 'inserted' ) {
 				$this->datas->insertTable( $res );
+				if ( $_POST['type'] == 'inserted_reserve'  && !empty($_POST['regist_customer'])  )
+					$this->pages->set_user_pass($this->datas->getUserPass($user_login));
 			}
 			elseif ($_POST['type'] == 'updated' ) {
 				$this->datas->updateTable( $res );

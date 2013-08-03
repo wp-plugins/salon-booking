@@ -60,6 +60,8 @@ class Reservation_Control extends Salon_Control  {
 
 			if ($_POST['type'] == 'inserted' ) {
 				$reservation_cd = $this->datas->insertTable( $res);
+				if (!empty($_POST['regist_customer'] ) )
+					$this->pages->set_user_pass($this->datas->getUserPass($res['user_login']));
 			}
 			elseif ($_POST['type'] == 'updated' ) {
 				$this->datas->updateTable( $res);

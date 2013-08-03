@@ -6,9 +6,11 @@
 class Sales_Edit extends Salon_Page {
 	
 	private $table_data = null;
+	private $user_pass = '';
 	
 	public function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch);
+		$user_pass = '';
 	}
 
 	
@@ -24,6 +26,9 @@ class Sales_Edit extends Salon_Page {
 		return $this->table_data['branch_cd'];
 	}
 
+	public function set_user_pass($user_pass) {
+		$this->user_pass = $user_pass;
+	}
 
 	
 	public function check_request() {
@@ -74,6 +79,7 @@ class Sales_Edit extends Salon_Page {
 		$res['item_name_bef'] = htmlspecialchars($this->table_data['item_name_bef'],ENT_QUOTES);
 		$res['item_cd_array_aft'] = $this->table_data['item_cd_array_aft'];
 		$res['reserved_time']  = $this->table_data['reserved_time'];
+		if ($_POST['type'] == 'inserted_reserve' && !empty($_POST['regist_customer'] ) )	$res['regist_msg'] = Salon_Component::getMsg('I002',array($this->table_data['user_login'],$this->user_pass));
 		
 		echo '{	"status":"Ok","message":"'.Salon_Component::getMsg('N001').'",
 				"set_data":'.json_encode($res).' }';

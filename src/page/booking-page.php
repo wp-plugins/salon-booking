@@ -52,8 +52,8 @@ class Booking_Page extends Salon_Page {
 	public function set_staff_datas ($staff_datas) {
 		$this->staff_datas = $staff_datas;
 		foreach ($this->staff_datas as $k1 => $d1 ) {
-			if ($d1['position_cd'] == Salon_Position::MAINTENANCE ) 
-				unset($this->staff_datas[$k1]);
+//			if ($d1['position_cd'] == Salon_Position::MAINTENANCE ) 
+//				unset($this->staff_datas[$k1]);
 		}
 		if (count($this->staff_datas) === 0 ) {
 			throw new Exception(Salon_Component::getMsg('E010',__function__.':'.__LINE__ ) );

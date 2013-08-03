@@ -316,7 +316,12 @@ EOT;
 						}
 						else {
 							if (operate =="inserted" ) {
+								if ($j("#regist_customer").prop("checked")) {
+									alert(data.set_data.regist_msg);
+									delete data.set_data.regist_msg;
+								}
 								target.fnAddData( data.set_data );
+								
 							}
 							else {
 								target.fnUpdate( data.set_data ,parseInt(save_k1) );

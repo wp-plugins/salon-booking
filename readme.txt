@@ -4,7 +4,7 @@ Donate link: http://salon.mallory.jp/en/
 Tags: salon, booking, reservation, beauty parlor, dental clinic, hospital, mutilingual
 Requires at least: 3.5
 Tested up to: 3.5
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,10 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 10. Admin form(timecard)
 
 == Changelog ==
+
+= 1.1.0 =
+* Added: At the screen of "Reservation Register" and "Performance Register", "ID" of registered newly clients displayed.
+* Changed: At the screen of "Booking",maintenance staff display.
 
 = 1.0.0 =
 * Added: Administrator can view log.

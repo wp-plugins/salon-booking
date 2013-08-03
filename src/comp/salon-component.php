@@ -376,6 +376,9 @@ class Salon_Component {
 			case 'I001':
 				$err_msg = sprintf(__("when demo site ,can't insert,update and delete.",SL_DOMAIN),$add_char);
 				break;	
+			case 'I002':
+				$err_msg = sprintf(__("Customer is registerd.\nUser Login : %s\nPassword : %s",SL_DOMAIN),$add_char[0],$add_char[1]);
+				break;	
 			default:
 				$err_msg = $err_cd.__("message not found",SL_DOMAIN).$add_char;
 				

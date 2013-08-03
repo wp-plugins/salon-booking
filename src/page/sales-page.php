@@ -324,6 +324,10 @@ EOT;
 <?php //[TODO]salesに対するinsertなので判定をわけない ?>
 							
 							if (operate =="inserted_reserve" ) {
+								if ($j("#regist_customer").prop("checked")) {
+									alert(data.set_data.regist_msg);
+									delete data.set_data.regist_msg;
+								}
 								target.fnAddData( data.set_data );
 							}
 							else {

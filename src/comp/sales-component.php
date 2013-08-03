@@ -18,7 +18,7 @@ class Sales_Component {
 		
 	
 	
-	public function editTableData () {
+	public function editTableData (&$user_login) {
 		
 		$set_data['reservation_cd'] = intval($_POST['reservation_cd']);
 		if ( $_POST['type'] != 'deleted' ) {

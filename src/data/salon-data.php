@@ -446,6 +446,19 @@ abstract class Salon_Data {
 		}
 	}
 	
+	public function getUserPass($user_login) {
+		if (empty($user_login )) return '';
+		global $wpdb;
+		$sql = ' SELECT notes FROM '.$wpdb->prefix.'salon_customer '.
+				' WHERE user_login = %s ';
+		$result = $wpdb->get_results($wpdb->prepare($sql,$user_login),ARRAY_A);
+		if ($result === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		if (count($result) == 0 ) return '';
+		return $result[0]['notes'];
+	}
+
 	public function getBracnCdbyCurrentUser($user_login = null){
 		if (empty($user_login) ) $user_login = $this->getUserLogin();
 		if (empty($user_login) ){
@@ -586,7 +599,13 @@ abstract class Salon_Data {
 			if ($tel !== $edit['tel'] ){
 				$err_item = sprintf(__('tel',SL_DOMAIN).__(' old[%s] new[%s]',SL_DOMAIN),$edit['tel'],$tel);
 			}
-			$wk_name = trim($edit['last_name'].' '.$edit['first_name']);
+			
+			if ($this->config['SALON_CONFIG_NAME_ORDER'] == Salon_Config::NAME_ORDER_JAPAN ) {
+				$wk_name = trim($edit['last_name'].' '.$edit['first_name']);
+			}
+			else {
+				$wk_name = trim($edit['first_name'].' '.$edit['last_name']);
+			}
 			if ($name != $wk_name ){
 				$err_item = sprintf(__('name',SL_DOMAIN).__(' old[%s] new[%s]',SL_DOMAIN),$wk_name,$name);
 			}
