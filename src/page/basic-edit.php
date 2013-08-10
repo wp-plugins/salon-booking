@@ -48,8 +48,8 @@ class Basic_Edit extends Salon_Page {
 		if ($_POST['type'] != 'updated' ) {
 			$this->table_data['target_date'] = htmlspecialchars($_POST['target_date'],ENT_QUOTES);
 			if  ($_POST['type']	== 'inserted' ) {
-				$title = __('close',SL_DOMAIN);
-				if ($_POST['status']==Salon_Status::OPEN) $title = __('open',SL_DOMAIN);
+				$title = __('special holiday',SL_DOMAIN);
+				if ($_POST['status']==Salon_Status::OPEN) $title = __('on business',SL_DOMAIN);
 				$this->table_data['status_title'] = $title;
 				$this->table_data['status'] = htmlspecialchars($_POST['status'],ENT_QUOTES);
 			}

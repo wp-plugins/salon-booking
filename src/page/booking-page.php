@@ -419,6 +419,13 @@ EOT3;
 				}
 			});
 
+			$j( '#login_password' ).keypress( function ( e ) {
+				if ( e.which == 13 ) {
+					$j("#button_login").click();
+					return false;
+				}
+			} );
+
 			$j("#button_login").click(function(){
 				if ( ! checkItem("booking_login_div") ) return false;
 				

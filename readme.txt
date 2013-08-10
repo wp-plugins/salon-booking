@@ -1,18 +1,18 @@
 === Salon Booking ===
 Contributors: kuu(Tanaka Hisao)
 Donate link: http://salon.mallory.jp/en/
-Tags: salon, booking, reservation, beauty parlor, dental clinic, hospital, mutilingual
+Tags: hair salon,salon, booking, reservation, dental clinic, hospital, mutilingual
 Requires at least: 3.5
 Tested up to: 3.5
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Salon Booking enables the reservation to one-on-one business between a client and a staff.
+Salon Booking enables the reservation to one-on-one business between a client and a staff member.
 
 == Description ==
 
-Salon Booking enables the reservation to one-on-one business between a client and a staff, 
+Salon Booking enables the reservation to one-on-one business between a client and a staff member, 
 namely those business like beauty palor,hospital, dental clinic and so on..
 
 Salon Booking requires neither member registration to make reservation from on the Web sites, 
@@ -27,18 +27,18 @@ which might be an additional incentive for the clients to register.
 
 The interface for the reservation is easy and like that of Google Calendar.
 The change of the reservation is possible by means of drag and drop, 
-which enables also the staff phoned by a client for the change 
+which enables also the staff member phoned by a client for the change 
 of the request can easily change the schedule accordingly.
 
-Salon Booking is also capable of the personnel management of the staffs 
+Salon Booking is also capable of the personnel management of the staff member
 on the shift control and time recording. 
 Of course the possible time range of reservation 
-and the attendance of the staff co-relates automatically. 
+and the attendance of the staff member co-relates automatically. 
 
 Salon Booking can also record the actual performance against the reservation 
 and capable of compiling the information on demands from the clients 
 and working results. 
-So, it is very useful in improving the service quality and the operation management of staffs.
+So, it is very useful in improving the service quality and the operation management of staff.
 
 As for the security, all the measures are included in this system, 
 namely against identity frauds, malicious requests to reserve, SQL injection attacks and so.
@@ -72,6 +72,11 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 
 == Changelog ==
 
+= 1.1.1 =
+* Fixed: missing check of "Reservation Register".
+* Fixed: missing display of "Basic Information".
+* Changed: At the screen of "Booking",after input password,automaticaly login.
+
 = 1.1.0 =
 * Added: At the screen of "Reservation Register" and "Performance Register", "ID" of registered newly clients displayed.
 * Changed: At the screen of "Booking",maintenance staff display.
@@ -87,11 +92,11 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 * Fixed: missig the display name of non registerd staff.
 
 = 0.3.0 =
-* Fixed: At the screen of "Reservation Detail",staff can use the function of search.
+* Fixed: At the screen of "Reservation Detail",staff member  can use the function of search.
 * Fixed: Button's display changed "display details" -> "show details".
 
 = 0.2.0 =
-* Changed: Staff can regist without mail-input.
+* Changed: Staff member can regist without mail-input.
 * Changed: If today is holiday ,init display is next day.
 * Changed: "Number of the Shops" is "plural shops" as a default.
 
