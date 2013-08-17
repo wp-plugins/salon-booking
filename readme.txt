@@ -4,7 +4,7 @@ Donate link: http://salon.mallory.jp/en/
 Tags: hair salon,salon, booking, reservation, dental clinic, hospital, mutilingual
 Requires at least: 3.5
 Tested up to: 3.5
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -50,7 +50,7 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 
 = alredey installed =
 
-1. Deactivate this plugin.(Input data don't lose)
+1. Deactivate this plugin.(Input datas are not lost)
 2. Upload `salon-booking` to the `/wp-content/plugins/` directory.
 3. Activate the plugin through the 'Plugins' menu in WordPress.
 
@@ -72,13 +72,18 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 
 == Changelog ==
 
+= 1.1.2 =
+* Fixed: At the screen of "Environment Setting",style breaken in InternetExplorer.
+* Fixed: missing check of "Performance Regist".
+* Fixed: missing diplay of "Reservation Regist".
+
 = 1.1.1 =
-* Fixed: missing check of "Reservation Register".
+* Fixed: missing check of "Reservation Regist".
 * Fixed: missing display of "Basic Information".
 * Changed: At the screen of "Booking",after input password,automaticaly login.
 
 = 1.1.0 =
-* Added: At the screen of "Reservation Register" and "Performance Register", "ID" of registered newly clients displayed.
+* Added: At the screen of "Reservation Regist" and "Performance Regist", "ID" of registered newly clients displayed.
 * Changed: At the screen of "Booking",maintenance staff display.
 
 = 1.0.0 =

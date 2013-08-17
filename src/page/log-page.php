@@ -137,7 +137,7 @@ class Log_Page extends Salon_Page {
 	
 	<div id="salon_button_div" >
 	<input id="button_detail" type="button" />
-	<input id="get_cnt" type="text" value="100" class="sl_short_width"/>
+	<input id="get_cnt" type="text" value="100" class="sl_short_title_width"/>
 	<input id="button_redisplay" type="button" value="<?php _e('Redisplay',SL_DOMAIN); ?>"/>
 	</div>
 

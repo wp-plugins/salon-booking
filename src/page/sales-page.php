@@ -262,12 +262,24 @@ EOT;
 			
 			var is_normal = true;
 			if ( ! checkItem("data_detail",check_array) ) is_normal = false;
+			var start = 0;
 			if ($j("#time_from_aft").val()  == -1) {
 				fnDisplayErrorLabel("target_day_lbl","<?php _e("please input start time",SL_DOMAIN); ?>");
 				is_normal = false;
 			}
+			else {
+				start = +$j("#time_from_aft").val().replace(":","");
+			}
+				
 			if ($j("#time_to_aft").val()  == -1) {
 				fnDisplayErrorLabel("target_day_lbl","<?php _e("please input end time",SL_DOMAIN); ?>");
+				is_normal = false;
+			}
+			else {
+				end = +$j("#time_to_aft").val().replace(":","");
+			}
+			if (is_normal && start >= end ) {
+				fnDisplayErrorLabel("target_day_lbl","<?php _e("end time is earlier then start time",SL_DOMAIN); ?>");
 				is_normal = false;
 			}
 			if (!is_normal ) return false;
@@ -410,7 +422,7 @@ EOT;
 	<input id="button_update" type="button" value="<?php _e('Performance Update',SL_DOMAIN); ?>"/>
 	<input id="button_clear" type="button" value="<?php _e('Clear',SL_DOMAIN); ?>"/>
 	<input id="button_detail" type="button" />
-	<input id="target_date_number" type="text" value="<?php echo $this->config_datas['SALON_CONFIG_BEFORE_DAY']; ?>" class="sl_short_width"/>
+	<input id="target_date_number" type="text" value="<?php echo $this->config_datas['SALON_CONFIG_BEFORE_DAY']; ?>" class="sl_short_title_width"/>
 	<select id="target_date_patern" >
 		<option value="day" ><?php _e('day before',SL_DOMAIN); ?></option>
 		<option value="week" ><?php _e('week before',SL_DOMAIN); ?></option>

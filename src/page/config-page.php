@@ -35,7 +35,7 @@ class Config_Page extends Salon_Page {
 					var diff = 0;
 					var id = check_items[index]["id"];
 					$j("#"+id+"_lbl").children().text(check_items[index]["tips"]);
-					if ($j("#"+id)[0].tagName == "TEXTAREA" ) diff = 1;
+					if ($j("#"+id)[0].tagName == "TEXTAREA" ) diff = 5;
 					else {
 						if ( $j("#"+id).parent().hasClass("config_item_wrap") ) {
 							diff = $j("#"+id+"_lbl").outerHeight(true) - $j("#"+id).parent().outerHeight(true);

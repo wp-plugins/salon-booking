@@ -376,7 +376,7 @@ EOT;
 
 	<?php screen_icon(); ?>
 
-	<h2><?php _e('Regist Reservation',SL_DOMAIN); ?>
+	<h2><?php _e('Reservation Regist',SL_DOMAIN); ?>
 	<?php  
 			if ( $this->is_multi_branch ) {	//for only_branch
 				if ($this->isSalonAdmin() ) {
@@ -399,7 +399,7 @@ EOT;
 	<input id="button_update" type="button" value="<?php _e('Update',SL_DOMAIN); ?>"/>
 	<input id="button_clear" type="button" value="<?php _e('Clear',SL_DOMAIN); ?>"/>
 	<input id="button_detail" type="button" />
-	<input id="target_date_number" type="text" value="<?php echo $this->config_datas['SALON_CONFIG_AFTER_DAY']; ?>" class="sl_short_width"/>
+	<input id="target_date_number" type="text" value="<?php echo $this->config_datas['SALON_CONFIG_AFTER_DAY']; ?>" class="sl_short_title_width"/>
 	<select id="target_date_patern" >
 		<option value="day" ><?php _e('day after',SL_DOMAIN); ?></option>
 		<option value="week" ><?php _e('week after',SL_DOMAIN); ?></option>

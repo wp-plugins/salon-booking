@@ -451,11 +451,19 @@
 #salon_button_div .sl_short_width {
 	width:50px;
 }
+
+
 #booking_button_div .sl_button {
 	width:150px;
 	margin-top:30px;
 	margin-left:5px;
 	margin-right:5px;
+}
+
+.sl_short_title_width{
+	width:50px;
+	padding-left:10px;
+	padding-right:2px;
 }
 
 
