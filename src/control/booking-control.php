@@ -48,7 +48,8 @@ class Booking_Control extends Salon_Control  {
 			
 			$this->pages->set_branch_datas($this->datas->getBranchData($this->branch_cd));
 			$this->pages->set_item_datas($this->datas->getTargetItemData($this->branch_cd));
-			$this->pages->set_staff_datas($this->datas->getTargetStaffData($this->branch_cd));
+
+			$this->pages->set_staff_datas($this->comp->getTargetStaffData($this->branch_cd));
 			$this->pages->set_config_datas($this->datas->getConfigData());
 			$this->pages->set_working_datas($this->comp->editWorkingData($this->branch_cd));
 			$this->pages->set_role($role);

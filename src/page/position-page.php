@@ -39,7 +39,6 @@ class Position_Page extends Salon_Page {
 		$j(document).ready(function() {
 			
 			<?php parent::echoSetItemLabel(); ?>	
-			<?php parent::echoUploadImage(); ?>
 			<?php parent::echoCommonButton();			//共通ボタン	?>
 			target = $j("#lists").dataTable({
 				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=position",

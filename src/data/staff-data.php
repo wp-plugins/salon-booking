@@ -123,15 +123,40 @@ class Staff_Data extends Salon_Data {
 			foreach ($result as $k1 => $d1 ) {
 				if (str_replace('/','',$d1['employed_day']) == '00000000' ) $result[$k1]['employed_day'] = '';
 				if (str_replace('/','',$d1['leaved_day']) == '00000000' ) $result[$k1]['leaved_day'] = '';
+
 			}
 		}
+
 		return $result;
-
-
 
 	}
 
-	
-	
+	public function updateStaffPhotoData($staff_cd,$new_photo_ids) {
+		global $wpdb;
+		$sql = 'SELECT photo '.
+				' FROM '.$wpdb->prefix.'salon_staff  '.
+				' WHERE staff_cd = %d ';
+		
+		$result = $wpdb->get_results($wpdb->prepare($sql,$staff_cd),ARRAY_A);
+		if ($result === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		$this->fixedPhoto("updated",$new_photo_ids,$result[0]['photo']);
+		
+	}
+
+	public function deleteStaffPhotoData($staff_cd) {
+		global $wpdb;
+		$sql = 'SELECT photo '.
+				' FROM '.$wpdb->prefix.'salon_staff  '.
+				' WHERE staff_cd = %d ';
+		
+		$result = $wpdb->get_results($wpdb->prepare($sql,$staff_cd),ARRAY_A);
+		if ($result === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		$this->deletePhotoDatas($result[0]['photo']);
+		
+	}
 	
 }

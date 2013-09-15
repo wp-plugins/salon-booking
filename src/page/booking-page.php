@@ -152,7 +152,9 @@ class Booking_Page extends Salon_Page {
 			$reserve_possible_cnt = 0;
 			foreach ($this->staff_datas as $k1 => $d1 ) {
 				//写真大きさを50pxにしとく。IEだと自動で補正してくれない？
-				$tmp = preg_replace("/(width|height)(=\\\'\d+\\\')/","$1=\'50\'",$d1['photo']);
+//				$tmp = preg_replace("/(width|height)(=\\\'\d+\\\')/","$1=\'50\'",$d1['photo']);
+				if (empty($d1['photo_result'][0]) ) $tmp="";
+				else $tmp = "<a href='".$d1['photo_result'][0]['photo_path']."' rel='staff".$d1['staff_cd']."' ' class='lightbox' ><img src='".$d1['photo_result'][0]['photo_resize_path']."' alt='' width='150' height='150' class='alignnone size-thumbnail wp-image-186' /></a>";
 				$url = site_url();
 				$url = substr($url,strpos($url,':')+1);
 				$url = str_replace('/','\/',$url);
@@ -279,7 +281,8 @@ EOT3;
 				return "<b>"+title_name+"</b>";
 			}
 			scheduler.load("<?php echo $this->url; ?>/wp-admin/admin-ajax.php?action=booking&menu_func=Booking_Get_Event&branch_cd=<?php echo $this->branch_datas['branch_cd']; ?>",function() {
-				$j(".lightbox").colorbox({rel:"staffs"});
+//				$j(".lightbox").colorbox({rel:"staffs"});
+				$j(".lightbox").colorbox();
 			});
 			var dp = new dataProcessor("<?php echo $this->url; ?>/wp-admin/admin-ajax.php?action=booking&menu_func=Booking_Edit");
 			dp.init(scheduler);
@@ -415,7 +418,8 @@ EOT3;
 			
 			scheduler.attachEvent("onViewChange", function(mode, date) {
 				if (mode == "timeline" ) {
-					$j(".lightbox").colorbox({rel:"staffs"});
+	//				$j(".lightbox").colorbox({rel:"staffs"});
+					$j(".lightbox").colorbox();
 				}
 			});
 
@@ -744,7 +748,8 @@ EOT3;
 			scheduler.endLightbox(true, $j("#data_detail").get(0));
 			
 			$j("#customer_booking_form").hide();
-			$j(".lightbox").colorbox({rel:"staffs"});
+//				$j(".lightbox").colorbox({rel:"staffs"});
+				$j(".lightbox").colorbox();
 			
 
 		}
@@ -754,13 +759,15 @@ EOT3;
 			scheduler.deleteEvent(ev.id);
 			scheduler.endLightbox(false, $j("#data_detail").get(0));
 			$j("#customer_booking_form").hide();
-			$j(".lightbox").colorbox({rel:"staffs"});
+//				$j(".lightbox").colorbox({rel:"staffs"});
+				$j(".lightbox").colorbox();
 		}
 
 		function close_form(argument) {
 			scheduler.endLightbox(false, $j("#data_detail").get(0));
 			$j("#customer_booking_form").hide();
-			$j(".lightbox").colorbox({rel:"staffs"});
+//				$j(".lightbox").colorbox({rel:"staffs"});
+				$j(".lightbox").colorbox();
 		}
 		
 		<?php parent::echoCheckClinet(array('chk_required','chkMail','chkTime','lenmax','reqCheck','chkSpace','chkTel','reqOther')); ?>		
@@ -844,6 +851,29 @@ EOT3;
 		</div>
 	</div>
 <?php endif; ?>
+	<div id="sl_hidden_photo_area">
+<?php 
+	foreach ($this->staff_datas as $k1 => $d1 ) {
+		if (!empty($d1['photo_result'][0]) ) {
+			for($i = 1;$i<count($d1['photo_result']);$i   ++  ){
+				$tmp = "<a href='".$d1['photo_result'][$i]['photo_path']."' rel='staff".$d1['staff_cd']."' ' class='lightbox' ></a>";
+				$url = site_url();
+				$url = substr($url,strpos($url,':')+1);
+				if (is_ssl() ) {
+					$tmp = preg_replace("$([hH][tT][tT][pP]:".$url.")$","https:".$url,$tmp);
+				}
+				else {
+					$tmp = preg_replace("$([hH][tT][tT][pP][sS]:".$url.")$","http:".$url,$tmp);
+				}
+				echo $tmp;
+			}
+		}
+	}
+
+
+
+?>
+    </div>
 	</div>
 <?php 
 	}	//show_page

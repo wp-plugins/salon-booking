@@ -18,6 +18,7 @@ class Salon_Reservation_Status {
 	const INIT =  0;
 	const DUMMY_RESERVED = 4;	//実績登録の場合のみ
 	const SALES_REGISTERD =  10;
+	const BEFORE_DELETED =  5;  //現状未使用
 }
 
 class Salon_Edit {

@@ -80,6 +80,7 @@ class Staff_Edit extends Salon_Page {
 		$res['first_name'] = htmlspecialchars($this->table_data['first_name'],ENT_QUOTES);
 		$res['remark'] = htmlspecialchars($this->table_data['remark'],ENT_QUOTES);
 		$res['photo'] = $this->table_data['photo'];
+		$res['photo_result'] = $this->table_data['photo_result'];
 //			$res['employed_day'] = parent::editYmdForHtml($this->table_data['employed_day']);
 //			$res['leaved_day'] = parent::editYmdForHtml($this->table_data['leaved_day']);
 		$res['employed_day'] = $this->table_data['employed_day'];

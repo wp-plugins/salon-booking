@@ -102,7 +102,7 @@ class Staff_Component {
 		foreach ( $result_after as $k1 => $d1) {
 			if (empty($d1['first_name'] ) ) $result_after[$k1]['first_name'] = __('first name',SL_DOMAIN).__('not registered',SL_DOMAIN);
 			if (empty($d1['last_name'] ) ) $result_after[$k1]['last_name'] = __('last name',SL_DOMAIN).__('not registered',SL_DOMAIN);
-			if (empty($d1['zip'] ) ) $result_after[$k1]['zip'] = __('zip',SL_DOMAIN).__('not registered',SL_DOMAIN);
+//			if (empty($d1['zip'] ) ) $result_after[$k1]['zip'] = __('zip',SL_DOMAIN).__('not registered',SL_DOMAIN);
 			if (empty($d1['address'] ) ) $result_after[$k1]['address'] = __('address',SL_DOMAIN).__('not registered',SL_DOMAIN);
 //			if (empty($d1['tel'] ) ) $result_after[$k1]['tel'] = __('tel',SL_DOMAIN).__('not registered',SL_DOMAIN);
 //			if (empty($d1['mobile'] ) ) $result_after[$k1]['mobile'] = __('mobile',SL_DOMAIN).__('not registered',SL_DOMAIN);
@@ -113,13 +113,24 @@ class Staff_Component {
 				$datas = $this->datas->getBranchData($d1['branch_cd']);
 				$result_after[$k1]['branch_name'] = $datas['name'];
 			}
-			$tmp = str_replace("\'","'",$d1['photo']);
-			if (!empty($_SERVER['HTTPS']) ) {
-				$url = site_url();
-				$url = substr($url,strpos($url,':')+1);
-				$tmp = preg_replace("$([hH][tT][tT][pP]:".$url.")$","https:".$url,$tmp);
+//			$tmp = str_replace("\'","'",$d1['photo']);
+//			if (!empty($_SERVER['HTTPS']) ) {
+//				$url = site_url();
+//				$url = substr($url,strpos($url,':')+1);
+//				$tmp = preg_replace("$([hH][tT][tT][pP]:".$url.")$","https:".$url,$tmp);
+//			}
+//			$result_after[$k1]['photo'] = $tmp;			
+
+			//[PHOTO]
+			$photo_result = $this->datas->getPhotoData($d1['photo']);
+			$tmp = array();
+			for($i = 0 ;$i<count($photo_result);$i++) {
+				$tmp[] = $photo_result[$i];
 			}
-			$result_after[$k1]['photo'] = $tmp;			
+			$result_after[$k1]['photo_result'] = $tmp;
+			//[PHOTO]
+
+
 			$result_after[$k1]['position_name'] = '';
 			if ($d1['position_cd']) $result_after[$k1]['position_name'] = $position_datas_after[ $d1['position_cd']];
 		}
@@ -156,13 +167,30 @@ class Staff_Component {
 			$set_data['notes'] = '';
 			$set_data['duplicate_cnt'] = intval($_POST['duplicate_cnt']);
 			//
-			$tmp = stripslashes($_POST['photo']);
-			if ( strpos($tmp, 'class=\'lightbox\'') === false)	{
-				$set_data['photo'] = preg_replace('/^<a(.*?)>(.*)$/','<a ${1} class=\'lightbox\' >${2}',$tmp);
+//			$tmp = stripslashes($_POST['photo']);
+//			if ( strpos($tmp, 'class=\'lightbox\'') === false)	{
+//				$set_data['photo'] = preg_replace('/^<a(.*?)>(.*)$/','<a ${1} class=\'lightbox\' >${2}',$tmp);
+//			}
+//			else {
+//				$set_data['photo'] = $tmp;
+//			}
+
+			$set_data['photo'] = str_replace("photo_id_","",stripslashes($_POST['photo']));
+			//以下はstaffでは不要。選択した状態で追加はできないようにしている
+			if ($_POST['type'] == 'inserted' && !empty($_POST['used_photo']) ) {
+				$new_photo_id_array = $this->_copyPhotoData($_POST['used_photo']);
+				$edit_tmp_array = explode(',',$set_data['photo']);
+				for($i = 0 ; $i < count($edit_tmp_array) ; $i++) {
+					if (array_key_exists($edit_tmp_array[$i],$new_photo_id_array) ) {
+
+						$edit_tmp_array[$i] = $new_photo_id_array[$edit_tmp_array[$i]];
+					}
+				}
+				$set_data['photo'] = implode(',',$edit_tmp_array);
 			}
-			else {
-				$set_data['photo'] = $tmp;
-			}
+
+
+
 			$set_data['user_login'] = $_POST['user_login'];
 			$set_data['employed_day'] = '';
 			if (!empty($_POST['employed_day'])) $set_data['employed_day'] = Salon_Component::editRequestYmdForDb($_POST['employed_day']);
@@ -170,6 +198,30 @@ class Staff_Component {
 			if (!empty($_POST['leaved_day'])) $set_data['leaved_day'] = Salon_Component::editRequestYmdForDb($_POST['leaved_day']);
 		}
 		return $set_data;
+		
+	}
+	
+	private function _copyPhotoData($ids,$target_width=100,$target_height=100) {
+		
+		$new_photo_id_array = array();
+
+		$vals = explode(',',$ids);
+		foreach ($vals as  $d1 ) {
+			$photo_datas = explode(':',$d1);
+			$photo_id =  $photo_datas[0];
+			$base_name = $photo_datas[1];
+			$attr = substr($base_name, strrpos($base_name, '.') );
+			$randam_file_name = substr(md5(uniqid(mt_rand())),0,8).$attr;
+			if (!copy(SALON_UPLOAD_DIR.$base_name,SALON_UPLOAD_DIR.$randam_file_name) ) {
+				throw new Exception(Salon_Component::getMsg('E901',__LINE__),__('PHOTO IMAGE CAN\'T COPY',SL_DOMAIN));
+			}
+			if (!copy(SALON_UPLOAD_DIR. $target_width."_".$target_height."_".$base_name,SALON_UPLOAD_DIR. $target_width."_".$target_height."_".$randam_file_name) ) {
+				throw new Exception(Salon_Component::getMsg('E901',__LINE__),__('PHOTO IMAGE CAN\'T COPY',SL_DOMAIN));
+			}
+
+			$new_photo_id_array[$photo_id] =	$this->datas->insertPhotoData($photo_id,$randam_file_name);
+		}
+		return $new_photo_id_array;
 		
 	}
 	

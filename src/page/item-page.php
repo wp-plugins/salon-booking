@@ -18,11 +18,9 @@ class Item_Page extends Salon_Page {
 	function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch);
 		if ($is_multi_branch ) {
-//			$this->set_items = array('item_name','short_name','branch_cd','minute','price','remark','button_upload');
 			$this->set_items = array('item_name','short_name','branch_cd','minute','price','remark');
 		}
 		else {
-//			$this->set_items = array('item_name','short_name','minute','price','remark','button_upload');
 			$this->set_items = array('item_name','short_name','minute','price','remark');
 		}
 
@@ -49,7 +47,6 @@ class Item_Page extends Salon_Page {
 		$j(document).ready(function() {
 			
 			<?php parent::echoSetItemLabel(); ?>	
-			<?php parent::echoUploadImage(); ?>
 			<?php parent::echoCommonButton();			//共通ボタン	?>
 			target = $j("#lists").dataTable({
 				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=item",
@@ -98,8 +95,6 @@ class Item_Page extends Salon_Page {
 			$j("#data_detail").show();
 			$j("#button_detail").val("<?php _e('Hide Details',SL_DOMAIN);  ?>");
 
-			$j("#upload_image").val(setData['aoData'][position[0]]['_aData']['photo']);
-			$j("#uploadedImageView").html(setData['aoData'][position[0]]['_aData']['photo']);
 
 
 		}
@@ -131,7 +126,7 @@ class Item_Page extends Salon_Page {
 						"minute":$j("#minute").val(),
 						"price":$j("#price").val(),
 						"remark":$j("#remark").val(),
-						"photo":$j("#upload_image").val(),
+						"photo":'',
 						"nonce":"<?php echo $this->nonce; ?>",
 						"menu_func":"Item_Edit"
 
@@ -168,8 +163,6 @@ class Item_Page extends Salon_Page {
 			$j("#data_detail textarea").val("");
 			$j("#button_update").attr("disabled", "disabled");
 
-			$j("#upload_image").val("");
-			$j("#uploadedImageView").html("");
 			
 			save_k1 = "";
 			<?php parent::echo_clear_error(); ?>
@@ -186,7 +179,6 @@ class Item_Page extends Salon_Page {
 	<?php screen_icon(); ?>
 
 	<h2><?php _e('Menu Information',SL_DOMAIN); ?></h2>
-	<input id="upload_image" type="hidden"  value="" />
 	<div id="salon_button_div" >
 	<input id="button_insert" type="button" value="<?php _e('Add',SL_DOMAIN); ?>"/>
 	<input id="button_update" type="button" value="<?php _e('Update',SL_DOMAIN); ?>"/>
@@ -213,14 +205,7 @@ class Item_Page extends Salon_Page {
 		<?php parent::echoMinuteSelect('minute'); ?>
 		<input type="text" id="price" value="" />
 		<textarea id="remark"  ></textarea>
-<?php /*
-		<div id="photo_wrap" >
-		<input id="button_upload" type="button" class="sl_button" value="<?php _e('photo upload',SL_DOMAIN); ?>" />
-		<input id="button_photo_delete" type="button" class="sl_button" value="<?php _e('photo delete',SL_DOMAIN); ?>" />
-		</div>
-*/?>
 		<div class="spacer"></div>
-		<div id="uploadedImageView"></div>
 
 	</div>
 

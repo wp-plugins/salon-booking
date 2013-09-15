@@ -19,12 +19,12 @@ class Staff_Page extends Salon_Page {
 		if ($is_multi_branch ) {
 			$this->branch_column = 4;
 			$this->position_column = 5;
-			$this->set_items = array('first_name','last_name','branch_cd','position_cd','zip','address','tel','mobile','mail','user_login','remark','employed_day','leaved_day','button_upload','duplicate_cnt_staff');
+			$this->set_items = array('first_name','last_name','branch_cd','position_cd','zip','address','tel','mobile','mail','user_login','remark','employed_day','leaved_day','duplicate_cnt_staff');
 		}
 		else {
 			$this->branch_column = 3;
 			$this->position_column = 4;
-			$this->set_items = array('first_name','last_name','position_cd','zip','address','tel','mobile','mail','user_login','remark','employed_day','leaved_day','button_upload','duplicate_cnt_staff');
+			$this->set_items = array('first_name','last_name','position_cd','zip','address','tel','mobile','mail','user_login','remark','employed_day','leaved_day','duplicate_cnt_staff');
 		}
 
 	}
@@ -55,14 +55,97 @@ class Staff_Page extends Salon_Page {
 		var target;
 		var save_k1 = "";
 		var save_user_login_old = "";
+		//[photo]
+		var insert_photo = false;	//登録または削除しているのに、確定していないかを判断
+		var delete_photo = false;
+		var insert_photo_ids = Array();
+
+		function delete_photo_datas() {  
+			//写真を登録したけどやめてしまった場合
+			$j.ajax({
+				type: "post",
+				url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=photo",
+				dataType : "json",
+					data: {
+						"photo_id":insert_photo_ids.join(","),
+						"type":"deleted",
+						"nonce":"<?php echo $this->nonce; ?>",
+						"menu_func":"Photo_Edit"
+					},
+				success: function(data) {
+					if (data === null || data.status == "Error" ) {
+						alert(data.message);
+					}
+				},
+				error:  function(XMLHttpRequest, textStatus){
+					alert (textStatus);
+				}
+				
+			 });			
+		}  
+				
+		//[photo]
 		
 		<?php parent::echoClientItem($this->set_items);  ?>	
 		<?php Salon_Country::echoZipTable(); //for only_branch?>	
 
 		$j(document).ready(function() {
+
+//［PHOTO]ここから
+			Dropzone.autoDiscover = false;
+			$j("#image_drop_area").dropzone({ 
+				url: "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=photo&menu_func=Photo_Edit&type=inserted&nonce=<?php echo $this->nonce; ?>"
+				,maxFilesize:<?php echo SALON_MAX_FILE_SIZE; ?>
+				,init: function() {
+					$j(this.element).addClass("dropzone");
+
+					this.on("addedfile",function(file) {
+						$j(file.previewElement).addClass("ui-state-default");
+					});
+					this.on("success", function(file, text) {
+						var res = JSON.parse(text);
+						if (res.status == "Ok" ) {
+							$j(file.previewElement).attr("id","photo_id_"+res.photo_id);
+							$j(".lightbox").colorbox({rel:"staffs",width:"<?php echo SALON_COLORBOX_SIZE; ?>", height:"<?php echo SALON_COLORBOX_SIZE; ?>"});
+							insert_photo = true;
+							insert_photo_ids.push($j(file.previewElement).attr("id"));
+						}
+						else {
+							alert(res.message);
+						}
+					});
+					this.on("removedfile",function(file) {
+		<?php 			//実際の削除はUPDATEまたはDELETEときに行う ?>
+							delete_photo = true;
+					});
+				}
+				,accept: function(file, done) {
+					if(file.name.match(/\.(jpg|png|gif)$/i))  {
+						done();
+					}
+					else {
+						this.removeFile(file);
+						alert("<?php _e('FILE TYPE ERROR',SL_DOMAIN); ?>");
+					}
+				}
+				,error: function(file, message) {
+					this.removeFile(file);
+					alert(message);
+				}
+				,addRemoveLinks:true
+				,dictDefaultMessage: "<?php _e('Drop files here to upload',SL_DOMAIN); ?>"
+				,dictFileTooBig: "<?php _e('File is too big ({{filesize}}MB). Max filesize: {{maxFilesize}}MB.',SL_DOMAIN); ?>"
+				,dictInvalidFileType: "<?php _e('You can\'t upload files of this type.',SL_DOMAIN); ?>"
+				,dictRemoveFile:"<?php _e('Delete',SL_DOMAIN) ?>"
+				,dictFallbackMessage:"<?php _e('Your browser does not support drag&drop file uploads.',SL_DOMAIN); ?>"
+			    ,dictMaxFilesExceeded: "<?php _e('You can only upload {{maxFiles}} files.',SL_DOMAIN); ?>"
+
+			});
+			$j("#image_drop_area").sortable();
+//ここまで
+
 			
 			<?php parent::echoSetItemLabel(); ?>	
-			<?php parent::echoUploadImage(); ?>
 			<?php Salon_Country::echoZipFunc("zip","address");	?>
 
 			
@@ -123,6 +206,19 @@ class Staff_Page extends Salon_Page {
 		});
 <?php //taregt_colはtdが前提 ?>		
 		function fnSelectRow(target_col) {
+			
+			if (insert_photo || delete_photo ) {
+				if (confirm("<?php _e('Photos are updated,But staff data is not inserted or updated. Continue OK ?',SL_DOMAIN); ?>") ) {
+					<?php //削除は実際に更新していないのでメッセージのみ ?>
+					if (insert_photo) 	delete_photo_datas();
+				}
+				else return;
+			}
+			insert_photo_ids.length = 0;
+			insert_photo = false;
+			delete_photo = false;
+			
+			
 			fnDetailInit();
 
 			$j(target.fnSettings().aoData).each(function (){
@@ -164,32 +260,69 @@ class Staff_Page extends Salon_Page {
 			
 			$j("#data_detail").show();
 			$j("#button_detail").val("<?php _e('Hide Details',SL_DOMAIN); ?>");
-			if (setData['aoData'][position[0]]['_aData']['photo']){
-				$j("#upload_image").val(setData['aoData'][position[0]]['_aData']['photo']);  
-				$j("#uploadedImageView").html(setData['aoData'][position[0]]['_aData']['photo']);
-				$j("#button_photo_delete").attr("disabled",false);
+			
+			var size = setData['aoData'][position[0]]['_aData']['photo_result'].length;
+			for(var i = 0; i < size ; i++ ) {
+				var mockFile = Array();
+				mockFile['name'] = setData['aoData'][position[0]]['_aData']['photo_result'][i]['photo_name'];
+				mockFile['size'] = 0;	<?php //表示しないようにCSSでdisplay:noneにしている ?>
+				mockFile['photo_id'] = "photo_id_" + setData['aoData'][position[0]]['_aData']['photo_result'][i]['photo_id'];
+				$j("#image_drop_area")[0].dropzone.options.addedfile.call($j("#image_drop_area")[0].dropzone, mockFile);
+				$j("#image_drop_area")[0].dropzone.options.thumbnail.call($j("#image_drop_area")[0].dropzone, mockFile,setData['aoData'][position[0]]['_aData']['photo_result'][i]['photo_resize_path'],setData['aoData'][position[0]]['_aData']['photo_result'][i]['photo_path']);
+				
 			}
-			else {
-				$j("#button_photo_delete").attr("disabled",true);
-			}
-			$j(".lightbox").colorbox({rel:"staffs"});
+			$j(".lightbox").colorbox({rel:"staffs",width:"<?php echo SALON_COLORBOX_SIZE; ?>", height:"<?php echo SALON_COLORBOX_SIZE; ?>"});
 
 		}
 
 		<?php parent::echoDataTableEditColumn("staff","ID"); ?>
 		<?php parent::echoDataTableDeleteRow("staff","staff",false); ?>
 
+		function _getFileName(file_path) {  
+			file_name = file_path.substring(file_path.lastIndexOf('/')+1, file_path.length);  
+			return file_name;  
+		}  
+
 		function fnClickAddRow(operate) {
 			if ( ! checkItem("data_detail") ) return false;
+
+			var photo_id_array = [];
+			
+			<?php //photo ?>
+			$j(".dz-preview").each(function() {
+				var id = $j(this).attr('id');
+				photo_id_array.push(id);
+				<?php //インサート時に既存の写真を使用しているかどうかをチェックする ?>
+				<?php //既存の写真の場合はコピーする ?>
+			});	
+			<?php //photo ?>
+			
+			var photo = photo_id_array.join(",");
+
 			var staff_cd = "";
 			var ID = "";
+			var used_photo_id_array = [];			
 			if ( save_k1 !== "" ) {
 				var setData = target.fnSettings();
 				staff_cd = setData['aoData'][save_k1]['_aData']['staff_cd'];
 				if ( save_user_login_old == $j("#user_login").val()  ) {
 					ID = setData['aoData'][save_k1]['_aData']['ID']; 
 				}
+				<?php //photo ?>
+				for(var i = 0 ; i < photo_id_array.length ; i++ ) {
+					for(var j = 0; j < setData['aoData'][save_k1]['_aData']['photo_result'].length ; j++ ) {
+						if (photo_id_array[i] == "photo_id_" + setData['aoData'][save_k1]['_aData']['photo_result'][j]['photo_id']) {
+								used_photo_id_array.push(setData['aoData'][save_k1]['_aData']['photo_result'][j]['photo_id'] + ":" +
+											_getFileName(setData['aoData'][save_k1]['_aData']['photo_result'][j]['photo_path']));
+							break;
+						}
+					}
+				}
+				<?php //photo ?>
 			}
+			var used_photo = used_photo_id_array.join(",");
+
+
 		<?php if ($this->is_multi_branch == false ) : //for only_branch ?>
 			if (operate  =="inserted") $j("#branch_cd").val("<?php echo $this->get_default_brandh_cd();?>");
 		<?php endif; ?>
@@ -197,7 +330,6 @@ class Staff_Page extends Salon_Page {
 				 	type: "post",
 					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=staff",
 					dataType : "json",
-//					data: 	"staff_cd="+staff_cd+"&name="+$j("#name").val()+"&address="+$j("#address").val()+"&remark="+$j("#remark").val(), 
 					data: {
 						"ID":ID,
 						"staff_cd":staff_cd,
@@ -209,7 +341,8 @@ class Staff_Page extends Salon_Page {
 						"position_cd":$j("#position_cd").val(),
 						"address":$j("#address").val(),
 						"remark":$j("#remark").val(),
-						"photo":$j("#upload_image").val(),
+						"photo":photo,
+						"used_photo":used_photo,
 						"user_login":$j("#user_login").val(),
 						"zip":$j("#zip").val(),
 						"tel":$j("#tel").val(),
@@ -234,6 +367,10 @@ class Staff_Page extends Salon_Page {
 								target.fnUpdate( data.set_data ,parseInt(save_k1) );
 							}
 					
+							insert_photo_ids.length = 0;
+							insert_photo = false;
+							delete_photo = false;
+
 							fnDetailInit();
 							$j(target.fnSettings().aoData).each(function (){
 								$j(this.nTr).removeClass("row_selected");
@@ -257,14 +394,17 @@ class Staff_Page extends Salon_Page {
 			
 			$j("#duplicate_cnt").val("0");
 			
-
-			$j("#uploadedImageView").html("");
-
+			fnPhotoClear();
 			save_k1 = "";
 			save_user_login_old = "";
 
 			<?php parent::echo_clear_error(); ?>
 
+		}
+		
+		function fnPhotoClear (){
+			$j("#image_drop_area").empty();
+			$j("#image_drop_area").append("<div class=\"drag-drop-info\"><?php _e('Photos of staff member.</br> Drop files here or click here and select files',SL_DOMAIN);?></div>");
 		}
 
 
@@ -276,7 +416,6 @@ class Staff_Page extends Salon_Page {
 	<?php screen_icon(); ?>
 
 	<h2><?php _e('Staff Information',SL_DOMAIN); ?></h2>
-	<input id="upload_image" type="hidden"  value="" />
 	<div id="salon_button_div" >
 	<input id="button_insert" type="button" value="<?php _e('Add',SL_DOMAIN); ?>"/>
 	<input id="button_update" type="button" value="<?php _e('Update',SL_DOMAIN); ?>"/>
@@ -322,12 +461,8 @@ class Staff_Page extends Salon_Page {
 		<textarea id="remark"  ></textarea>
 		<input type="text" id="employed_day" value="" />
 		<input type="text" id="leaved_day" value="" />
-		<div id="photo_wrap" >
-		<input id="button_upload" type="button" class="sl_button" value="<?php _e('photo upload',SL_DOMAIN); ?>" />
-		<input id="button_photo_delete" type="button" class="sl_button" value="<?php _e('photo delete',SL_DOMAIN); ?>" />
-		</div>
 		<div class="spacer"></div>
-		<div id="uploadedImageView"></div>
+		<div id="image_drop_area" ></div>
 
 	</div>
 

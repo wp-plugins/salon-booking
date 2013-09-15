@@ -10,6 +10,21 @@ class Booking_Component {
 	public function __construct(&$datas) {
 		$this->datas = $datas;
 	}
+	
+	public function getTargetStaffData($branch_cd) {
+		$result = $this->datas->getTargetStaffData($branch_cd);
+		foreach ($result as $k1 => $d1 ) {
+			//[PHOTO]
+			$photo_result = $this->datas->getPhotoData($d1['photo']);
+			$tmp = array();
+			for($i = 0 ;$i<count($photo_result);$i++) {
+				$tmp[] = $photo_result[$i];
+			}
+			$result[$k1]['photo_result'] = $tmp;
+			//[PHOTO]
+		}
+		return $result;
+	}
 
 	public function editWorkingData($branch_cd) {
 		$day_from = Salon_Component::computeDate(-1 * $this->datas->getConfigData('SALON_CONFIG_BEFORE_DAY'));

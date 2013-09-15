@@ -773,8 +773,175 @@ abstract class Salon_Data {
 		}
 		return $result[0]['cnt'];
 	}
+	//photo from
+	//$idsはphoto_idをカンマ区切りで設定する。
+	public function getPhotoData($ids) {
+		$result = array();
+		if (! empty($ids) ) {
+			global $wpdb;
+			$result = $wpdb->get_results('SELECT photo_id,photo_name,photo_path,photo_resize_path FROM '.$wpdb->prefix.'salon_photo '.
+										' WHERE photo_id in ('.$ids.')  AND delete_flg <> '.Salon_Reservation_Status::DELETED,ARRAY_A);
+			if ($result === false ) {
+				$this->_dbAccessAbnormalEnd();
+			}
+		}
+		$photo_result = array();
+		if (count($result) > 0) {
+			$edit_result = array();
+			foreach ($result as $k1 => $d1) {
+				$edit_result[$d1['photo_id']] = $d1;
+			}
+			$seq = explode(",",$ids);
+			for($i = 0;$i<count($seq);$i++) {
+				if (array_key_exists($seq[$i],$edit_result) )
+					$photo_result[] = $edit_result[$seq[$i]];
+				//テーブルのデータを直接削除する以外ないはず
+				else 
+					$photo_result[] = array('photo_id' => $seq[$i] ,'photo_name' => 'NO IMAGE', 'photo_path' => '','photo_resize_path' => '');				
+			}
+		}
+		return $photo_result;
+	}
+
+	public function availablePhotoData($ids) {
+		global $wpdb;
+		$exec_sql =	$wpdb->prepare(
+					' UPDATE  '.
+					$wpdb->prefix.'salon_photo '.
+					'  SET delete_flg = '.Salon_Reservation_Status::INIT.
+					'   WHERE photo_id in (%s) ',$ids);
+		$result = $wpdb->query($exec_sql);
+		if ($result === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		if ((defined ( 'SALON_DEMO' ) && SALON_DEMO   ) || ($this->config['SALON_CONFIG_LOG'] == Salon_Config::LOG_NEED )) {
+			$this->_writeLog($exec_sql);
+		}
+	}
+
+	public function getPhotoDataForDelete($photo_id){
+		global $wpdb;
+		$result = $wpdb->get_results(' SELECT photo_path,photo_resize_path FROM '.$wpdb->prefix.'salon_photo where delete_flg <> '.Salon_Reservation_Status::DELETED.' AND photo_id = '.$photo_id,ARRAY_A);
+		if ($result === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+
+		return $result;
+	}
+
+	public function deletePhotoData($photo_id) {
+		$res = $this->getPhotoDataForDelete($photo_id);
+		if (count($res) == 0 ) {
+			throw new Exception(Salon_Component::getMsg('E901',__LINE__),__('NO PHOTO DATA',SL_DOMAIN));
+		}
+		$files = array($res[0]['photo_path'],$res[0]['photo_resize_path']);
+		foreach ($files as $d1) {
+			if ( ! unlink(SALON_UPLOAD_DIR.basename($d1)) ) {
+				throw new Exception(Salon_Component::getMsg('E901',__LINE__),__('PHOTO DATA CAN\'T DELETE',SL_DOMAIN));
+			}
+		}
+	}
+
+	public function insertPhotoData ($photo_id,$target_file_name,$target_width=100,$target_height=100){
+		global $wpdb;
+		//項目の増減がありので、とりあえずINSERTして必要なファイル名のみupdateする
+		$sql = ' INSERT INTO '.$wpdb->prefix.'salon_photo '
+				.' (photo_name,photo_path,photo_resize_path,width,height,delete_flg,insert_time,update_time )'
+				.' SELECT photo_name,photo_path,photo_resize_path,width,height,delete_flg,insert_time,update_time FROM '.$wpdb->prefix.'salon_photo '
+				.'  WHERE photo_id = %d ';
+
+		$exec_sql = $wpdb->prepare($sql,$photo_id);
+		$result = $wpdb->query($exec_sql);
+		if ($result === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		if ((defined ( 'SALON_DEMO' ) && SALON_DEMO   ) || ($this->config['SALON_CONFIG_LOG'] == Salon_Config::LOG_NEED )) {
+			$this->_writeLog($exec_sql);
+		}
+		$new_photo_id = mysql_insert_id();
+
+		$set_string = 	' photo_path = %s , '.
+						' photo_resize_path = %s , '.
+						' insert_time = %s , '.
+						' update_time = %s ';
+												
+		$set_data_temp = array(
+						SALON_UPLOAD_URL.$target_file_name,
+						SALON_UPLOAD_URL.$target_width."_".$target_height."_".$target_file_name,
+						date_i18n('Y-m-d H:i:s'),
+						date_i18n('Y-m-d H:i:s'),
+						$new_photo_id);
+		$where_string = ' photo_id = %d ';
+		if ( $this->updateSql('salon_photo',$set_string,$where_string,$set_data_temp) === false) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		return $new_photo_id;
+	}
 
 
+	public function deletePhotoDatas ($photo_ids){
+		if (empty($photo_ids) )  return;
+		global $wpdb;
+		$set_string = 	' delete_flg = %s , '.
+						' update_time = %s ';
+												
+		$set_data_temp = array(
+						Salon_Reservation_Status::DELETED,
+						date_i18n('Y-m-d H:i:s'));
+		$where_string = ' photo_id IN ('.$photo_ids.') ';
+		if ( $this->updateSql('salon_photo',$set_string,$where_string,$set_data_temp) === false) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		$sql = ' SELECT photo_path,photo_resize_path FROM '.$wpdb->prefix.'salon_photo '
+				.'  WHERE photo_id IN ('.$photo_ids.') ';
+
+		$result = $wpdb->get_results($sql,ARRAY_A);
+		if ($result === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		foreach ($result as  $d1) {
+			$files = array($d1['photo_path'],$d1['photo_resize_path']);
+			foreach ($files as $d2) {
+				if ( ! unlink(SALON_UPLOAD_DIR.basename($d2)) ) {
+					throw new Exception(Salon_Component::getMsg('E901',__LINE__),__('PHOTO DATA CAN\'T DELETE',SL_DOMAIN));
+				}
+			}
+		}
+	}
+	
+	public function fixedPhoto($type,$new_photo_ids,$old_photo_ids = "") {
+		if (empty($new_photo_ids) )  return;
+		//仮登録と仮削除を確定する→ＮＧ
+		//仮登録を確定する
+		global $wpdb;
+		$sql = ' UPDATE '.$wpdb->prefix.'salon_photo '
+				.' SET delete_flg = %d '
+				.'  WHERE photo_id in ( '.$new_photo_ids.' ) AND delete_flg = %d ';
+		
+		$exec_sql = $wpdb->prepare($sql,Salon_Reservation_Status::INIT,Salon_Reservation_Status::TEMPORARY);
+		$result = $wpdb->query($exec_sql);
+		if ($result === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		if ((defined ( 'SALON_DEMO' ) && SALON_DEMO   ) || ($this->config['SALON_CONFIG_LOG'] == Salon_Config::LOG_NEED )) {
+			$this->_writeLog($exec_sql);
+		}
+		if ( $type == "updated" &&  !empty($old_photo_ids)) {
+			//更新前にあって、更新後にないＩＤを消す
+			$old_array = split(',',$old_photo_ids);
+			$new_array = split(',',$new_photo_ids);
+			$del_array = array();
+			foreach($old_array as $d1) {
+				if (!in_array($d1,$new_array) ) $del_array[] = $d1;
+			}
+			if (count($del_array) > 0 ) {
+				$this->deletePhotoDatas(implode(',',$del_array));
+			}
+		}
+	}
+	
+
+	//[photo to]
 
 	public function getConfigData ($target = null) {
 		if (empty($target) ) return $this->config;

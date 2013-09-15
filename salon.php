@@ -3,7 +3,7 @@
 Plugin Name: Salon booking 
 Plugin URI: http://salon.mallory.jp/en
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff. 
-Version: 1.1.2
+Version: 1.2.1
 Author: kuu
 Author URI: http://salon.mallory.jp/en
 */
@@ -21,7 +21,15 @@ define('SALON_JS_DIR', '/booking/');
 define('SALON_CSS_DIR', '/booking/');
 define('SALON_PHP_DIR', '/booking/');
 
-define( 'SALON_DEMO', false );
+define( 'SALON_DEMO', false);
+
+
+define( 'SALON_MAX_FILE_SIZE', 10 );	//１０メガまでUPLOAD
+define( 'SALON_UPLOAD_DIR_NAME','uploads'.DIRECTORY_SEPARATOR);
+define( 'SALON_UPLOAD_DIR', SL_PLUGIN_DIR . SALON_UPLOAD_DIR_NAME);
+define( 'SALON_UPLOAD_URL', SL_PLUGIN_URL .DIRECTORY_SEPARATOR. SALON_UPLOAD_DIR_NAME);
+define( 'SALON_COLORBOX_SIZE', '80%');
+
 
 $salon_booking = new Salon_Booking();
 
@@ -77,6 +85,7 @@ class Salon_Booking {
 		add_action('wp_ajax_search', array( &$this,'edit_search')); 
 		add_action('wp_ajax_working', array( &$this,'edit_working')); 
 		add_action('wp_ajax_log', array( &$this,'edit_log')); 
+		add_action('wp_ajax_photo', array( &$this,'edit_photo')); 
 
 		add_action('wp_ajax_nopriv_booking', array( &$this,'edit_booking')); 
 		add_action('wp_ajax_nopriv_confirm', array( &$this,'edit_confirm')); 
@@ -156,9 +165,11 @@ public function example_remove_dashboard_widgets() {
 	}
 
 	private function _sl_daily__delete_temporary_sql () {
-		$target = Salon_Component::computeDate(-1);
-		$current_time = date_i18n('Y-m-d H:i:s');
 		global $wpdb;
+		$target = Salon_Component::computeDate(-1);
+		//photodata
+		$this->_delete_temp_photo_data($target);
+		$current_time = date_i18n('Y-m-d H:i:s');
 		$sql = 'SELECT * FROM '.$wpdb->prefix.'salon_reservation WHERE update_time < %s AND status = %d AND delete_flg <> %d';
 		$edit_sql = $wpdb->prepare($sql,$target,Salon_Reservation_Status::TEMPORARY,Salon_Reservation_Status::DELETED);
 		$result = $wpdb->get_results($edit_sql,ARRAY_A);
@@ -189,6 +200,41 @@ public function example_remove_dashboard_widgets() {
 		$result = $wpdb->query($wpdb->prepare($sql,$edit_sql,__FILE__.' '.__FUNCTION__,$current_time));
 	}
 
+	private function _delete_temp_photo_data($target) {
+		global $wpdb;
+		$sql = 'SELECT  photo_path,photo_resize_path,photo_id FROM '.$wpdb->prefix.'salon_photo WHERE update_time < %s AND delete_flg = %d';
+		$edit_sql = $wpdb->prepare($sql,$target,Salon_Reservation_Status::TEMPORARY);
+		$result = $wpdb->get_results($edit_sql,ARRAY_A);
+		if ($result === false ) {
+			error_log('sql error:'.$wpdb->last_error.$wpdb->last_query.' '.date_i18n('Y-m-d H:i:s')."\n", 3, ABSPATH.'/'.date('Y').'.txt');
+			return;
+		}
+		//これは削除もれがあった場合のみ有効なコード。確定前にF5とかか
+		error_log('_/_/_/ photo delete data start _/_/_/'.date_i18n('Y-m-d H:i:s')."\n", 3, ABSPATH.'/'.date('Y').'.txt');
+		$sql = 'DELETE FROM '.$wpdb->prefix.'salon_photo  WHERE update_time < %s AND delete_flg = %d';
+		$edit_sql = $wpdb->prepare($sql,$target,Salon_Reservation_Status::DELETED);
+		if ($wpdb->query($edit_sql) === false ) {
+			error_log('sql error:'.$wpdb->last_error.$wpdb->last_query.' '.date_i18n('Y-m-d H:i:s')."\n", 3, ABSPATH.'/'.date('Y').'.txt');
+			return;
+		}
+		foreach ($result as $k1 => $d1 ) {
+			
+			error_log($d1['photo_id'].' '.$d1['photo_path'].' '.$d1['photo_resize_path'].date_i18n('Y-m-d H:i:s')."\n", 3, ABSPATH.'/'.date('Y').'.txt');
+			if ( ! unlink(SALON_UPLOAD_DIR.basename($d1['photo_path'])) ) {
+				error_log('delete error:'.SALON_UPLOAD_DIR.basename($d1['photo_path']).' '.date_i18n('Y-m-d H:i:s')."\n", 3, ABSPATH.'/'.date('Y').'.txt');
+			}
+			if ( ! unlink(SALON_UPLOAD_DIR.basename($d1['photo_resize_path'])) ) {
+				error_log('delete error:'.SALON_UPLOAD_DIR.basename($d1['photo_resize_path']).' '.date_i18n('Y-m-d H:i:s')."\n", 3, ABSPATH.'/'.date('Y').'.txt');
+			}
+			$sql = 'UPDATE '.$wpdb->prefix.'salon_photo SET delete_flg = %d WHERE photo_id = %d';
+			$edit_sql = $wpdb->prepare($sql,Salon_Reservation_Status::DELETED,$d1['photo_id']);
+			if ($wpdb->query($edit_sql) === false ) {
+				error_log('sql error:'.$wpdb->last_error.$wpdb->last_query.' '.date_i18n('Y-m-d H:i:s')."\n", 3, ABSPATH.'/'.date('Y').'.txt');
+				return;
+			}
+		}
+		
+	}
 	
 	private function _sl_daily_action_sql () {
 		$result =  unserialize(get_option( 'SALON_CONFIG'));
@@ -438,6 +484,9 @@ public function example_remove_dashboard_widgets() {
 	public function edit_search() {
 		require_once( SL_PLUGIN_SRC_DIR.'/control/search-control.php' );
 	}
+	public function edit_photo() {
+		require_once( SL_PLUGIN_SRC_DIR.'/control/photo-control.php' );
+	}
 
 	public function admin_javascript($hook_suffix) {
 		global $plugin_page;
@@ -467,8 +516,11 @@ public function example_remove_dashboard_widgets() {
 			wp_enqueue_script( 'dhtmlxscheduler_key_nav', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler_key_nav.js',array( 'dhtmlxscheduler' ) );
 		}
 		if ($plugin_page == 'salon_staff' ) {
+			wp_enqueue_script( 'jquery-ui-sortable');
 			wp_enqueue_script( 'colorbox', SL_PLUGIN_URL.'js/jquery.colorbox-min.js',array( 'jquery' ) );
 			wp_enqueue_style('colorbox', SL_PLUGIN_URL.'css/colorbox.css');
+			wp_enqueue_script( 'dropzone', SL_PLUGIN_URL.'js/dropzone.min.js',array( 'jquery' ) );
+			wp_enqueue_style('dropzone', SL_PLUGIN_URL.'css/dropzone.css');
 		}
 	}
 	
@@ -528,8 +580,29 @@ public function example_remove_dashboard_widgets() {
 		
 		global $wpdb;
 		$current = date_i18n('Y-m-d H:i:s');
+
+		//ver 1.2.1 From
+		$wpdb->query("	CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."salon_photo (
+			`photo_id`		INT NOT NULL AUTO_INCREMENT,
+			`photo_name`		varchar(255) default NULL,
+			`photo_path`		varchar(255) default NULL,
+			`photo_resize_path`		varchar(255) default NULL,
+			`width`			INT NOT NULL default '0',
+			`height`			INT NOT NULL default '0',
+			`delete_flg` tinyint NOT NULL default '0',
+			`insert_time` DATETIME,
+			`update_time` DATETIME,
+			UNIQUE  (`photo_id`)
+		 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+
+
+		//ver 1.2.1 To
+
+
 		if (get_option('salon_installed') ) {
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."salon_position SET role = 'edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all,edit_log',update_time = %s WHERE position_cd = %d",$current,Salon_Position::MAINTENANCE));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."salon_staff SET photo = null,update_time = %s",$current));
+			
 		}
 		else {
 			//status 会員の場合は、Icomplete
@@ -737,6 +810,7 @@ public function example_remove_dashboard_widgets() {
 			update_option('salon_installed', 1);
 		}
 		wp_schedule_event( ceil( time() / 86400 ) * 86400 + ( 1 - get_option( 'gmt_offset' ) ) * 3600, 'daily', 'salon_daily_event' );
+		
 		
 	}
 

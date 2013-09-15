@@ -584,31 +584,6 @@ EOT;
 		
 	}
 
-
-	static function echoUploadImage() {
-		//http://vinypara.s236.xrea.com/archives/177を参考にした
-		echo <<<EOT
-			window.send_to_editor = function(html){
-				html = new String(html).replace(/\"/g, "'");
-				\$j('#upload_image').val(html);
-				tb_remove();
-				\$j('#uploadedImageView').html(html);
-				\$j("#button_photo_delete").attr("disabled",false);
-			};			
-			\$j("#button_upload").click(function(){
-				tb_show("", "media-upload.php?post_id=0&type=image&no_flg=1&TB_iframe=true&keepThis=true&height=500&width=640");
-				return false;
-			});
-			\$j("#button_photo_delete").click(function(){
-				\$j("#upload_image").val("");  
-				\$j("#uploadedImageView").html("");
-				\$j("#button_photo_delete").attr("disabled",true);
-				return false;
-			});
-EOT;
-		
-	}
-
 	static function echoStaffSelect($target_name,$staff_datas,$is_noname_select = true,$is_noEcho = false){
 		$echo_data = '<select id="'.$target_name.'">';
 		if ($is_noname_select ) {
@@ -1919,7 +1894,7 @@ EOT2;
 	
 	static function serverCheck($items , &$msg) {
 		
-		if (wp_verify_nonce($_POST['nonce'],session_id()) === false) {
+		if (wp_verify_nonce($_REQUEST['nonce'],session_id()) === false) {
 			throw new Exception(Salon_Component::getMsg('E008',__function__.':'.__LINE__ ) );
 		}
 		if (count($items) == 0 ) return true;

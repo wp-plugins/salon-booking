@@ -54,6 +54,7 @@ class Staff_Control extends Salon_Control  {
 			$this->pages->set_table_data($res);
 		
 			if ($_POST['type'] == 'inserted' ) {
+				$this->datas->fixedPhoto($_POST['type'],$res['photo']);
 				$res['staff_cd'] = $this->datas->insertTable( $res);
 //				$this->pages->set_staff_cd($this->datas->insertTable( $res));
 //				$branch_name = $this->datas->getBranchData($this->pages->get_branch_cd(),'name');
@@ -61,12 +62,14 @@ class Staff_Control extends Salon_Control  {
 //				$this->pages->set_position_name( $this->datas->getPositionData($res['position_cd']));
 			}
 			elseif ($_POST['type'] == 'updated' ) {
+				$this->datas->updateStaffPhotoData($res['staff_cd'],$res['photo']);
 				$this->datas->updateTable( $res);
 //				$branch_name = $this->datas->getBranchData($this->pages->get_branch_cd(),'name');
 //				$this->pages->set_branch_name($branch_name['name']);
 //				$this->pages->set_position_name( $this->datas->getPositionData($res['position_cd']));
 			}
 			elseif ($_POST['type'] == 'deleted' ) {
+				$this->datas->deleteStaffPhotoData($res['staff_cd']);
 				$this->datas->deleteTable( $res);
 			}
 			$reRead = $this->comp->editInitData($this->datas->getStaffDataByStaffcd($res['staff_cd']));
