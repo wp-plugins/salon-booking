@@ -3,7 +3,7 @@
 Plugin Name: Salon booking 
 Plugin URI: http://salon.mallory.jp/en
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff. 
-Version: 1.2.1
+Version: 1.2.2
 Author: kuu
 Author URI: http://salon.mallory.jp/en
 */
@@ -413,7 +413,7 @@ public function example_remove_dashboard_widgets() {
 			}
 			if (in_array('edit_base',$show_menu[$this->management]) ) {
 				$file = $show_menu[$this->management][0] == 'edit_base' ? $this->management : 'salon_basic';
-				add_submenu_page( $this->management, __('Basic Information',SL_DOMAIN), __('Basic Information',SL_DOMAIN), 'level_8', $file, array( &$this, 'edit_base' ) );
+				add_submenu_page( $this->management, __('Basic Information',SL_DOMAIN), __('Basic Information',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_base' ) );
 			}
 		}
 
@@ -601,7 +601,9 @@ public function example_remove_dashboard_widgets() {
 
 		if (get_option('salon_installed') ) {
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."salon_position SET role = 'edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all,edit_log',update_time = %s WHERE position_cd = %d",$current,Salon_Position::MAINTENANCE));
-			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."salon_staff SET photo = null,update_time = %s",$current));
+			
+			
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."salon_staff SET photo = null,update_time = %s WHERE photo LIKE %s ",$current,'%:%'));
 			
 		}
 		else {

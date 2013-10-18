@@ -54,6 +54,7 @@ class Basic_Page extends Salon_Page {
 			fnDetailInit();	
 			$j("#target_year").val("<?php echo date_i18n('Y'); ?>");
 				
+			<?php  parent::set_datepickerDefault(); ?>
 			<?php  parent::set_datepicker("sp_date",$this->current_user_branch_cd,true,'',$this->branch_datas['closed']); ?>			
 			$j("#button_sp_date_insert").click(function(){
 				res = fnClickAddRow('inserted') 

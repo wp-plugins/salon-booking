@@ -286,6 +286,9 @@ class Staff_Page extends Salon_Page {
 		function fnClickAddRow(operate) {
 			if ( ! checkItem("data_detail") ) return false;
 
+			var staff_cd = "";
+			var ID = "";
+
 			var photo_id_array = [];
 			
 			<?php //photo ?>
@@ -299,8 +302,6 @@ class Staff_Page extends Salon_Page {
 			
 			var photo = photo_id_array.join(",");
 
-			var staff_cd = "";
-			var ID = "";
 			var used_photo_id_array = [];			
 			if ( save_k1 !== "" ) {
 				var setData = target.fnSettings();

@@ -4,7 +4,7 @@ Donate link: http://salon.mallory.jp/en/
 Tags: hair salon,salon,appointment,booking,reservation,dental clinic,hospital,mutilingual
 Requires at least: 3.5
 Tested up to: 3.5
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,15 +46,23 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 == Installation ==
 
 1. Upload `salon-booking` to the `/wp-content/plugins/` directory.
-2. `/wp-content/plugins/salon-booking/uploads`directory change permissons(read and write).
+2. `/wp-content/plugins/salon-booking/uploads` directory change permissons(read and write).
 3. Activate the plugin through the 'Plugins' menu in WordPress.
 
-= alredey installed =
+= alredey installed (version 1.2.1 or later) =
+
+1. Backup photo-files under `/wp-content/plugins/salon-booking/uploads`
+2. Deactivate this plugin.(Input datas are not lost)
+3. Upload `salon-booking` to the `/wp-content/plugins/` directory.
+4. Activate the plugin through the 'Plugins' menu in WordPress.
+5. If photo-files were deleted ,restore the backup photo-files under `/wp-content/plugins/salon-booking/uploads`
+
+= alredey installed (version 1.1.2 or earlier) =
 
 1. Deactivate this plugin.(Input datas are not lost)
 2. Remove `salon-booking` to the `/wp-content/plugins/` directory.
 3. Upload `salon-booking` to the `/wp-content/plugins/` directory.
-4. `/wp-content/plugins/salon-booking/uploads`directory change permissons(read and write).
+4. `/wp-content/plugins/salon-booking/uploads` directory change permissons(read and write).
 5. Activate the plugin through the 'Plugins' menu in WordPress.
 6. Upload the photo of staff member again.(I had no time to make function that old photos move new photos.Sorry)
 
@@ -75,6 +83,13 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 10. Admin form(timecard)
 
 == Changelog ==
+= 1.2.2 =
+* Fixed: use split function changed explode function.
+* Fixed: missing updated photo data.
+* Fixed: missing screen when no closed.
+* Changed: display "*" on required items.
+* Changed: datepicker's default value.
+
 = 1.2.1 =
 * Changed: Two or more staff photo setup was enabled.
 

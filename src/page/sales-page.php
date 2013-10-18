@@ -77,7 +77,8 @@ class Sales_Page extends Salon_Page {
 			<?php parent::echoDownloadEvent("sales") //ダウンロード画面 From ?>	
 			
 				
-			<?php  parent::set_datepicker("target_day",$this->current_user_branch_cd,true,'',$this->branch_datas['closed'],true); ?>			
+			<?php  parent::set_datepickerDefault(true); ?>
+			<?php  parent::set_datepicker("target_day",$this->current_user_branch_cd,true,'',$this->branch_datas['closed']); ?>			
 
 
 <?php			

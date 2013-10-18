@@ -34,7 +34,7 @@ class Config_Page extends Salon_Page {
 				if (check_items[index]) {
 					var diff = 0;
 					var id = check_items[index]["id"];
-					$j("#"+id+"_lbl").children().text(check_items[index]["tips"]);
+					$j("#"+id+"_lbl").children(".small").text(check_items[index]["tips"]);
 					if ($j("#"+id)[0].tagName == "TEXTAREA" ) diff = 5;
 					else {
 						if ( $j("#"+id).parent().hasClass("config_item_wrap") ) {
@@ -47,7 +47,7 @@ class Config_Page extends Salon_Page {
 					if (diff > 0 ) {
 						diff += <?php echo parent::INPUT_BOTTOM_MARGIN; ?>+5;
 						$j("#"+id).attr("style","margin-bottom: "+diff+"px;");
-						$j("#"+id+"_lbl").children().attr("style","text-align:left;");
+						$j("#"+id+"_lbl").children(".small").attr("style","text-align:left;");
 					}
 				}
 			}

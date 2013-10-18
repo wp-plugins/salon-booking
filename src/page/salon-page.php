@@ -122,9 +122,13 @@ EOT;
 		echo <<<EOT
 			for(index in check_items) {
 				if (check_items[index] ) {
+					var ast = "";
+					if (check_items[index]["class"].indexOf("chk_required") != -1) {
+						ast = "<span class=\"sl_req\">*</span>";
+					}
 					var id = check_items[index]["id"];
 					\$j("#"+id).addClass(check_items[index]["class"]);
-					\$j("#"+id).before("<label id=\""+id+"_lbl\" for=\""+id+"\" >"+check_items[index]["label"]+":<span class=\"small\"></span></label>");
+					\$j("#"+id).before("<label id=\""+id+"_lbl\" for=\""+id+"\" >"+check_items[index]["label"]+ast+":<span class=\"small\"></span></label>");
 				}
 			}
 EOT;
@@ -550,12 +554,12 @@ EOT;
 				\$j("span").removeClass("error");
 				for(index in check_items) {
 					var id = check_items[index]["id"];
-					\$j("#"+id+"_lbl").children().text(check_items[index]["tips"]);
+					\$j("#"+id+"_lbl").children(".small").text(check_items[index]["tips"]);
 					var diff = \$j("#"+id+"_lbl").outerHeight(true) - \$j("#"+id).outerHeight(true);
 					if (diff > 0 ) {
 						diff += {$default_margin}+5;
 						\$j("#"+id).attr("style","margin-bottom: "+diff+"px;");
-						\$j("#"+id+"_lbl").children().attr("style","text-align:left;");
+						\$j("#"+id+"_lbl").children(".samll").attr("style","text-align:left;");
 					}
 				}
 EOT;
@@ -912,16 +916,11 @@ EOT;
 		
 	}
 
-
-	static function set_datepicker ($tag_id,$branch_cd,$select_ok = false,$target_year = '',$closed_data = null,$is_maxToday = false){
-		$tmp_status = Salon_Status::OPEN;
-		if ($select_ok) $tmp_select = 'true';
-		else $tmp_select = 'false';
+	static function set_datepickerDefault($is_maxToday = false){
 		$range = 'minDate: new Date()';
 		if ($is_maxToday) $range = 'maxDate: new Date()';
-		
 		echo 
-				'$j("#'.$tag_id.'").datepicker({
+			'$j.datepicker.setDefaults({
 					closeText: "'.__('close',SL_DOMAIN).'",
 					'.__('prevText: "&#x3C;"',SL_DOMAIN).',
 					'.__('nextText: "&#x3E;"',SL_DOMAIN).',
@@ -940,8 +939,19 @@ EOT;
 					showButtonPanel: true,
 					'.__('yearSuffix:"" ',SL_DOMAIN).',
 					'.$range.',
+			});';			
+		
+	}
+
+	static function set_datepicker ($tag_id,$branch_cd,$select_ok = false,$target_year = '',$closed_data = null){
+		$tmp_status = Salon_Status::OPEN;
+		if ($select_ok) $tmp_select = 'true';
+		else $tmp_select = 'false';
+		
+		echo 
+				'$j("#'.$tag_id.'").datepicker({
 					beforeShowDay: function(day) {
-					  var result = "";
+					  var result = [true,"",""];
 					  var holiday = holidays[$j.format.date(day, "yyyyMMdd")]
 					  var sp_date = sp_dates[$j.format.date(day, "yyyyMMdd")]
 					  if (sp_date) {
@@ -954,17 +964,24 @@ EOT;
 					  } 
 					  else {
 						switch (day.getDay()) {';
-		$datas = explode(",",$closed_data);
-		foreach ($datas as $d1 ) {
-			echo 'case '.$d1.': result = ['.$tmp_select.', "date-holiday1","'.__('holiday',SL_DOMAIN).'"];  break; ';
+		if (empty($closed_data)) {
+			echo 'case 0: result = [true,"date-sunday",""]; break; ';
+			echo 'case 6: result = [true,"date-saturday",""]; break; ';
 		}
-		
-		
-		if (in_array(0,$datas) == false ) echo 'case 0: result = [true,"date-sunday"]; break; ';
-		if (in_array(6,$datas) == false ) echo 'case 6: result = [true,"date-satureday"]; break; ';
+		else {
+			$datas = explode(",",$closed_data);
+			foreach ($datas as $d1 ) {
+				if (!empty($d1))
+					echo 'case '.$d1.': result = ['.$tmp_select.', "date-holiday1","'.__('holiday',SL_DOMAIN).'"];  break; ';
+			}
+			
+			
+			if (in_array(0,$datas) == false ) echo 'case 0: result = [true,"date-sunday",""]; break; ';
+			if (in_array(6,$datas) == false ) echo 'case 6: result = [true,"date-satureday",""]; break; ';
+		}
 		echo <<<EOT2
 						default:
-							result = [true, ""];
+							result = [true, "",""];
 							break;
 						}
 					  }
@@ -1118,7 +1135,7 @@ EOT;
 					}
 					
 					\$j(this).removeAttr("style");
-					var label = \$j(this).prev().children();
+					var label = \$j(this).prev().children(".small");
 					label.removeClass("sl_coler_not_complete");
 					label.removeAttr("style");
 					if (  item_errors.length > 0 ) {

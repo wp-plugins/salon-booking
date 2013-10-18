@@ -572,6 +572,13 @@
 	text-align:right;
 /*	width:200px; */
 }
+
+#booking_login_div .sl_req,
+#data_detail .sl_req{
+	color:#F00;
+}
+
+
 #booking_login_div span.error,
 #data_detail span.error {
 	color:#F00;

@@ -4,7 +4,7 @@ abstract class Salon_Data {
 	
 	const SALON_NAME_DELIMITER = ' ';
 	const SALON_DUMMY_DOMAIN = '@dummy.com';
-	//salonã‚Å‚ÌAdmin‚ÍPosition_cd‚ª1`4‚Ü‚Å
+	//salonä¸Šã§ã®Adminã¯Position_cdãŒ1ï½4ã¾ã§
 	const SALON_ADMINISTRATOR = 4; 
 	const SALON_MAINTENANCE = 7;
 
@@ -104,7 +104,7 @@ abstract class Salon_Data {
 			$this->_dbAccessAbnormalEnd();
 		}
 		foreach ($result as $k1 => $d1 ) {
-			//Ê^‚ÍƒVƒ“ƒOƒ‹‚±[‚Ä‚µ‚å‚ñ‚ª•Ï‰»‚³‚ê‚ÄŠi”[‚³‚ê‚Ä‚¢‚é‚Ì‚Å’¼‚·
+			//å†™çœŸã¯ã‚·ãƒ³ã‚°ãƒ«ã“ãƒ¼ã¦ã—ã‚‡ã‚“ãŒå¤‰åŒ–ã•ã‚Œã¦æ ¼ç´ã•ã‚Œã¦ã„ã‚‹ã®ã§ç›´ã™
 			$tmp = str_replace("\'","'",$d1['photo']);
 			if (!empty($_SERVER['HTTPS']) ) {
 				$url = str_replace('/','\/',site_url());
@@ -320,19 +320,19 @@ abstract class Salon_Data {
 	}
 	
 
-	//ƒe[ƒuƒ‹‚É‚Í‚Ğ‚Æ‚Â‚ÌƒL[€–Ú‚ªautoincrement‚Å’è‹`‚³‚ê‚Ä‚¢‚é‘O’ñ
-	//$set_data‚É‚ÍƒL[€–Ú‚Íİ’è‚µ‚Ä‚¢‚È‚¢
-	//$set_attr‚É‚Í‚»‚ê‚¼‚ê‚Ì€–Ú‚Ì‘®«‚ª%s,%d,%f‚Å“ü‚Á‚Ä‚¢‚é
+	//ãƒ†ãƒ¼ãƒ–ãƒ«ã«ã¯ã²ã¨ã¤ã®ã‚­ãƒ¼é …ç›®ãŒautoincrementã§å®šç¾©ã•ã‚Œã¦ã„ã‚‹å‰æ
+	//$set_dataã«ã¯ã‚­ãƒ¼é …ç›®ã¯è¨­å®šã—ã¦ã„ãªã„
+	//$set_attrã«ã¯ãã‚Œãã‚Œã®é …ç›®ã®å±æ€§ãŒ%s,%d,%fã§å…¥ã£ã¦ã„ã‚‹
 	public function insertSql($table_name,$set_data,$set_attr) {
 		global $wpdb;
 		$sql = ' INSERT INTO '.$wpdb->prefix.$table_name.' ( ';
-		//ÅŒã‚Ì‚QƒJƒ‰ƒ€‚Íinsert‚Æupdate
+		//æœ€å¾Œã®ï¼’ã‚«ãƒ©ãƒ ã¯insertã¨update
 		$val = ' VALUES ('.$set_attr.',%s,%s)';
 		
 		foreach ( $set_data as $k1 => $d1 ) {
 			$sql .= $k1.',';
 		}
-		//ÅŒã‚Ì‚QƒJƒ‰ƒ€‚Íinsert‚Æupdate
+		//æœ€å¾Œã®ï¼’ã‚«ãƒ©ãƒ ã¯insertã¨update
 		$sql .= 'insert_time,update_time)';
 		$current_time = date_i18n('Y-m-d H:i:s');
 		$set_data['insert_time'] = $current_time;
@@ -349,7 +349,7 @@ abstract class Salon_Data {
 		if ((defined ( 'SALON_DEMO' ) && SALON_DEMO   ) || ($this->config['SALON_CONFIG_LOG'] == Salon_Config::LOG_NEED )) {
 			$this->_writeLog($exec_sql);
 		}
-		//int‚Ì‘O’ñ
+		//intã®å‰æ
 		return $save_id;
 	}
 	
@@ -524,14 +524,14 @@ abstract class Salon_Data {
 			$set_data_user['user_email'] =  $user_datas['mail'];
 			wp_update_user($set_data_user);
 		}
-		//update_user_meta‚Í‚È‚¯‚ê‚Î’Ç‰Á‚·‚éd—l
+		//update_user_metaã¯ãªã‘ã‚Œã°è¿½åŠ ã™ã‚‹ä»•æ§˜
 		update_user_meta( $user_id, 'zip',$user_datas['zip']);
 		update_user_meta( $user_id, 'address',$user_datas['address']);
 		update_user_meta( $user_id, 'tel',$user_datas['tel']);
 		update_user_meta( $user_id, 'mobile',$user_datas['mobile']);
 		update_user_meta( $user_id, 'first_name',$user_datas['first_name']);
 		update_user_meta( $user_id, 'last_name',$user_datas['last_name']);
-		//positionƒR[ƒh‚É‚æ‚è’l‚ğİ’è‚·‚é
+		//positionã‚³ãƒ¼ãƒ‰ã«ã‚ˆã‚Šå€¤ã‚’è¨­å®šã™ã‚‹
 		$role = $this->_getRoleByPosition(intval($user_datas['position_cd']));
 		global $wpdb;
 		update_user_meta( $user_id, $wpdb->prefix.'capabilities',array($role=>"1") );
@@ -571,7 +571,7 @@ abstract class Salon_Data {
 		if (empty($address) ) $address = __('not registered',SL_DOMAIN);
 		if (empty($mobile) ) $mobile = __('not registered',SL_DOMAIN);
 
-		//mail‚©tel‚ÍORğŒ‚Å•K{
+		//mailã‹telã¯ORæ¡ä»¶ã§å¿…é ˆ
 		global $wpdb;
 		
 		$edit_name = explode(self::SALON_NAME_DELIMITER, Salon_Component::zenSp2han($name));
@@ -683,8 +683,8 @@ abstract class Salon_Data {
 
 
 	public function checkUserlogin(&$mail,$tel,$name,&$user_login){	
-		//mail‚©tel‚ÍORğŒ‚Å•K{
-		//ŠY“–‚Ìuser_login‚Ì‘¶İ‚ğŠm”F‚·‚éB
+		//mailã‹telã¯ORæ¡ä»¶ã§å¿…é ˆ
+		//è©²å½“ã®user_loginã®å­˜åœ¨ã‚’ç¢ºèªã™ã‚‹ã€‚
 		global $wpdb;
 	
 		if (empty($mail) ) 	{
@@ -729,10 +729,10 @@ abstract class Salon_Data {
 			$this->_dbAccessAbnormalEnd();
 		}
 		$edit = array();
-		//ƒƒOƒCƒ“ID’PˆÊ‚Ì”z—ñ‚É•ÏŠ·‚·‚éB
+		//ãƒ­ã‚°ã‚¤ãƒ³IDå˜ä½ã®é…åˆ—ã«å¤‰æ›ã™ã‚‹ã€‚
 		for ($i =0; $i < count($result) ; $i++ ) {
 			$edit[$result[$i]['user_login']][$result[$i]['meta_key']] = $result[$i]['meta_value'];
-			//[TODO]ç’·H
+			//[TODO]å†—é•·ï¼Ÿ
 			$edit[$result[$i]['user_login']]['ID'] = $result[$i]['ID'];
 			$edit[$result[$i]['user_login']]['mail'] = $result[$i]['user_email'];
 		}
@@ -774,7 +774,7 @@ abstract class Salon_Data {
 		return $result[0]['cnt'];
 	}
 	//photo from
-	//$ids‚Íphoto_id‚ğƒJƒ“ƒ}‹æØ‚è‚Åİ’è‚·‚éB
+	//$idsã¯photo_idã‚’ã‚«ãƒ³ãƒåŒºåˆ‡ã‚Šã§è¨­å®šã™ã‚‹ã€‚
 	public function getPhotoData($ids) {
 		$result = array();
 		if (! empty($ids) ) {
@@ -795,7 +795,7 @@ abstract class Salon_Data {
 			for($i = 0;$i<count($seq);$i++) {
 				if (array_key_exists($seq[$i],$edit_result) )
 					$photo_result[] = $edit_result[$seq[$i]];
-				//ƒe[ƒuƒ‹‚Ìƒf[ƒ^‚ğ’¼Úíœ‚·‚éˆÈŠO‚È‚¢‚Í‚¸
+				//ãƒ†ãƒ¼ãƒ–ãƒ«ã®ãƒ‡ãƒ¼ã‚¿ã‚’ç›´æ¥å‰Šé™¤ã™ã‚‹ä»¥å¤–ãªã„ã¯ãš
 				else 
 					$photo_result[] = array('photo_id' => $seq[$i] ,'photo_name' => 'NO IMAGE', 'photo_path' => '','photo_resize_path' => '');				
 			}
@@ -844,7 +844,7 @@ abstract class Salon_Data {
 
 	public function insertPhotoData ($photo_id,$target_file_name,$target_width=100,$target_height=100){
 		global $wpdb;
-		//€–Ú‚Ì‘Œ¸‚ª‚ ‚è‚Ì‚ÅA‚Æ‚è‚ ‚¦‚¸INSERT‚µ‚Ä•K—v‚Èƒtƒ@ƒCƒ‹–¼‚Ì‚İupdate‚·‚é
+		//é …ç›®ã®å¢—æ¸›ãŒã‚ã‚Šã®ã§ã€ã¨ã‚Šã‚ãˆãšINSERTã—ã¦å¿…è¦ãªãƒ•ã‚¡ã‚¤ãƒ«åã®ã¿updateã™ã‚‹
 		$sql = ' INSERT INTO '.$wpdb->prefix.'salon_photo '
 				.' (photo_name,photo_path,photo_resize_path,width,height,delete_flg,insert_time,update_time )'
 				.' SELECT photo_name,photo_path,photo_resize_path,width,height,delete_flg,insert_time,update_time FROM '.$wpdb->prefix.'salon_photo '
@@ -855,10 +855,10 @@ abstract class Salon_Data {
 		if ($result === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
+		$new_photo_id = mysql_insert_id();
 		if ((defined ( 'SALON_DEMO' ) && SALON_DEMO   ) || ($this->config['SALON_CONFIG_LOG'] == Salon_Config::LOG_NEED )) {
 			$this->_writeLog($exec_sql);
 		}
-		$new_photo_id = mysql_insert_id();
 
 		$set_string = 	' photo_path = %s , '.
 						' photo_resize_path = %s , '.
@@ -911,8 +911,8 @@ abstract class Salon_Data {
 	
 	public function fixedPhoto($type,$new_photo_ids,$old_photo_ids = "") {
 		if (empty($new_photo_ids) )  return;
-		//‰¼“o˜^‚Æ‰¼íœ‚ğŠm’è‚·‚é¨‚m‚f
-		//‰¼“o˜^‚ğŠm’è‚·‚é
+		//ä»®ç™»éŒ²ã¨ä»®å‰Šé™¤ã‚’ç¢ºå®šã™ã‚‹â†’ï¼®ï¼§
+		//ä»®ç™»éŒ²ã‚’ç¢ºå®šã™ã‚‹
 		global $wpdb;
 		$sql = ' UPDATE '.$wpdb->prefix.'salon_photo '
 				.' SET delete_flg = %d '
@@ -927,9 +927,9 @@ abstract class Salon_Data {
 			$this->_writeLog($exec_sql);
 		}
 		if ( $type == "updated" &&  !empty($old_photo_ids)) {
-			//XV‘O‚É‚ ‚Á‚ÄAXVŒã‚É‚È‚¢‚h‚c‚ğÁ‚·
-			$old_array = split(',',$old_photo_ids);
-			$new_array = split(',',$new_photo_ids);
+			//æ›´æ–°å‰ã«ã‚ã£ã¦ã€æ›´æ–°å¾Œã«ãªã„ï¼©ï¼¤ã‚’æ¶ˆã™
+			$old_array = explode(',',$old_photo_ids);
+			$new_array = explode(',',$new_photo_ids);
 			$del_array = array();
 			foreach($old_array as $d1) {
 				if (!in_array($d1,$new_array) ) $del_array[] = $d1;

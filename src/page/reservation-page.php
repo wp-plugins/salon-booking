@@ -81,6 +81,7 @@ class Reservation_Page extends Salon_Page {
 			<?php parent::echoSearchCustomer(); //検索画面 ?>	
 			<?php parent::echoDownloadEvent("reservation") //ダウンロード画面 From ?>	
 			
+			<?php  parent::set_datepickerDefault(); ?>
 			<?php  parent::set_datepicker("target_day",$this->current_user_branch_cd,false,'',$this->branch_datas['closed']); ?>			
 
 
