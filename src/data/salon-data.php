@@ -98,7 +98,7 @@ abstract class Salon_Data {
 		}
 		
 		$add_where .= ' AND it.branch_cd = br.branch_cd ';
-		$sql = ' SELECT it.*,br.name as branch_name FROM '.$wpdb->prefix.'salon_item it , '.$wpdb->prefix.'salon_branch br '.$add_where.' ORDER BY branch_cd,item_cd ';
+		$sql = ' SELECT it.*,br.name as branch_name FROM '.$wpdb->prefix.'salon_item it , '.$wpdb->prefix.'salon_branch br '.$add_where.' ORDER BY branch_cd,display_sequence,item_cd ';
 		$result = $wpdb->get_results($sql,ARRAY_A);
 		if ($result === false ) {
 			$this->_dbAccessAbnormalEnd();
@@ -121,7 +121,7 @@ abstract class Salon_Data {
 		global $wpdb;
 		$delete_str = ' delete_flg <> '.Salon_Reservation_Status::DELETED;
 		if (! $except_delete ) $delete_str = '1=1';
-		$sql = ' SELECT item_cd,name,minute,price FROM '.$wpdb->prefix.'salon_item where '.$delete_str.' and branch_cd = %d  ORDER BY branch_cd,item_cd ';
+		$sql = ' SELECT item_cd,name,short_name,minute,price FROM '.$wpdb->prefix.'salon_item where '.$delete_str.' and branch_cd = %d  ORDER BY branch_cd,display_sequence,item_cd ';
 		$result = $wpdb->get_results($wpdb->prepare($sql,$branch_cd),ARRAY_A);
 		if ($result === false ) {
 			$this->_dbAccessAbnormalEnd();
@@ -129,10 +129,10 @@ abstract class Salon_Data {
 		return $result;
 	}
 
-	public function getTargetStaffData($branch_cd = null,$is_include_delete_data = false){
+	public function getTargetStaffData($branch_cd = null,$except_delete = true){
 		global $wpdb;
 		$where = 'WHERE st.delete_flg <> '.Salon_Reservation_Status::DELETED ;
-		if ($is_include_delete_data ) $where = 'WHERE 1 = 1 ';
+		if (! $except_delete ) $where = 'WHERE 1 = 1 ';
 		if (!empty($branch_cd) ) {
 			$where .= $wpdb->prepare(" AND st.branch_cd = %s ",$branch_cd);
 		}
@@ -942,6 +942,24 @@ abstract class Salon_Data {
 	
 
 	//[photo to]
+
+//[2013/11/10]Ver 1.3.1 
+	public function getMaxDisplaySequence ($table_name) {
+		$cnt = 0;
+		global $wpdb;
+		$sql = 'SELECT max(display_sequence) as max_seq FROM '.$wpdb->prefix.$table_name.' where delete_flg <> '.Salon_Reservation_Status::DELETED;
+		if ($wpdb->query($sql) ) {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+		else {
+			$this->_dbAccessAbnormalEnd();
+		}
+		if ($result) {
+			$cnt = $result[0]['max_seq'];
+		}
+		return $cnt;
+	}
+
 
 	public function getConfigData ($target = null) {
 		if (empty($target) ) return $this->config;

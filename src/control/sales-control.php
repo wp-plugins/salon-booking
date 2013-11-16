@@ -49,8 +49,8 @@ class Sales_Control extends Salon_Control  {
 
 			$this->pages->set_current_user_branch_cd($branch_cd);
 			$this->pages->set_branch_datas($this->datas->getBranchData($branch_cd));
-			$this->pages->set_item_datas($this->datas->getTargetItemData($branch_cd));
-			$this->pages->set_staff_datas($this->datas->getTargetStaffData($branch_cd));
+			$this->pages->set_item_datas($this->datas->getTargetItemData($branch_cd,false));
+			$this->pages->set_staff_datas($this->datas->getTargetStaffData($branch_cd,false));
 			$this->pages->set_config_datas($this->datas->getConfigData());
 
 

@@ -18,8 +18,14 @@ class Item_Component {
 			$set_data['item_cd'] = intval($_POST['item_cd']);
 		}
 		else {
-			if ($_POST['type'] == 'updated' ) 	$set_data['item_cd'] = intval($_POST['item_cd']);
-
+//[2013/11/10]Ver 1.3.1 
+			if ($_POST['type'] == 'updated' ) 	{
+				$set_data['item_cd'] = intval($_POST['item_cd']);
+				$set_data['display_sequence'] = intval($_POST['display_sequence']);
+			}
+			else {
+				$set_data['display_sequence'] = $this->datas->getMaxDisplaySequence('salon_item')+1;
+			}
 
 			$set_data['name'] = stripslashes($_POST['name']);
 			$set_data['short_name'] = $_POST['short_name'];
@@ -37,6 +43,7 @@ class Item_Component {
 			else {
 				$set_data['photo'] = $tmp;
 			}
+			
 		}
 		return $set_data;
 		
@@ -47,8 +54,8 @@ class Item_Component {
 		$column = array();
 		$column[2]="name = %s ";
 		$column[3]="branch_cd = %d ";
-		$column[4]="price = %d ";
-		$column[5]="remark = %s ";
+		$column[5]="price = %d ";
+		$column[6]="remark = %s ";
 		
 		
 		$set_data['column_name'] = $column[intval($_POST['column'])];
@@ -57,5 +64,11 @@ class Item_Component {
 		return $set_data;
 	}
 	
+	public function editSeqData() {
+		$keys = explode(',',$_POST['item_cd']);
+		$values = explode(',',$_POST['value']);
+		$set_data = array($keys[0] => $values[1],$keys[1] => $values[0]);
+		return $set_data;
+	}
 	
 }

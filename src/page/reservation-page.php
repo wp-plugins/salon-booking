@@ -430,7 +430,7 @@ EOT;
 		</div>
 		
 		<?php parent::echoStaffSelect("staff_cd",$this->staff_datas,true); ?>
-		<?php parent::echoItemInputCheck($this->item_datas); ?>
+		<?php parent::echoItemInputCheckTable($this->item_datas); ?>
 		<textarea id="remark"  ></textarea>
 		<input type="text" id="price" value="" />
 			

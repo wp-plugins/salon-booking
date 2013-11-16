@@ -27,7 +27,7 @@ class Item_Control extends Salon_Control  {
 		$this->datas = new Item_Data();
 		$this->set_config($this->datas->getConfigData());
 		$this->comp = new Item_Component($this->datas);
-		$this->permits = array('Item_Page','Item_Init','Item_Edit','Item_Col_Edit');
+		$this->permits = array('Item_Page','Item_Init','Item_Edit','Item_Col_Edit','Item_Seq_Edit');
 	}
 	
 	
@@ -63,6 +63,13 @@ class Item_Control extends Salon_Control  {
 			$res = $this->comp->editColumnData();
 			$this->pages->set_table_data($res);
 			$this->datas->updateColumn($res);
+		}
+		elseif ($this->action_class == 'Item_Seq_Edit' ) {
+			$this->set_response_type($this->pages->getResponseType());
+			$this->pages->check_request();
+			$res = $this->comp->editSeqData();
+			$this->pages->set_table_data($res);
+			$this->datas->updateSeq($res);
 		}
 
 		$this->pages->show_page();

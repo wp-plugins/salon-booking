@@ -46,7 +46,7 @@ class Item_Edit extends Salon_Page {
 	public function show_page() {
 		$res = array();
 
-		$res['no'] = __($_POST['type'],SL_DOMAIN);
+		$res['no'] = __(parent::replaceResult($_POST['type']),SL_DOMAIN);
 		$res['check'] = '';
 
 		$res['item_cd'] = $this->table_data['item_cd'];
@@ -62,6 +62,7 @@ class Item_Edit extends Salon_Page {
 			$res['price'] = $this->table_data['price'];
 			$res['remark'] = htmlspecialchars($this->table_data['remark'],ENT_QUOTES);
 			$res['photo'] = $this->table_data['photo'];
+			$res['display_sequence'] = $this->table_data['display_sequence'];
 		}
 		
 		

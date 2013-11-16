@@ -13,7 +13,7 @@ class Item_Data extends Salon_Data {
 	
 
 	public function insertTable ($table_data){
-		$item_cd = $this->insertSql(self::TABLE_NAME,$table_data,'%s,%s,%d,%d,%d,%s,%s,%s,%s');
+		$item_cd = $this->insertSql(self::TABLE_NAME,$table_data,'%s,%s,%d,%d,%d,%s,%s,%s,%s,%d');
 		if ($item_cd === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
@@ -30,6 +30,7 @@ class Item_Data extends Salon_Data {
 						' remark =  %s , '.
 						' memo =  %s , '.
 						' photo =  %s , '.
+						' display_sequence = %d , '.
 						' update_time = %s ';
 												
 		$set_data_temp = array($table_data['name'],
@@ -40,6 +41,7 @@ class Item_Data extends Salon_Data {
 						$table_data['remark'],
 						$table_data['memo'],
 						$table_data['photo'],
+						$table_data['display_sequence'],
 						date_i18n('Y-m-d H:i:s'),
 						$table_data['item_cd']);
 		$where_string = ' item_cd = %d ';
@@ -82,6 +84,20 @@ class Item_Data extends Salon_Data {
 		return $this->getAllItemData();
 	}
 	
+	public function updateSeq($table_data) {
+		foreach ($table_data as $k1 => $d1) {
+			$set_string = 	'display_sequence = %d , '.
+							' update_time = %s ';
+															
+			$set_data_temp = array($d1,
+							date_i18n('Y-m-d H:i:s'),
+							$k1);
+			$where_string = ' item_cd = %d ';
+			if ( $this->updateSql(self::TABLE_NAME,$set_string,$where_string,$set_data_temp) === false ) {
+				$this->_dbAccessAbnormalEnd();
+			}
+		}
+	}
 
 	
 	

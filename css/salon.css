@@ -815,10 +815,10 @@ label#mail_lbl  {
 #working_cds label{
 	width:auto !important;
 }
-#item_cds label{
+/*#item_cds label{	
 	width:100px !important;
 }
-
+*/
 .config_item_wrap {
 	display:block;
 	font-size:12px;
@@ -931,6 +931,25 @@ label#mail_lbl  {
 	background: transparent url(../images/screen-icon.png) no-repeat 2px 1px;
 
 }
+
+.salon_button_updown{
+	width:45px;
+	height:15px;
+	padding:1px;
+	font-size:9px;
+}
+
+#sl_front_items  label {
+	margin:3px;
+	vertical-align:top;
+	width:auto !important;
+}
+
+#sl_front_items  td {
+	vertical-align:top;
+	
+}
+
 /*
 .btns{font-size: 80px; width:150px; background:#111; height: 150px; line-height:150px; text-align:center; font-family: arial; color: #fff; float: left; margin:10px; cursor: pointer}
 .close{cursor: pointer;}

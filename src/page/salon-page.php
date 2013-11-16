@@ -98,22 +98,24 @@ class Salon_Page {
 
 	static function echoHtmlpecialchars() {
 		echo <<<EOT
-			function htmlspecialchars_decode (string) {
-				string = string.toString().replace(/&lt;/g, "<").replace(/&gt;/g, ">");
-				string = string.replace(/&#0*39;/g, "'"); 
-				string = string.replace(/&quot;/g, '"');
-				string = string.replace(/&amp;/g, '&');
-				return string;
-			}
-			function htmlspecialchars (string) {
-				if (string) {
-					string = string.toString();
-					string = string.replace(/&/g, "&amp;");
-					string = string.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-					string = string.replace(/'/g, "&#039;");
-					string = string.replace(/\"/g, "&quot;");
+			function htmlspecialchars_decode (data) {
+				if (data ) {
+					data = data.toString().replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+					data = data.replace(/&#0*39;/g, "'"); 
+					data = data.replace(/&quot;/g, '"');
+					data = data.replace(/&amp;/g, '&');
 				}
-				return string;
+				return data;
+			}
+			function htmlspecialchars (data) {
+				if (data) {
+					data = data.toString();
+					data = data.replace(/&/g, "&amp;");
+					data = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+					data = data.replace(/'/g, "&#039;");
+					data = data.replace(/\"/g, "&quot;");
+				}
+				return data;
 			}
 EOT;
 	}
@@ -191,7 +193,7 @@ EOT;
 		$sZeroRecords = __('No matching records found' ,SL_DOMAIN);
 		
 		echo <<<EOT
-			"bAutoWidth": true,
+			"bAutoWidth": false,
 			"bProcessing": true,
 			"sScrollX": "100%",
 			"bScrollCollapse": true,
@@ -236,22 +238,25 @@ EOT;
 	}
 
 
-	static function echoTableItem($items,$is_only_common_part = false,$is_multi_branch = true,$operate_width = '150px') {	
+	static function echoTableItem($items,$is_only_common_part = false,$is_multi_branch = true,$operate_width = '120px',$isForceNoSort = false) {	
 		$operate_title = __('Operation',SL_DOMAIN);
 		echo <<<EOT
 			"aoColumns": [
-				{ "mData":"no","sTitle": "No" ,"sClass":"sl_select","bSearchable": false,"bSortable": false,"sWidth":"10px"},
+				{ "mData":"no","sTitle": "No" ,"sClass":"sl_select","bSearchable": false,"bSortable": false,"sWidth":"20px"},
 				{ "mData":"check","sTitle": "{$operate_title}","bSortable": false,"bSearchable": false,"sWidth":"{$operate_width}"},
 EOT;
 	
 		if ($is_only_common_part ) return;
 		$item_contents = Salon_Page::setItemContents();	
 
-		
 	
 		$tmp = array();
 		foreach ($items as $d1) {
-			empty ($item_contents[$d1]['table']['sort']) ? $sort = 'false' : $sort = $item_contents[$d1]['table']['sort'];
+//			if ($isForceNoSort ) $sort = 'false';
+//			else 		empty ($item_contents[$d1]['table']['sort'])  ? $sort = 'false' : $sort = $item_contents[$d1]['table']['sort'];
+//			if ($isForceNoSort ) $search = 'false';
+//			else 		empty ($item_contents[$d1]['table']['search']) ? $search = 'false' : $search = $item_contents[$d1]['table']['search'];
+			empty ($item_contents[$d1]['table']['sort'])  ? $sort = 'false' : $sort = $item_contents[$d1]['table']['sort'];
 			empty ($item_contents[$d1]['table']['search']) ? $search = 'false' : $search = $item_contents[$d1]['table']['search'];
 			empty ($item_contents[$d1]['table']['visible']) ? $visible = 'false' : $visible = $item_contents[$d1]['table']['visible'];
 			$width = '';
@@ -581,6 +586,38 @@ EOT;
 					<label for="check_{$d1['item_cd']}">&nbsp;{$edit_name}({$edit_price})&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
 EOT;
 			}
+		}
+		$echo_data .= '</div>';
+		if ($is_noEcho) return str_replace(array("\r\n","\r","\n"), '', $echo_data);
+		else echo $echo_data;
+		
+	}
+	static function echoItemInputCheckTable($item_datas,$is_noEcho = false){
+		$echo_data  = '<div id="item_cds" class="sl_checkbox" >';
+		if ($item_datas) {
+			$echo_data .= '<table id="sl_front_items"><tbody>';
+			$loop_max = count($item_datas);
+			for($i = 0 ; $i < $loop_max ; $i += 2 ){
+				$echo_data .= '<tr>';
+				for($j= 0 ; $j < 2 ; $j++ ) {
+					if ( $loop_max > ($i+$j) ) {
+						$d1 = $item_datas[$i+$j];
+						$edit_price = number_format($d1['price']);
+						$edit_name = htmlspecialchars($d1['short_name'],ENT_QUOTES);
+						$echo_data .= <<<EOT
+							<td>
+							<input type="checkbox" id="check_{$d1['item_cd']}" value="{$d1['item_cd']}" />
+							<input type="hidden" id="check_price_{$d1['item_cd']}" value="{$d1['price']}" />
+							<input type="hidden" id="check_minute_{$d1['item_cd']}" value="{$d1['minute']}" />
+							</td><td>
+							<label for="check_{$d1['item_cd']}">{$edit_name}({$edit_price})</label>
+							</td>
+EOT;
+					}
+				}
+				$echo_data .= '</tr>';
+			}
+			$echo_data .= "</tbody></table>";
 		}
 		$echo_data .= '</div>';
 		if ($is_noEcho) return str_replace(array("\r\n","\r","\n"), '', $echo_data);
@@ -1903,6 +1940,17 @@ EOT2;
 							,'sort'=>'true'
 							,'search'=>'true'
 							,'visible'=>'true' ));
+		//[20131110]Ver1.3.1
+		$item_contents['display_sequence'] =array('id'=>'display_sequence'
+		 ,'class' => array()
+		 ,'check' => array()
+		 ,'label' => __('Seq',SL_DOMAIN)
+		 ,'tips' => ''
+		 ,'table' => array(  'class'=>'salon_editable '
+							,'width'=>'10px'
+							,'sort'=>'false'
+							,'search'=>'false'
+							,'visible'=>'true' ));
 
 		return $item_contents;	
 	
@@ -2020,12 +2068,12 @@ EOT2;
 	
 	static function serverEachCheck($target,$check,$label,&$err_msg){
 		if (trim($check) == 'chk_required') {
-			if (empty($target) ) {
+			if (empty($target)&& $target!=0) {
 				$err_msg[] = Salon_Component::getMsg('E201',$label);
 				return false;
 			}
 		}
-		if (trim($check) == 'reqCheckbox') {
+		if (trim($check) == 'reqCheckbox' ) {
 			if (empty($target) ) {
 				$err_msg[] = Salon_Component::getMsg('E201',$label);
 				return false;
@@ -2220,7 +2268,8 @@ EOT2;
 		$check_contens['reqCheckbox'] = '
 						if (cl.indexOf("reqCheckbox") != -1 ){
 							var is_checked = false;
-							$j('.$target.').children().filter("input[type=checkbox]").each(function(){
+//							$j('.$target.').children().filter("input[type=checkbox]").each(function(){
+							$j('.$target.').find("input[type=checkbox]").each(function(){
 								if ( $j('.$target.').is(":checked") ) {
 									is_checked = true;
 								}
@@ -2230,6 +2279,7 @@ EOT2;
 								item_errors.push("'.__('please check',SL_DOMAIN).'");
 							}
 						}';
+
 							
 		$check_contens['chkSpace'] = '
 						if ($j('.$target.').hasClass("chkSpace") ) {
@@ -2291,6 +2341,104 @@ EOT2;
 		$edit = str_replace('dd',$ymd[2],$edit);
 		return $edit;;
 	}
+//[2013/11/10]Ver 1.3.1 from
+	static function echoDataTableDisplaySequence($col) {
+		$up_name = __('up',SL_DOMAIN);
+		$down_name = __('down',SL_DOMAIN);
+		//順番は引数で渡す。ここでは支店の後ろなので４
+		echo <<<EOT
+			var element = \$j("td:eq({$col})", nRow);
+			element.text("");
+			var up_box = \$j("<button>")
+					.text("{$up_name}")
+					.attr("type","button")
+					.attr("id","salon_up_btn_"+iDataIndex)
+					.attr("name","salon_up_"+iDataIndex)
+					.attr("value",target.fnGetPosition(nRow))
+					.attr("class","sl_button salon_button_updown")
+					.click(function(event) {
+						if (iDataIndex == 0 ) return;
+						fnSeqUpdate(this.parentNode,iDataIndex,-1);
+					});
+			var down_box = \$j("<button>")
+					.text("{$down_name}")
+					.attr("type","button")
+					.attr("id","salon_down_btn_"+iDataIndex)
+					.attr("name","salon_down_"+iDataIndex)
+					.attr("value",target.fnGetPosition(nRow))
+					.attr("class","sl_button salon_button_updown")
+					.click(function(event) {
+						if (iDataIndex == target.fnSettings().aoData.length-1) return;
+						fnSeqUpdate(this.parentNode,iDataIndex,1);
+					});
+			element.append(up_box);
+			element.append(down_box);
+EOT;
+		
+	}
+	
+	static function replaceResult($indata){
+		return strtoupper(substr($indata,0,3));
+	}
+
+	public function echoDataTableSeqUpdateRow($target_name,$target_key_name,$is_multi_branch ) {
+		$target_src = get_bloginfo( 'wpurl' ).'/wp-admin/admin-ajax.php?action='.$target_name;
+		if (empty($target_key_name) ) $target_key_name = $target_name;
+		$menu_func = ucwords($target_name);
+		$check_logic = '';
+		if ($is_multi_branch) {
+			$check_logic = "if (setData['aoData'][position[0]]['_aData']['branch_cd'] != setData['aoData'][position[0]+plus_minus]['_aData']['branch_cd']) return;";
+		}
+
+		echo <<<EOT
+			function fnSeqUpdate(target_col,current_row,plus_minus) {
+				var position = target.fnGetPosition( target_col );
+				var setData = target.fnSettings();
+				{$check_logic}				
+				var source_index = setData['aoData'][position[0]]['nTr']['_DT_RowIndex'];
+				var source_sequence = setData['aoData'][position[0]]['_aData']['display_sequence'];
+				var target_index = setData['aoData'][position[0]+plus_minus]['nTr']['_DT_RowIndex'];
+				var target_sequence = setData['aoData'][position[0]+plus_minus]['_aData']['display_sequence'];
+				var source_key_id = setData['aoData'][position[0]]['_aData']['{$target_key_name}'];
+				var target_key_id = setData['aoData'][position[0]+plus_minus]['_aData']['{$target_key_name}'];
+				
+
+				\$j.ajax({
+					type: "post",
+					url:  "{$target_src}",
+					dataType : "json",
+						data: {
+							"{$target_key_name}":source_key_id + "," + target_key_id,
+							"value":source_sequence + "," + target_sequence,
+							"type":"updated",
+							"nonce":"{$this->nonce}",
+							"menu_func":"{$menu_func}_Seq_Edit"
+						},
+					success: function(data) {
+						if (data === null || data.status == "Error" ) {
+							alert(data.message);
+						}
+						else {
+							var save = setData['aoData'][position[0]];
+							setData['aoData'][position[0]] = setData['aoData'][position[0]+plus_minus];
+							setData['aoData'][position[0]]['nTr']['_DT_RowIndex'] = source_index;
+							setData['aoData'][position[0]]['_aData']['display_sequence'] = source_sequence;
+							setData['aoData'][position[0]+plus_minus] = save;
+							setData['aoData'][position[0]+plus_minus]['nTr']['_DT_RowIndex'] = target_index;
+							setData['aoData'][position[0]+plus_minus]['_aData']['display_sequence'] = target_sequence;
+							target.fnDraw();
+						}
+					},
+					error:  function(XMLHttpRequest, textStatus){
+						alert (textStatus);
+					}
+					
+				 });			
+			}
+EOT;
+		
+	}
+//[2013/11/10]Ver 1.3.1 To
 	
 
 	

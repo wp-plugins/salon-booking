@@ -4,7 +4,7 @@ Donate link: http://salon.mallory.jp/en/
 Tags: hair salon,salon,appointment,booking,reservation,dental clinic,hospital,mutilingual
 Requires at least: 3.5
 Tested up to: 3.5
-Stable tag: 1.2.2
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,6 +83,13 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 10. Admin form(timecard)
 
 == Changelog ==
+
+= 1.3.1 =
+* Fixed:   htmlspecialchars(javascript)
+* Changed: At the screen of "Menu Setting",menu can change the sequence.
+* Changed: At the screen of "Reservation",display menu items changed.
+* Changed: At the screen of "Performance",display deleted menu and deleted staff member.
+
 = 1.2.2 =
 * Fixed: use split function changed explode function.
 * Fixed: missing updated photo data.

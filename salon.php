@@ -3,7 +3,7 @@
 Plugin Name: Salon booking 
 Plugin URI: http://salon.mallory.jp/en
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff. 
-Version: 1.2.2
+Version: 1.3.1
 Author: kuu
 Author URI: http://salon.mallory.jp/en
 */
@@ -550,6 +550,16 @@ public function example_remove_dashboard_widgets() {
 	
 	}
 	
+	function _isExixtColumn($table_name ,$column_name){
+		global $wpdb;
+		$sql = "show columns from ".$wpdb->prefix.$table_name;
+		$columns = $wpdb->get_results($sql,ARRAY_A);
+		foreach ($columns as $k1 => $d1 ) {
+			if ($d1['Field'] == $column_name ) return true;
+		}
+		return false;
+	}
+	
 	function salon_install(){
 		
 		if (!get_option('salon_confirm_page_id') ) {
@@ -604,6 +614,14 @@ public function example_remove_dashboard_widgets() {
 			
 			
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."salon_staff SET photo = null,update_time = %s WHERE photo LIKE %s ",$current,'%:%'));
+			
+			//ver 1.3.1 
+			if (! $this->_isExixtColumn("salon_item","display_sequence") ) {
+				$wpdb->query("ALTER TABLE ".$wpdb->prefix."salon_item ADD `display_sequence` INT NOT NULL DEFAULT '0' AFTER `notes` ");
+				//IDと同じ値を設定しとく
+				$wpdb->query("UPDATE ".$wpdb->prefix."salon_item SET  display_sequence = item_cd ");
+				
+			}
 			
 		}
 		else {
@@ -749,6 +767,7 @@ public function example_remove_dashboard_widgets() {
 								`remark`		TEXT,
 								`memo`			TEXT,
 								`notes`			TEXT,
+								`display_sequence`		INT,
 								`delete_flg`	INT default 0,
 								`insert_time`	DATETIME,
 								`update_time`	DATETIME,
@@ -766,8 +785,8 @@ public function example_remove_dashboard_widgets() {
 
 			
 			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_branch VALUES (".Salon_Default::BRANCH_CD.",'".__('SAMPLE SHOP NAME',SL_DOMAIN)."','100-0001','".__('SAMPLE SHOOP ADDRESS',SL_DOMAIN)."','223456789','mail@1.com','REMARK','MEMO','NOTES','1000','1900','2','',30,1,0,%s,%s);",$current,$current));
-			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_item VALUES (1,'".__('SAMPLE MENU CUT',SL_DOMAIN)."',".Salon_Default::BRANCH_CD.",'".__('SAMPLE MENU CUT',SL_DOMAIN)."',".__('30,50',SL_DOMAIN).",null,null,null,null,0,%s,%s);",$current,$current));
-			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_item VALUES (2,'".__('SAMPLE MENU PERM',SL_DOMAIN)."',".Salon_Default::BRANCH_CD.",'".__('SAMPLE MENU PERM',SL_DOMAIN)."',".__('90,100',SL_DOMAIN).",null,null,null,null,0,%s,%s);",$current,$current));
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_item VALUES (1,'".__('SAMPLE MENU CUT',SL_DOMAIN)."',".Salon_Default::BRANCH_CD.",'".__('SAMPLE MENU CUT',SL_DOMAIN)."',".__('30,50',SL_DOMAIN).",null,null,null,null,1,0,%s,%s);",$current,$current));
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_item VALUES (2,'".__('SAMPLE MENU PERM',SL_DOMAIN)."',".Salon_Default::BRANCH_CD.",'".__('SAMPLE MENU PERM',SL_DOMAIN)."',".__('90,100',SL_DOMAIN).",null,null,null,null,2,0,%s,%s);",$current,$current));
 			//インストールしたユーザを割り当てる
 			$current_user = wp_get_current_user();
 			

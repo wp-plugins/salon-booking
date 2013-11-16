@@ -30,10 +30,10 @@ class Item_Col_Edit extends Salon_Page {
 			case 3:
 				$check_item = 'branch_cd';
 				break;
-			case 4:
+			case 5:
 				$check_item = 'price';
 				break;
-			case 5:
+			case 6:
 				$check_item = 'remark';
 				break;
 			

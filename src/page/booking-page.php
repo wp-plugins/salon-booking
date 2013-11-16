@@ -833,7 +833,8 @@ EOT3;
 				<span id="end_time" ></span>
 		</div>
 		<?php parent::echoStaffSelect("staff_cd",$this->staff_datas,$this->_is_noPreference(),false); ?>
-		<?php parent::echoItemInputCheck($this->item_datas); ?>
+		<?php //parent::echoItemInputCheck($this->item_datas); ?>
+		<?php parent::echoItemInputCheckTable($this->item_datas); ?>
 		<textarea id="remark"  ></textarea>
 		<label ><?php _e('price',SL_DOMAIN); ?>:</label>
 		<span id="price"></span>

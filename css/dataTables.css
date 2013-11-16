@@ -17,6 +17,9 @@ table.dataTable {
 	margin: 0 auto;
 	clear: both;
 	width: 100%;
+/*[hisa]*/
+	word-break:break-all;
+
 }
 
 table.dataTable thead th {

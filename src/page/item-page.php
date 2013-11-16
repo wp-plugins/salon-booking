@@ -51,10 +51,11 @@ class Item_Page extends Salon_Page {
 			target = $j("#lists").dataTable({
 				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=item",
 				<?php parent::echoDataTableLang(); ?>
-				<?php parent::echoTableItem(array('item_name','branch_cd','price','remark','branch_name_table'),false,$this->is_multi_branch); //for only_branch?>
+				<?php parent::echoTableItem(array('item_name','branch_cd','display_sequence','price','remark','branch_name_table'),false,$this->is_multi_branch,"120px",true); //for only_branch?>
 	
 
 
+				"bSort":false,
 				"fnServerParams": function ( aoData ) {
 				  aoData.push( { "name": "menu_func","value":"Item_Init" } )
 				},
@@ -66,11 +67,19 @@ class Item_Page extends Salon_Page {
 				},
 				fnRowCallback: function( nRow, aData, iDisplayIndex, iDataIndex ) {	
 					<?php parent::echoDataTableSelecter("name"); ?>
+					<?php //[20131110]ver 1.3.1 
+						$seq_col = $this->branch_column;
+						if ($this->is_multi_branch) $seq_col = $this->branch_column+1; 
+						parent::echoDataTableDisplaySequence($seq_col); 
+					?>	//[20131110]ver 1.3.1 
 					<?php if ($this->is_multi_branch ) parent::echoDataTableBranchData($this->branch_column,$this->branch_datas); ?>
 
 				},
 			});
 		});
+
+
+		<?php parent::echoDataTableSeqUpdateRow("item","item_cd",$this->is_multi_branch); ?>	//[20131110]ver 1.3.1 
 
 		function fnSelectRow(target_col) {
 			
@@ -104,9 +113,11 @@ class Item_Page extends Salon_Page {
 		function fnClickAddRow(operate) {
 			if ( ! checkItem("data_detail") ) return false;
 			var item_cd = "";
+			var display_sequence = 0;
 			if ( save_k1 !== ""  ) {
 				var setData = target.fnSettings();
 				item_cd = setData['aoData'][save_k1]['_aData']['item_cd']; 				
+				display_sequence = setData['aoData'][save_k1]['_aData']['display_sequence']; 
 			}
 		<?php if ($this->is_multi_branch == false ) : //for only_branch ?>
 			if (operate  =="inserted") $j("#branch_cd").val("<?php echo $this->get_default_brandh_cd();?>");
@@ -126,6 +137,7 @@ class Item_Page extends Salon_Page {
 						"minute":$j("#minute").val(),
 						"price":$j("#price").val(),
 						"remark":$j("#remark").val(),
+						"display_sequence":display_sequence,
 						"photo":'',
 						"nonce":"<?php echo $this->nonce; ?>",
 						"menu_func":"Item_Edit"
