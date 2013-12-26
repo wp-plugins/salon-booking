@@ -13,7 +13,7 @@ class Config_Page extends Salon_Page {
 
 	public function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch);
-		$this->set_items = array('config_branch','config_user_login','send_mail_text','config_staff_holiday_set','config_no_prefernce','before_day','after_day','timeline_y_cnt','config_show_detail_msg','config_name_order_set','config_log','config_delete_record','config_delete_record_period','regist_mail_text');
+		$this->set_items = array('config_branch','config_user_login','send_mail_text','config_staff_holiday_set','config_no_prefernce','before_day','after_day','timeline_y_cnt','config_show_detail_msg','config_name_order_set','config_log','config_delete_record','config_delete_record_period','regist_mail_text','maintenance_include_staff');
 	}
 	
 	public function set_config_datas($config) {
@@ -78,10 +78,17 @@ class Config_Page extends Salon_Page {
 			$j("input[name=\"config_name_order_set\"]").val([<?php echo $this->config['SALON_CONFIG_NAME_ORDER']; ?>]);
 			<?php if ( $this->config['SALON_CONFIG_NO_PREFERENCE'] == Salon_Config::NO_PREFERNCE_OK ) $set_boolean = 'true';
 					else $set_boolean = 'false'; ?>
+			$j("#config_is_no_preference").attr("checked",<?php echo $set_boolean; ?>);
+
 			$j("#before_day").val("<?php echo $this->config['SALON_CONFIG_BEFORE_DAY']; ?>");
 			$j("#after_day").val("<?php echo $this->config['SALON_CONFIG_AFTER_DAY']; ?>");
 			$j("#timeline_y_cnt").val("<?php echo $this->config['SALON_CONFIG_TIMELINE_Y_CNT']; ?>");
-			$j("#config_is_no_preference").attr("checked",<?php echo $set_boolean; ?>);				
+			
+			<?php if ( $this->config['SALON_CONFIG_MAINTENANCE_INCLUDE_STAFF'] == Salon_Config::MAINTENANCE_INCLUDE_STAFF ) $set_boolean = 'true';
+					else $set_boolean = 'false'; ?>
+			$j("#config_maintenance_include_staff").attr("checked",<?php echo $set_boolean; ?>);
+			
+							
 
 		});
 
@@ -107,7 +114,8 @@ class Config_Page extends Salon_Page {
 						,"config_show_detail_msg":$j("#config_is_show_detail_msg").attr("checked")
 						,"config_before_day":$j("#before_day").val()						
 						,"config_after_day":$j("#after_day").val()						
-						,"config_timeline_y_cnt":$j("#timeline_y_cnt").val()						
+						,"config_timeline_y_cnt":$j("#timeline_y_cnt").val()
+						,"config_maintenance_include_staff":$j("#config_maintenance_include_staff").attr("checked")
 						,"nonce":"<?php echo $this->nonce; ?>"
 						,"menu_func":"Config_Edit"
 
@@ -173,6 +181,9 @@ class Config_Page extends Salon_Page {
 
 		<div id="config_is_no_preference_wrap" class="config_item_wrap" >
 			<input id="config_is_no_preference" type="checkbox" class="config_item_inline_input" value="<?php echo Salon_Config::NO_PREFERNCE_OK; ?>" />
+		</div>
+		<div id="config_maintenance_include_staff_wrap" class="config_item_wrap" >
+			<input id="config_maintenance_include_staff" type="checkbox" class="config_item_inline_input" value="<?php echo Salon_Config::MAINTENANCE_INCLUDE_STAFF; ?>" />
 		</div>
 		<input type="text" id="before_day" />
 		<input type="text" id="after_day" />

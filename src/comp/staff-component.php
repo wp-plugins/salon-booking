@@ -58,6 +58,8 @@ class Staff_Component {
 			$edit[$index]['duplicate_cnt'] = $result[$i]['duplicate_cnt'];
 			$edit[$index]['employed_day'] = $result[$i]['employed_day'];
 			$edit[$index]['leaved_day'] = $result[$i]['leaved_day'];
+			$edit[$index]['display_sequence'] = $result[$i]['display_sequence'];
+			
 			$save_key = $result[$i]['ID'];
 		}
 		//不要な項目が多いので編集する
@@ -89,6 +91,7 @@ class Staff_Component {
 				$result_after[$index]['duplicate_cnt'] = $d1['duplicate_cnt'];
 				$result_after[$index]['employed_day'] = $d1['employed_day'];
 				$result_after[$index]['leaved_day'] = $d1['leaved_day'];
+				$result_after[$index]['display_sequence'] = $d1['display_sequence'];
 				$index++;
 			}
 		}
@@ -159,7 +162,13 @@ class Staff_Component {
 			$set_data['staff_cd'] = intval($_POST['staff_cd']);
 		}
 		else {
-			if ($_POST['type'] == 'updated' ) 	$set_data['staff_cd'] = intval($_POST['staff_cd']);
+			if ($_POST['type'] == 'updated' ) 	{
+				$set_data['staff_cd'] = intval($_POST['staff_cd']);
+				$set_data['display_sequence'] = intval($_POST['display_sequence']);
+			}
+			else {
+				$set_data['display_sequence'] = $this->datas->getMaxDisplaySequence('salon_staff')+1;
+			}
 			$set_data['branch_cd'] = intval($_POST['branch_cd']);
 			$set_data['position_cd'] = intval($_POST['position_cd']);
 			$set_data['remark'] = stripslashes($_POST['remark']);
@@ -257,5 +266,11 @@ class Staff_Component {
 		return $set_data;
 	}
 	
+	public function editSeqData() {
+		$keys = explode(',',$_POST['staff_cd']);
+		$values = explode(',',$_POST['value']);
+		$set_data = array($keys[0] => $values[1],$keys[1] => $values[0]);
+		return $set_data;
+	}
 	
 }

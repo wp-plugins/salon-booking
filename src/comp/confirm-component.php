@@ -26,7 +26,7 @@ class Confirm_Component {
 			$res[] = $item_table[$d1]['name'];
 		}
 		$result[0]['item_name'] = implode(',',$res);
-		if ($result[0]['staff_cd'] == Salon_Default::NO_PREFERENCE) 	$result[0]['staff_name'] = __('no preference',SL_DOMAIN);
+		if ($result[0]['staff_cd'] == Salon_Default::NO_PREFERENCE) 	$result[0]['staff_name'] = __('Anyone',SL_DOMAIN);
 		else $result[0]['staff_name'] = $this->datas->getUserName($result[0]['user_login']);
 		if ($result[0]['status'] == Salon_Reservation_Status::COMPLETE) $result[0]['status_name'] = __('reservation completed',SL_DOMAIN);
 		elseif ($result[0]['status'] == Salon_Reservation_Status::TEMPORARY) $result[0]['status_name'] = __('reservation temporary',SL_DOMAIN);

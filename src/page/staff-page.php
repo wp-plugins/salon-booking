@@ -170,13 +170,12 @@ class Staff_Page extends Salon_Page {
 				<?php parent::echoDataTableLang(); ?>
 				<?php 
 					if ($this->config_datas['SALON_CONFIG_NAME_ORDER'] == Salon_Config::NAME_ORDER_JAPAN )
-						$seq = array('last_name','first_name','branch_cd','position_cd','remark','branch_name_table','position_name_table');
+						$seq = array('last_name','first_name','branch_cd','position_cd','display_sequence','remark','branch_name_table','position_name_table');
 					else 
-						$seq = array('first_name','last_name','branch_cd','position_cd','remark','branch_name_table','position_name_table');
-					parent::echoTableItem($seq,false,$this->is_multi_branch); 
+						$seq = array('first_name','last_name','branch_cd','position_cd','display_sequence','remark','branch_name_table','position_name_table');
+					parent::echoTableItem($seq,false,$this->is_multi_branch,"120px",true); 
 				?>
-
-
+				"bSort":false,
 				"fnServerParams": function ( aoData ) {
 				  aoData.push( { "name": "menu_func","value":"Staff_Init" } )
 				},
@@ -193,6 +192,11 @@ class Staff_Page extends Salon_Page {
 						element.empty();
 						element.append(sel_box);
 					}
+					<?php //[20131110]ver 1.3.1 
+						$seq_col = $this->position_column+1;
+						parent::echoDataTableDisplaySequence($seq_col); 
+						//[20131110]ver 1.3.1 ?>
+
 					<?php if ($this->is_multi_branch ) parent::echoDataTableBranchData($this->branch_column,$this->branch_datas); ?>
 					
 					<?php parent::echoDataTablePositionData($this->position_column,$this->position_datas); ?>
@@ -204,6 +208,7 @@ class Staff_Page extends Salon_Page {
 
 
 		});
+		<?php parent::echoDataTableSeqUpdateRow("staff","staff_cd",$this->is_multi_branch); ?>	//[20131110]ver 1.3.1 
 <?php //taregt_colはtdが前提 ?>		
 		function fnSelectRow(target_col) {
 			
@@ -302,6 +307,7 @@ class Staff_Page extends Salon_Page {
 			
 			var photo = photo_id_array.join(",");
 
+			var display_sequence = 0;
 			var used_photo_id_array = [];			
 			if ( save_k1 !== "" ) {
 				var setData = target.fnSettings();
@@ -309,6 +315,7 @@ class Staff_Page extends Salon_Page {
 				if ( save_user_login_old == $j("#user_login").val()  ) {
 					ID = setData['aoData'][save_k1]['_aData']['ID']; 
 				}
+				display_sequence = setData['aoData'][save_k1]['_aData']['display_sequence']; 
 				<?php //photo ?>
 				for(var i = 0 ; i < photo_id_array.length ; i++ ) {
 					for(var j = 0; j < setData['aoData'][save_k1]['_aData']['photo_result'].length ; j++ ) {
@@ -322,6 +329,7 @@ class Staff_Page extends Salon_Page {
 				<?php //photo ?>
 			}
 			var used_photo = used_photo_id_array.join(",");
+
 
 
 		<?php if ($this->is_multi_branch == false ) : //for only_branch ?>
@@ -353,6 +361,7 @@ class Staff_Page extends Salon_Page {
 						"leaved_day":$j("#leaved_day").val(),
 						"menu_func":"Staff_Edit",
 						"nonce":"<?php echo $this->nonce; ?>",
+						"display_sequence":display_sequence,
 						"duplicate_cnt":$j("#duplicate_cnt").val()
 					},
 

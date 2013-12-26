@@ -52,6 +52,9 @@ class Salon_Config {
 	const DELETE_RECORD_YES = 1;
 	const DELETE_RECORD_NO = 2;
 	const DELETE_RECORD_PERIOD = 6;
+	const MAINTENANCE_INCLUDE_STAFF = 0;
+	const MAINTENANCE_NOT_INCLUDE_STAFF = 1;
+	
 }
 
 
@@ -105,7 +108,7 @@ class Salon_Component {
 		foreach ($staff_datas as $k1 => $d1) {
 			$staff_table[$d1['staff_cd']]  = array('name'=> $d1['name']);
 		}
-		$staff_table[Salon_Default::NO_PREFERENCE] = array('name' => __('no preference',SL_DOMAIN));
+		$staff_table[Salon_Default::NO_PREFERENCE] = array('name' => __('Anyone',SL_DOMAIN));
 		//
 //		var_export($staff_table);
 //		var_export($result);

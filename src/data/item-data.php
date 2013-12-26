@@ -84,20 +84,20 @@ class Item_Data extends Salon_Data {
 		return $this->getAllItemData();
 	}
 	
-	public function updateSeq($table_data) {
-		foreach ($table_data as $k1 => $d1) {
-			$set_string = 	'display_sequence = %d , '.
-							' update_time = %s ';
-															
-			$set_data_temp = array($d1,
-							date_i18n('Y-m-d H:i:s'),
-							$k1);
-			$where_string = ' item_cd = %d ';
-			if ( $this->updateSql(self::TABLE_NAME,$set_string,$where_string,$set_data_temp) === false ) {
-				$this->_dbAccessAbnormalEnd();
-			}
-		}
-	}
+//	public function updateSeq($table_data) {
+//		foreach ($table_data as $k1 => $d1) {
+//			$set_string = 	'display_sequence = %d , '.
+//							' update_time = %s ';
+//															
+//			$set_data_temp = array($d1,
+//							date_i18n('Y-m-d H:i:s'),
+//							$k1);
+//			$where_string = ' item_cd = %d ';
+//			if ( $this->updateSql(self::TABLE_NAME,$set_string,$where_string,$set_data_temp) === false ) {
+//				$this->_dbAccessAbnormalEnd();
+//			}
+//		}
+//	}
 
 	
 	

@@ -3,7 +3,7 @@
 Plugin Name: Salon booking 
 Plugin URI: http://salon.mallory.jp/en
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff. 
-Version: 1.3.1
+Version: 1.3.2
 Author: kuu
 Author URI: http://salon.mallory.jp/en
 */
@@ -51,7 +51,8 @@ class Salon_Booking {
 		$this->management = SL_DOMAIN.'-management';
 
 		require_once(SL_PLUGIN_SRC_DIR.'comp/salon-component.php');
-		$this->config_branch = get_option( 'SALON_CONFIG_BRANCH', Salon_Config::ONLY_BRANCH );
+		$this->config_branch = Salon_Config::MULTI_BRANCH;
+//		$this->config_branch = get_option( 'SALON_CONFIG_BRANCH', Salon_Config::ONLY_BRANCH );
 //		require_once(SL_PLUGIN_DIR.'/salon-installer.php');
 		register_activation_hook(__FILE__, array( &$this, 'salon_install'));
 		load_plugin_textdomain( SL_DOMAIN, SL_PLUGIN_DIR.'/lang', SL_PLUGIN_NAME.'/lang' );
@@ -622,6 +623,13 @@ public function example_remove_dashboard_widgets() {
 				$wpdb->query("UPDATE ".$wpdb->prefix."salon_item SET  display_sequence = item_cd ");
 				
 			}
+			//ver 1.3.2
+			if (! $this->_isExixtColumn("salon_staff","display_sequence") ) {
+				$wpdb->query("ALTER TABLE ".$wpdb->prefix."salon_staff ADD `display_sequence` INT NOT NULL DEFAULT '0' AFTER `duplicate_cnt` ");
+				//IDと同じ値を設定しとく
+				$wpdb->query("UPDATE ".$wpdb->prefix."salon_staff SET  display_sequence = staff_cd ");
+				
+			}
 			
 		}
 		else {
@@ -723,6 +731,7 @@ public function example_remove_dashboard_widgets() {
 								`leaved_day`	DATETIME default null,
 								`photo`			TEXT default null,
 								`duplicate_cnt`	INT default 0,
+								`display_sequence`		INT default 0,
 								`delete_flg`	INT default 0,
 								`insert_time`	DATETIME,
 								`update_time`	DATETIME,
@@ -767,7 +776,7 @@ public function example_remove_dashboard_widgets() {
 								`remark`		TEXT,
 								`memo`			TEXT,
 								`notes`			TEXT,
-								`display_sequence`		INT,
+								`display_sequence`		INT default 0,
 								`delete_flg`	INT default 0,
 								`insert_time`	DATETIME,
 								`update_time`	DATETIME,

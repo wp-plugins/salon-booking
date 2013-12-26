@@ -7,6 +7,7 @@ abstract class Salon_Data {
 	//salon上でのAdminはPosition_cdが1～4まで
 	const SALON_ADMINISTRATOR = 4; 
 	const SALON_MAINTENANCE = 7;
+	
 
 	private $version = '1.0';
 	private $config = null;
@@ -28,6 +29,7 @@ abstract class Salon_Data {
 		if (empty($result['SALON_CONFIG_LOG']) ) $result['SALON_CONFIG_LOG']  = Salon_Config::LOG_NEED;
 		if (empty($result['SALON_CONFIG_DELETE_RECORD']) ) $result['SALON_CONFIG_DELETE_RECORD'] =  Salon_Config::DELETE_RECORD_NO;
 		if (empty($result['SALON_CONFIG_DELETE_RECORD_PERIOD']) ) $result['SALON_CONFIG_DELETE_RECORD_PERIOD'] =  Salon_Config::DELETE_RECORD_PERIOD;
+		if (empty($result['SALON_CONFIG_MAINTENANCE_INCLUDE_STAFF']) ) $result['SALON_CONFIG_MAINTENANCE_INCLUDE_STAFF'] =  Salon_Config::MAINTENANCE_INCLUDE_STAFF;
 		$this->config = $result;
 	}
 	
@@ -143,7 +145,7 @@ abstract class Salon_Data {
 			$name_order = 'um1.meta_value," " ,um2.meta_value';
 		}
 		
-		$sql = 	' SELECT staff_cd,concat('.$name_order.') as name , photo , remark , duplicate_cnt,position_cd'.
+		$sql = 	' SELECT staff_cd,concat('.$name_order.') as name , photo , remark , duplicate_cnt,position_cd,display_sequence'.
 				' FROM '.$wpdb->prefix.'salon_staff st  '.
 				' INNER JOIN '.$wpdb->prefix.'users us  '.
 				'       ON    us.user_login = st.user_login '.
@@ -152,7 +154,7 @@ abstract class Salon_Data {
 				' INNER JOIN '.$wpdb->prefix.'usermeta um2  '.
 				'       ON    us.ID = um2.user_id AND um2.meta_key ="last_name" '.
 				$where.
-				' ORDER BY staff_cd ';
+				' ORDER BY st.branch_cd,display_sequence,position_cd ';
 	
 		$result = $wpdb->get_results($sql,ARRAY_A);
 		//
@@ -948,16 +950,31 @@ abstract class Salon_Data {
 		$cnt = 0;
 		global $wpdb;
 		$sql = 'SELECT max(display_sequence) as max_seq FROM '.$wpdb->prefix.$table_name.' where delete_flg <> '.Salon_Reservation_Status::DELETED;
-		if ($wpdb->query($sql) ) {
-			$result = $wpdb->get_results($sql,ARRAY_A);
+		if ($wpdb->query($sql) === false  ) {
+			$this->_dbAccessAbnormalEnd();
 		}
 		else {
-			$this->_dbAccessAbnormalEnd();
+			$result = $wpdb->get_results($sql,ARRAY_A);
 		}
 		if ($result) {
 			$cnt = $result[0]['max_seq'];
 		}
 		return $cnt;
+	}
+	
+	public function updateSeq($table_data,$tale_name,$key_name ) {
+		foreach ($table_data as $k1 => $d1) {
+			$set_string = 	'display_sequence = %d , '.
+							' update_time = %s ';
+															
+			$set_data_temp = array($d1,
+							date_i18n('Y-m-d H:i:s'),
+							$k1);
+			$where_string = $key_name.' = %d ';
+			if ( $this->updateSql("salon_".$tale_name,$set_string,$where_string,$set_data_temp) === false ) {
+				$this->_dbAccessAbnormalEnd();
+			}
+		}
 	}
 
 

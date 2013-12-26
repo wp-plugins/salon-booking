@@ -27,7 +27,7 @@ class Staff_Control extends Salon_Control  {
 		$this->datas = new Staff_Data();
 		$this->set_config($this->datas->getConfigData());
 		$this->comp = new Staff_Component($this->datas);
-		$this->permits = array('Staff_Page','Staff_Init','Staff_Edit','Staff_Col_Edit');
+		$this->permits = array('Staff_Page','Staff_Init','Staff_Edit','Staff_Col_Edit','Staff_Seq_Edit');
 	}
 	
 	
@@ -89,6 +89,13 @@ class Staff_Control extends Salon_Control  {
 				}
 				$this->pages->set_table_data($res);
 			}
+		}
+		elseif ($this->action_class == 'Staff_Seq_Edit' ) {
+			$this->set_response_type($this->pages->getResponseType());
+			$this->pages->check_request();
+			$res = $this->comp->editSeqData();
+			$this->pages->set_table_data($res);
+			$this->datas->updateSeq($res,'staff','staff_cd');
 		}
 
 		$this->pages->show_page();

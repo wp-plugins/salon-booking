@@ -51,10 +51,9 @@ class Item_Page extends Salon_Page {
 			target = $j("#lists").dataTable({
 				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=item",
 				<?php parent::echoDataTableLang(); ?>
-				<?php parent::echoTableItem(array('item_name','branch_cd','display_sequence','price','remark','branch_name_table'),false,$this->is_multi_branch,"120px",true); //for only_branch?>
-	
-
-
+				<?php //[20131110]ver 1.3.1 ソートモードにしない ↓のbSortをfalseに
+ 					parent::echoTableItem(array('item_name','branch_cd','display_sequence','price','remark','branch_name_table'),false,$this->is_multi_branch,"120px",true); 
+				//for only_branch?>
 				"bSort":false,
 				"fnServerParams": function ( aoData ) {
 				  aoData.push( { "name": "menu_func","value":"Item_Init" } )
@@ -71,7 +70,7 @@ class Item_Page extends Salon_Page {
 						$seq_col = $this->branch_column;
 						if ($this->is_multi_branch) $seq_col = $this->branch_column+1; 
 						parent::echoDataTableDisplaySequence($seq_col); 
-					?>	//[20131110]ver 1.3.1 
+						//[20131110]ver 1.3.1 ?>
 					<?php if ($this->is_multi_branch ) parent::echoDataTableBranchData($this->branch_column,$this->branch_datas); ?>
 
 				},

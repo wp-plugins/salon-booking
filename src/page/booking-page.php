@@ -142,7 +142,7 @@ class Booking_Page extends Salon_Page {
 			$tmp_staff_index = array();
 			$index = 1;
 			if ($this->_is_noPreference() ) {
-				echo 'var staffs=[{key:'.Salon_Default::NO_PREFERENCE.', label:"'.__('no preference',SL_DOMAIN).'" },';
+				echo 'var staffs=[{key:'.Salon_Default::NO_PREFERENCE.', label:"'.__('Anyone',SL_DOMAIN).'" },';
 			}
 			else {
 				echo 'var staffs=[ ';
@@ -150,24 +150,30 @@ class Booking_Page extends Salon_Page {
 			
 			$comma = '';
 			$reserve_possible_cnt = 0;
+			
+			//
+			
 			foreach ($this->staff_datas as $k1 => $d1 ) {
-				//写真大きさを50pxにしとく。IEだと自動で補正してくれない？
-//				$tmp = preg_replace("/(width|height)(=\\\'\d+\\\')/","$1=\'50\'",$d1['photo']);
-				if (empty($d1['photo_result'][0]) ) $tmp="";
-				else $tmp = "<a href='".$d1['photo_result'][0]['photo_path']."' rel='staff".$d1['staff_cd']."' ' class='lightbox' ><img src='".$d1['photo_result'][0]['photo_resize_path']."' alt='' width='150' height='150' class='alignnone size-thumbnail wp-image-186' /></a>";
-				$url = site_url();
-				$url = substr($url,strpos($url,':')+1);
-				$url = str_replace('/','\/',$url);
-				if (is_ssl() ) {
-					$tmp = preg_replace("/([hH][tT][tT][pP]:".$url.")/","https:".$url,$tmp);
+				if ($this->config_datas['SALON_CONFIG_MAINTENANCE_INCLUDE_STAFF'] != Salon_Config::MAINTENANCE_NOT_INCLUDE_STAFF
+					|| $d1['position_cd'] != Salon_Position::MAINTENANCE ) {
+					//写真大きさを50pxにしとく。IEだと自動で補正してくれない？
+	//				$tmp = preg_replace("/(width|height)(=\\\'\d+\\\')/","$1=\'50\'",$d1['photo']);
+					if (empty($d1['photo_result'][0]) ) $tmp="";
+					else $tmp = "<a href='".$d1['photo_result'][0]['photo_path']."' rel='staff".$d1['staff_cd']."' ' class='lightbox' ><img src='".$d1['photo_result'][0]['photo_resize_path']."' alt='' width='150' height='150' class='alignnone size-thumbnail wp-image-186' /></a>";
+					$url = site_url();
+					$url = substr($url,strpos($url,':')+1);
+					$url = str_replace('/','\/',$url);
+					if (is_ssl() ) {
+						$tmp = preg_replace("/([hH][tT][tT][pP]:".$url.")/","https:".$url,$tmp);
+					}
+					else {
+						$tmp = preg_replace("/([hH][tT][tT][pP][sS]:".$url.")/","http:".$url,$tmp);
+					}
+					echo $comma.'{key:'.$d1['staff_cd'].', label:"'.htmlspecialchars($d1['name'],ENT_QUOTES).$tmp.'" }';
+					$tmp_staff_index[$d1['staff_cd']] = $index;
+					$index++;
+					$comma = ',';
 				}
-				else {
-					$tmp = preg_replace("/([hH][tT][tT][pP][sS]:".$url.")/","http:".$url,$tmp);
-				}
-				echo $comma.'{key:'.$d1['staff_cd'].', label:"'.htmlspecialchars($d1['name'],ENT_QUOTES).$tmp.'" }';
-				$tmp_staff_index[$d1['staff_cd']] = $index;
-				$index++;
-				$comma = ',';
 			}
 			echo '];';
 			$reserve_possible_cnt = 0;
@@ -281,7 +287,6 @@ EOT3;
 				return "<b>"+title_name+"</b>";
 			}
 			scheduler.load("<?php echo $this->url; ?>/wp-admin/admin-ajax.php?action=booking&menu_func=Booking_Get_Event&branch_cd=<?php echo $this->branch_datas['branch_cd']; ?>",function() {
-//				$j(".lightbox").colorbox({rel:"staffs"});
 				$j(".lightbox").colorbox();
 			});
 			var dp = new dataProcessor("<?php echo $this->url; ?>/wp-admin/admin-ajax.php?action=booking&menu_func=Booking_Edit");

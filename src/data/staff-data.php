@@ -13,7 +13,7 @@ class Staff_Data extends Salon_Data {
 	
 
 	public function insertTable ($table_data){
-		$staff_cd = $this->insertSql(self::TABLE_NAME,$table_data,'%d,%d,%s,%s,%s,%s,%s,%s,%s,%s');
+		$staff_cd = $this->insertSql(self::TABLE_NAME,$table_data,'%d,%d,%d,%s,%s,%s,%s,%s,%s,%s,%s');
 		if ($staff_cd === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
@@ -106,7 +106,7 @@ class Staff_Data extends Salon_Data {
 		$sql = 'SELECT us.ID,us.user_login,um.* ,us.user_email,'.
 				'        st.staff_cd,st.branch_cd,st.position_cd,st.remark,st.memo,st.notes,st.photo, st.duplicate_cnt, '.
 				'        DATE_FORMAT(st.employed_day, "'.__("%m/%d/%Y",SL_DOMAIN).'")  as employed_day,'.
-				'        DATE_FORMAT(st.leaved_day, "'.__("%m/%d/%Y",SL_DOMAIN).'")  as leaved_day '.
+				'        DATE_FORMAT(st.leaved_day, "'.__("%m/%d/%Y",SL_DOMAIN).'")  as leaved_day ,display_sequence'.
 				' FROM '.$wpdb->prefix.'users us  '.
 				' INNER JOIN '.$wpdb->prefix.'usermeta um  '.
 				'       ON    us.ID = um.user_id '.
@@ -114,7 +114,7 @@ class Staff_Data extends Salon_Data {
 				'       ON    us.user_login = st.user_login '.
 				$join.
 				$where.
-				' ORDER BY ID';
+				' ORDER BY st.branch_cd,display_sequence,ID';
 		$result = $wpdb->get_results($sql,ARRAY_A);
 		if ($result === false ) {
 			$this->_dbAccessAbnormalEnd();
@@ -158,5 +158,6 @@ class Staff_Data extends Salon_Data {
 		$this->deletePhotoDatas($result[0]['photo']);
 		
 	}
+
 	
 }

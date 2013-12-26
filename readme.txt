@@ -4,7 +4,7 @@ Donate link: http://salon.mallory.jp/en/
 Tags: hair salon,salon,appointment,booking,reservation,dental clinic,hospital,mutilingual
 Requires at least: 3.5
 Tested up to: 3.5
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -68,6 +68,7 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 
 == Frequently Asked Questions ==
 1. [Docs](http://salon.mallory.jp/en/?page_id=80)
+2. [ドキュメント](https://salon.mallory.jp/?page_id=143)
 
 == Screenshots ==
 
@@ -83,6 +84,11 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 10. Admin form(timecard)
 
 == Changelog ==
+
+= 1.3.2 =
+* Changed: At the screen of "Staff Setting",staff can change the sequence.
+* Changed: At the screen of "Environment Setting",add the option that maintenance staffs is not shop staff member.
+* Changed: After install,"plural shops" is default select.
 
 = 1.3.1 =
 * Fixed:   htmlspecialchars(javascript)

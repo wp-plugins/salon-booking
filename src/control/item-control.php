@@ -69,7 +69,7 @@ class Item_Control extends Salon_Control  {
 			$this->pages->check_request();
 			$res = $this->comp->editSeqData();
 			$this->pages->set_table_data($res);
-			$this->datas->updateSeq($res);
+			$this->datas->updateSeq($res,'item','item_cd');
 		}
 
 		$this->pages->show_page();

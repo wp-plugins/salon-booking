@@ -628,7 +628,7 @@ EOT;
 	static function echoStaffSelect($target_name,$staff_datas,$is_noname_select = true,$is_noEcho = false){
 		$echo_data = '<select id="'.$target_name.'">';
 		if ($is_noname_select ) {
-			$echo_data .= '<option value="'.Salon_Default::NO_PREFERENCE.'">'.__('no preference',SL_DOMAIN).'</option>';
+			$echo_data .= '<option value="'.Salon_Default::NO_PREFERENCE.'">'.__('Anyone',SL_DOMAIN).'</option>';
 		}
 		else {
 			$echo_data .= '<option value="">'.__('select please',SL_DOMAIN).'</option>';
@@ -1804,6 +1804,13 @@ EOT2;
 		 ,'label' => __('No Designation of Staff',SL_DOMAIN)
 		 ,'tips' => __('if allow the reservation without nomination of a certain staff ,check here',SL_DOMAIN));
 
+		$item_contents['maintenance_include_staff'] =array('id'=>'config_maintenance_include_staff'
+		 ,'class'	=>array()
+		 ,'check' => array()
+		 ,'label' => __('Maintenance staff member include staff',SL_DOMAIN)
+		 ,'tips' => __('if maintenance staff member display front form  ,check here',SL_DOMAIN));
+
+
 
 		$item_contents['booking_user_login'] =array('id'=>'login_username'
 		 ,'class'	=>array()
@@ -2346,33 +2353,35 @@ EOT2;
 		$up_name = __('up',SL_DOMAIN);
 		$down_name = __('down',SL_DOMAIN);
 		//順番は引数で渡す。ここでは支店の後ろなので４
+		//スタッフの場合、seqデータがNULLの場合（WPにのみ登録しているユーザ）の対処
 		echo <<<EOT
 			var element = \$j("td:eq({$col})", nRow);
 			element.text("");
-			var up_box = \$j("<button>")
-					.text("{$up_name}")
-					.attr("type","button")
-					.attr("id","salon_up_btn_"+iDataIndex)
-					.attr("name","salon_up_"+iDataIndex)
-					.attr("value",target.fnGetPosition(nRow))
-					.attr("class","sl_button salon_button_updown")
-					.click(function(event) {
-						if (iDataIndex == 0 ) return;
-						fnSeqUpdate(this.parentNode,iDataIndex,-1);
-					});
-			var down_box = \$j("<button>")
-					.text("{$down_name}")
-					.attr("type","button")
-					.attr("id","salon_down_btn_"+iDataIndex)
-					.attr("name","salon_down_"+iDataIndex)
-					.attr("value",target.fnGetPosition(nRow))
-					.attr("class","sl_button salon_button_updown")
-					.click(function(event) {
-						if (iDataIndex == target.fnSettings().aoData.length-1) return;
-						fnSeqUpdate(this.parentNode,iDataIndex,1);
-					});
-			element.append(up_box);
-			element.append(down_box);
+			if (aData.display_sequence) {
+				var up_box = \$j("<input>")
+						.attr("type","button")
+						.attr("id","salon_up_btn_"+iDataIndex)
+						.attr("name","salon_up_"+iDataIndex)
+						.attr("value","{$up_name}")
+						.attr("class","sl_button salon_button_updown")
+						.click(function(event) {
+							if (iDataIndex == 0 ) return;
+							fnSeqUpdate(this.parentNode,iDataIndex,-1);
+						});
+				var down_box = \$j("<input>")
+						.attr("type","button")
+						.attr("id","salon_down_btn_"+iDataIndex)
+						.attr("name","salon_down_"+iDataIndex)
+						.attr("value","{$down_name}")
+						.attr("class","sl_button salon_button_updown")
+						.click(function(event) {
+							if (iDataIndex == target.fnSettings().aoData.length-1) return;
+							fnSeqUpdate(this.parentNode,iDataIndex,1);
+						});
+				element.append(up_box);
+				element.append(down_box);
+			}
+			
 EOT;
 		
 	}
@@ -2394,13 +2403,21 @@ EOT;
 			function fnSeqUpdate(target_col,current_row,plus_minus) {
 				var position = target.fnGetPosition( target_col );
 				var setData = target.fnSettings();
-				{$check_logic}				
+				{$check_logic}
+				var addIndex = position[0] + plus_minus;
+				//スタッフの場合、歯抜けがあるので対処
+				while(addIndex >= 0 && addIndex < target.fnSettings().aoData.length) {
+					if (setData['aoData'][addIndex]['_aData']['display_sequence'] ) break;
+					addIndex += plus_minus;
+				}
+				if (addIndex < 0 || addIndex ==  target.fnSettings().aoData.length) return;
+				
 				var source_index = setData['aoData'][position[0]]['nTr']['_DT_RowIndex'];
 				var source_sequence = setData['aoData'][position[0]]['_aData']['display_sequence'];
-				var target_index = setData['aoData'][position[0]+plus_minus]['nTr']['_DT_RowIndex'];
-				var target_sequence = setData['aoData'][position[0]+plus_minus]['_aData']['display_sequence'];
+				var target_index = setData['aoData'][addIndex]['nTr']['_DT_RowIndex'];
+				var target_sequence = setData['aoData'][addIndex]['_aData']['display_sequence'];
 				var source_key_id = setData['aoData'][position[0]]['_aData']['{$target_key_name}'];
-				var target_key_id = setData['aoData'][position[0]+plus_minus]['_aData']['{$target_key_name}'];
+				var target_key_id = setData['aoData'][addIndex]['_aData']['{$target_key_name}'];
 				
 
 				\$j.ajax({
@@ -2420,17 +2437,18 @@ EOT;
 						}
 						else {
 							var save = setData['aoData'][position[0]];
-							setData['aoData'][position[0]] = setData['aoData'][position[0]+plus_minus];
+							setData['aoData'][position[0]] = setData['aoData'][addIndex];
 							setData['aoData'][position[0]]['nTr']['_DT_RowIndex'] = source_index;
 							setData['aoData'][position[0]]['_aData']['display_sequence'] = source_sequence;
-							setData['aoData'][position[0]+plus_minus] = save;
-							setData['aoData'][position[0]+plus_minus]['nTr']['_DT_RowIndex'] = target_index;
-							setData['aoData'][position[0]+plus_minus]['_aData']['display_sequence'] = target_sequence;
+							setData['aoData'][addIndex] = save;
+							setData['aoData'][addIndex]['nTr']['_DT_RowIndex'] = target_index;
+							setData['aoData'][addIndex]['_aData']['display_sequence'] = target_sequence;
 							target.fnDraw();
 						}
 					},
 					error:  function(XMLHttpRequest, textStatus){
-						alert (textStatus);
+						var parse_arrary = JSON.parse( XMLHttpRequest.responseText )
+						alert (parse_arrary.message);
 					}
 					
 				 });			

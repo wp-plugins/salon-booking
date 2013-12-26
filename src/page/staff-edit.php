@@ -87,6 +87,7 @@ class Staff_Edit extends Salon_Page {
 		$res['leaved_day'] = $this->table_data['leaved_day'];
 		$res['duplicate_cnt'] = $this->table_data['duplicate_cnt'];
 		$res['user_login'] = $this->table_data['user_login'];
+		$res['display_sequence'] = $this->table_data['display_sequence'];
 
 		echo '{	"status":"Ok","message":"'.Salon_Component::getMsg('N001').'",
 				"set_data":'.json_encode($res).' }';
