@@ -4,7 +4,7 @@ Donate link: http://salon.mallory.jp/en/
 Tags: hair salon,salon,appointment,booking,reservation,dental clinic,hospital,mutilingual
 Requires at least: 3.5
 Tested up to: 3.5
-Stable tag: 1.3.2
+Stable tag: 1.3.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -84,6 +84,11 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 10. Admin form(timecard)
 
 == Changelog ==
+
+= 1.3.3 =
+* Changed: Maitenance staff can't change position.
+* Changed: Upload Photo area's css
+* Fixed:   After staff postion changed ,the position role is not available.
 
 = 1.3.2 =
 * Changed: At the screen of "Staff Setting",staff can change the sequence.

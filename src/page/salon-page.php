@@ -421,23 +421,31 @@ EOT2;
 
 	static function echoDataTablePositionData($target_column,$position_datas) {
 		$option_no_regist = __('not registered',SL_DOMAIN);
+		$staff_cd_no_change = get_option('salon_initial_user',1);
+		$set_position_name = __('MAINTENANCE',SL_DOMAIN);
+
 		echo <<<EOT
 			var element_position = \$j("td:eq({$target_column})", nRow);
-			element_position.text("");
-			var selecter = \$j("<select>")
-				.append(\$j("<option>").html("{$option_no_regist}").val(""))
-EOT;
-			if (is_array($position_datas) ) {
-				foreach($position_datas as $k1 => $d1 ) {
-					echo '.append($j("<option>").html("'.htmlspecialchars($d1['name'],ENT_QUOTES).'").val("'.$d1['position_cd'].'"))';
-				}
+			if (aData.staff_cd == {$staff_cd_no_change} ){
+				element_position.text("{$set_position_name}");
 			}
+			else {  
+				element_position.text("");
+				var selecter = \$j("<select>")
+					.append(\$j("<option>").html("{$option_no_regist}").val(""))
+EOT;
+				if (is_array($position_datas) ) {
+					foreach($position_datas as $k1 => $d1 ) {
+						echo '.append($j("<option>").html("'.htmlspecialchars($d1['name'],ENT_QUOTES).'").val("'.$d1['position_cd'].'"))';
+					}
+				}
 		echo <<<EOT2
-			.val(aData.position_cd)
-			.change(function(event) {
-				fnUpdateColumn(this.parentNode,"position_cd",\$j(this).val() );
-			});
-			element_position.append(selecter);
+				.val(aData.position_cd)
+				.change(function(event) {
+					fnUpdateColumn(this.parentNode,"position_cd",\$j(this).val() );
+				});
+				element_position.append(selecter);
+			}
 EOT2;
 		
 	}
@@ -942,7 +950,7 @@ EOT;
 			if (empty($target_year) ) {
 				$target_year = date_i18n("Y");
 			}
-			if ($sp_dates) {
+			if ($sp_dates && count($sp_dates[$target_year]) > 0) {
 				foreach ($sp_dates[$target_year] as $k1 => $d1) {
 					$tmp_table2[] = '"'.$k1.'":{type:'.$d1.',title:"'.($d1== Salon_Status::OPEN ?  __('on business',SL_DOMAIN) :  __('holiday',SL_DOMAIN)).'"}';
 				}

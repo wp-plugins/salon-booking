@@ -2,6 +2,7 @@
 /*
  * Salon
  */
+
 /* demo you */
 .nav-menu .children { z-index:4; }
 
@@ -949,6 +950,23 @@ label#mail_lbl  {
 	vertical-align:top;
 	
 }
+
+/* _/_/_/_/_/_/_/_/_/_/_/_/_/_/ */
+/* UPLOADここから               */
+/* _/_/_/_/_/_/_/_/_/_/_/_/_/_/ */
+#image_drop_area{
+	border: 4px dashed #AACFE4;
+	background-color:#F0F4F7; 
+	width:700px;
+	min-height:200px;
+	height: auto !important;
+	height: 200px;
+}
+/* _/_/_/_/_/_/_/_/_/_/_/_/_/_/ */
+/* ここまで                     */
+/* _/_/_/_/_/_/_/_/_/_/_/_/_/_/ */
+
+
 
 /*
 .btns{font-size: 80px; width:150px; background:#111; height: 150px; line-height:150px; text-align:center; font-family: arial; color: #fff; float: left; margin:10px; cursor: pointer}

@@ -3,7 +3,7 @@
 Plugin Name: Salon booking 
 Plugin URI: http://salon.mallory.jp/en
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff. 
-Version: 1.3.2
+Version: 1.3.3
 Author: kuu
 Author URI: http://salon.mallory.jp/en
 */
@@ -341,7 +341,8 @@ public function example_remove_dashboard_widgets() {
 		$sql =  'SELECT role FROM '.$wpdb->prefix.'salon_position po ,'.
 								$wpdb->prefix.'salon_staff st '.
 						' WHERE st.user_login = %s '.
-						'   AND st.position_cd = po.position_cd ';
+						'   AND st.position_cd = po.position_cd '.
+						'   AND st.delete_flg <> '.Salon_Reservation_Status::DELETED;
 		$result = $wpdb->get_results(
 					$wpdb->prepare($sql,$current_user->user_login),ARRAY_A);
 		$show_menu =  explode(",",$result[0]['role']);

@@ -311,6 +311,7 @@ class Salon_Component {
 				break;	
 			case 'E009':
 				$err_msg = sprintf(__("this branch_cd[%d] can't find.Please check set short code format. [salon-booking] or if multi shop [salon-booking branch_cd=XX]. ",SL_DOMAIN),$add_char);
+				break;
 			case 'E010':
 				$err_msg = sprintf(__("this branch has no staff ",SL_DOMAIN),$add_char);
 				break;	

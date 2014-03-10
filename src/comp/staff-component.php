@@ -165,6 +165,13 @@ class Staff_Component {
 			if ($_POST['type'] == 'updated' ) 	{
 				$set_data['staff_cd'] = intval($_POST['staff_cd']);
 				$set_data['display_sequence'] = intval($_POST['display_sequence']);
+				
+				if ($set_data['staff_cd'] ==  get_option('salon_initial_user',1)) {
+					
+					$_POST['position_cd'] = Salon_Position::MAINTENANCE;
+				}
+				
+				
 			}
 			else {
 				$set_data['display_sequence'] = $this->datas->getMaxDisplaySequence('salon_staff')+1;
@@ -261,7 +268,14 @@ class Staff_Component {
 		$set_data['value'] = stripslashes($_POST['value']);
 		$set_data['staff_cd'] = intval($_POST['staff_cd']);
 		$set_data['is_need_update_role'] = false;
-		if ($_POST['column'] == 5 ) $set_data['is_need_update_role']=true;
+		if ($_POST['column'] == 5 ) {
+			if ($set_data['staff_cd'] ==  get_option('salon_initial_user',1)) {
+				$set_data['value'] = Salon_Position::MAINTENANCE;
+			}
+			else {
+				$set_data['is_need_update_role']=true;
+			}
+		}
 		$set_data['ID'] = intval($_POST['ID']);		
 		return $set_data;
 	}
