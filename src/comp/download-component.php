@@ -72,20 +72,30 @@ class Download_Component {
 		$sql .= $add_sql;
 		$sql .= $where;
 		$sql .= ' ORDER BY rs.branch_cd ,'.__('Date',SL_DOMAIN);
+		
+
 		$result = $this->datas->getDownloadData	($sql);
 		//ユーザ情報が必要な場合
 		if ($is_need_user_inf) {
 			$user_datas = $this->datas->getUserAllInf();
+//					var_export($user_datas);
+//					var_export($result);
+//					var_export($user_inf_col);
 			//[TODO]配列のキーが和名になるのはどうよ
 			//user_loginの値が入っているはず
 			foreach ($result as $k1 => $d1 ) {
 				foreach ($user_inf_col as $d2 ){
-					$result[$k1][$d2] = $user_datas[$d1[$d2]]['last_name'].' '.$user_datas[$d1[$d2]]['first_name'].'('.$d1[$d2].')';
+//					$result[$k1][$d2] = $user_datas[$d1[$d2]]['last_name'].' '.$user_datas[$d1[$d2]]['first_name'].'('.$d1[$d2].')';
+					if(isset($user_datas[$d1[$d2]])&&isset($user_datas[$d1[$d2]]['last_name']))
+						$result[$k1][$d2] = $user_datas[$d1[$d2]]['last_name'].' '.$user_datas[$d1[$d2]]['first_name'];
+					else 
+						$result[$k1][$d2] = $d1[$d2];
 				}
 			}
 		}
 		if ($is_need_item_inf) {
 			$save_branch_cd = '';
+		
 			foreach ($result as $k1 => $d1 ) {
 				if ($save_branch_cd != $d1['branch_cd'] ) {
 					$item_datas = $this->datas->getTargetItemData($d1['branch_cd'] );
@@ -99,7 +109,10 @@ class Download_Component {
 					$tmp_items = explode( ',',$d1[$d2]);
 					$res = array();
 					foreach ($tmp_items as $d3 ) {
-						$res[] = $item_table[$d3]['name'];
+						if (isset($item_table[$d3]) )
+							$res[] = $item_table[$d3]['name'];
+						else 
+							$res[] = "";
 					}
 					$result[$k1][$d2] = implode(',',$res);
 					unset($result[$k1]['branch_cd']);

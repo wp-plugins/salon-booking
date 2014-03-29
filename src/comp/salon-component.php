@@ -129,7 +129,9 @@ class Salon_Component {
 				$result[$k1]['remark'] = $result[$k1]['remark_bef'];
 			}
 			else {
-				$result[$k1]['staff_name_aft'] = $staff_table[$result[$k1]['staff_cd_aft']]['name'];
+				$result[$k1]['staff_name_aft'] = "";
+				if (!empty($result[$k1]['staff_cd_aft'])) 
+					$result[$k1]['staff_name_aft'] = $staff_table[$result[$k1]['staff_cd_aft']]['name'];
 				$result[$k1]['status'] = Salon_Reservation_Status::SALES_REGISTERD;
 				$result[$k1]['status_name'] = __('result registerd',SL_DOMAIN);
 			}
@@ -261,7 +263,11 @@ class Salon_Component {
 		return true;
 
 	}
-	static function writeMailHeader() {	
+	static function writeMailHeader() {
+		$charset = '';
+		if (function_exists( 'mb_internal_encoding' )) {
+			$charset = 'charset="'.mb_internal_encoding().'"';
+		}
 		return '<!DOCTYPE HTML PUBLIC
 			 "-//W3C//DTD HTML 4.01 Transitional//EN">
 			<html lang="ja">
@@ -269,7 +275,7 @@ class Salon_Component {
 			  <meta http-equiv="Content-Language"
 				content="ja">
 			  <meta http-equiv="Content-Type"
-				content="text/html; charset='.mb_internal_encoding().'">
+				content="text/html; '.$charset.'>
 			  <title></title>
 			  <meta http-equiv="Content-Style-Type"
 				content="text/css">
@@ -311,6 +317,7 @@ class Salon_Component {
 				break;	
 			case 'E009':
 				$err_msg = sprintf(__("this branch_cd[%d] can't find.Please check set short code format. [salon-booking] or if multi shop [salon-booking branch_cd=XX]. ",SL_DOMAIN),$add_char);
+				break;
 			case 'E010':
 				$err_msg = sprintf(__("this branch has no staff ",SL_DOMAIN),$add_char);
 				break;	
@@ -426,7 +433,12 @@ class Salon_Component {
 	}
 	
 	static function zenSp2han($in) {
-		return  mb_convert_kana($in,"s");
+		if (function_exists( 'mb_convert_kana' )) {
+			return  mb_convert_kana($in,"s");
+		}
+		else {
+			return $in;
+		}
 	}
 	
 	static function formatTime($time_data) {

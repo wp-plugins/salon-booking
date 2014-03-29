@@ -109,7 +109,12 @@ class Booking_Component {
 			$to = $set_data['non_regist_email'];
 			$subject = sprintf(__("Confirm Reservation[%d]",SL_DOMAIN),$set_data['reservation_cd']);
 			$message = $this->_create_body($set_data['reservation_cd'],$set_data['non_regist_name'],$set_data['non_regist_activate_key'],$branch_data['name']);
-			$header = 'Content-Type:text/html; charset="'.mb_internal_encoding().'"';
+
+			$header = 'Content-Type:text/html;';
+			if (function_exists( 'mb_internal_encoding' )) {
+				$header = 'Content-Type:text/html; charset="'.mb_internal_encoding().'"';
+			}
+
 			if (wp_mail( $to,$subject, $message,$header ) === false ) {
 				$msg = error_get_last();
 				throw new Exception(Salon_Component::getMsg('E907',$msg['message']));

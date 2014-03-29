@@ -36,7 +36,11 @@ class Photo_Control extends Salon_Control  {
 		if ($this->action_class == 'Photo_Edit' ) {
 			$this->pages->check_request();
 			if ($_REQUEST['type'] == 'inserted' ) {
+				
 				$set_file_name = $this->comp->moveFile();
+				if ($set_file_name === false) {
+					throw new Exception(Salon_Component::getMsg('E904','upload photo') );
+				}
 				$set_resize_file_name = $this->comp->resizeFile($set_file_name);
 				$res = $this->comp->editTableData($set_file_name,$set_resize_file_name);
 				$this->pages->set_resize_file_path($set_resize_file_name);
