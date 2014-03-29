@@ -15,7 +15,7 @@ class Photo_Component {
 	public function moveFile(){
 		$attr = substr($_FILES['file']['name'], strrpos($_FILES['file']['name'], '.') );
 		$randam_file_name = substr(md5(uniqid(mt_rand())),0,8).$attr;
-		move_uploaded_file( $_FILES['file']['tmp_name'], SALON_UPLOAD_DIR.$randam_file_name);
+		if (! move_uploaded_file( $_FILES['file']['tmp_name'], SALON_UPLOAD_DIR.$randam_file_name) ) return false;
 		return $randam_file_name;
 	}
 	

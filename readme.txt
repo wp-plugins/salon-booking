@@ -4,7 +4,7 @@ Donate link: http://salon.mallory.jp/en/
 Tags: hair salon,salon,appointment,booking,reservation,dental clinic,hospital,mutilingual
 Requires at least: 3.5
 Tested up to: 3.5
-Stable tag: 1.3.3
+Stable tag: 1.3.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -55,7 +55,7 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 2. Deactivate this plugin.(Input datas are not lost)
 3. Upload `salon-booking` to the `/wp-content/plugins/` directory.
 4. Activate the plugin through the 'Plugins' menu in WordPress.
-5. If photo-files were deleted ,restore the backup photo-files under `/wp-content/plugins/salon-booking/uploads`
+5. If photo-files were deleted ,restore the backup photo-files under `/wp-content/uploads/salon`
 
 = alredey installed (version 1.1.2 or earlier) =
 
@@ -84,6 +84,10 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 10. Admin form(timecard)
 
 == Changelog ==
+
+= 1.3.4 =
+* Changed: Upload Photo directory.
+* Changed: When uninsatll mbstring module.
 
 = 1.3.3 =
 * Changed: Maitenance staff can't change position.

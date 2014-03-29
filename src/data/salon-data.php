@@ -661,7 +661,10 @@ abstract class Salon_Data {
 		$to = $mail;
 		$subject = sprintf(__("your registration is completed",SL_DOMAIN));
 		$message = $this->_create_body($first_name,$last_name,$user_login,$pass);
-		$header = 'Content-Type:text/html; charset="'.mb_internal_encoding().'"';
+		$header = 'Content-Type:text/html;';
+		if (function_exists( 'mb_internal_encoding' )) {
+			$header = 'Content-Type:text/html; charset="'.mb_internal_encoding().'"';
+		}
 		if (wp_mail( $to,$subject, $message,$header ) === false ) {
 			$msg = error_get_last();
 			throw new Exception(Salon_Component::getMsg('E907',$msg['message']));

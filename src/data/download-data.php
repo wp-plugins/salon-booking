@@ -24,7 +24,12 @@ class Download_Data extends Salon_Data {
 		//単純なカンマ区切りだとExcelで開けない
 		//リトルエンディアン(0xFF=255 0xFE=254)をあらわすBom
    		$bom = chr(255) . chr(254);
-		$encoded  = $bom . mb_convert_encoding($filedatas, 'UTF-16LE', 'UTF-8');
+		if (function_exists( 'mb_convert_encoding' )) {
+			$encoded  = $bom . mb_convert_encoding($filedatas, 'UTF-16LE', 'UTF-8');
+		}
+		else {
+			$encoded  = $filedatas;
+		}
 		$out = @fopen($file_name,'w');
 		if ($out === false ) {
 			$msg = error_get_last();

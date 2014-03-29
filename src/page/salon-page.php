@@ -950,7 +950,7 @@ EOT;
 			if (empty($target_year) ) {
 				$target_year = date_i18n("Y");
 			}
-			if ($sp_dates && count($sp_dates[$target_year]) > 0) {
+			if ($sp_dates && isset($sp_dates[$target_year]) && count($sp_dates[$target_year]) > 0) {
 				foreach ($sp_dates[$target_year] as $k1 => $d1) {
 					$tmp_table2[] = '"'.$k1.'":{type:'.$d1.',title:"'.($d1== Salon_Status::OPEN ?  __('on business',SL_DOMAIN) :  __('holiday',SL_DOMAIN)).'"}';
 				}
@@ -2147,7 +2147,14 @@ EOT2;
 					break;
 				default:
 					if (preg_match('/^lenmax(?<length>\d+)$/',trim($check),$matches) === 1 ) {
-						if (mb_strlen($target) > +$matches['length'] ) {
+						$tmp_length = 0;
+						if ( function_exists( 'mb_strlen' ) )  {
+							$tmp_length = mb_strlen($target);
+						}
+						else {
+							$tmp_length = strlen($target);
+						}
+						if ( $tmp_length > +$matches['length'] ) {
 							$err_msg[] = Salon_Component::getMsg('E211',array(+$matches['length'],$label));
 						}
 					}

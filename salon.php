@@ -3,37 +3,45 @@
 Plugin Name: Salon booking 
 Plugin URI: http://salon.mallory.jp/en
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff. 
-Version: 1.3.3
+Version: 1.3.4
 Author: kuu
 Author URI: http://salon.mallory.jp/en
 */
 
 define( 'SL_DOMAIN', 'salon' );
 define( 'SL_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
-define( 'SL_PLUGIN_NAME', trim( dirname( SL_PLUGIN_BASENAME ), '/' ) );
+define( 'SL_PLUGIN_NAME', trim( dirname( SL_PLUGIN_BASENAME ), DIRECTORY_SEPARATOR ) );
 define( 'SL_PLUGIN_DIR', plugin_dir_path(__FILE__)  );
-define( 'SL_PLUGIN_SRC_DIR', SL_PLUGIN_DIR . 'src/' );
+define( 'SL_PLUGIN_SRC_DIR', SL_PLUGIN_DIR . 'src'.DIRECTORY_SEPARATOR );
 define( 'SL_PLUGIN_URL',  plugin_dir_url(__FILE__) );
-define( 'SL_PLUGIN_SRC_URL', SL_PLUGIN_URL . '/' . 'src' );
-define( 'SL_LOG_DIR', '../../' );
+define( 'SL_PLUGIN_SRC_URL', SL_PLUGIN_URL  .DIRECTORY_SEPARATOR . 'src' );
+define( 'SL_LOG_DIR', '..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR );
 
-define('SALON_JS_DIR', '/booking/');
-define('SALON_CSS_DIR', '/booking/');
-define('SALON_PHP_DIR', '/booking/');
+define('SALON_JS_DIR', DIRECTORY_SEPARATOR.'booking'.DIRECTORY_SEPARATOR);
+define('SALON_CSS_DIR', DIRECTORY_SEPARATOR.'booking'.DIRECTORY_SEPARATOR);
+define('SALON_PHP_DIR', DIRECTORY_SEPARATOR.'booking'.DIRECTORY_SEPARATOR);
 
 define( 'SALON_DEMO', false);
 
 
+define( 'SALON_UPLOAD_DIR_OLD', SL_PLUGIN_DIR . 'uploads');
+define( 'SALON_UPLOAD_URL_OLD', SL_PLUGIN_URL .DIRECTORY_SEPARATOR. 'uploads');
+
 define( 'SALON_MAX_FILE_SIZE', 10 );	//１０メガまでUPLOAD
-define( 'SALON_UPLOAD_DIR_NAME','uploads'.DIRECTORY_SEPARATOR);
-define( 'SALON_UPLOAD_DIR', SL_PLUGIN_DIR . SALON_UPLOAD_DIR_NAME);
-define( 'SALON_UPLOAD_URL', SL_PLUGIN_URL .DIRECTORY_SEPARATOR. SALON_UPLOAD_DIR_NAME);
+define( 'SALON_UPLOAD_DIR_NAME',DIRECTORY_SEPARATOR.'salon'.DIRECTORY_SEPARATOR);
+
+$uploads = wp_upload_dir();
+
+define( 'SALON_UPLOAD_DIR', $uploads['basedir'].SALON_UPLOAD_DIR_NAME);
+define( 'SALON_UPLOAD_URL', $uploads['baseurl'].SALON_UPLOAD_DIR_NAME);
 define( 'SALON_COLORBOX_SIZE', '80%');
 
 
 $salon_booking = new Salon_Booking();
 
 class Salon_Booking {
+
+
 	
 	private $config_branch;
 	
@@ -99,9 +107,16 @@ class Salon_Booking {
 			add_action('wp_before_admin_bar_render',  array( &$this,'add_new_item_in_admin_bar'));
 			add_action('wp_dashboard_setup', array( &$this,'example_remove_dashboard_widgets'));
 		}
+		
+		if(!file_exists(SALON_UPLOAD_DIR)){
+			mkdir(SALON_UPLOAD_DIR,0744,true);	
+		}
 
 
 	}
+
+
+	
 	
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ デモ	
 // 管理バーの項目を非表示
@@ -617,6 +632,21 @@ public function example_remove_dashboard_widgets() {
 			
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."salon_staff SET photo = null,update_time = %s WHERE photo LIKE %s ",$current,'%:%'));
 			
+			//ver 1.3.4
+			$old = '"'.preg_replace("/[hH][tT][tT][pP].?:/","",SALON_UPLOAD_URL_OLD).'"';
+			$new = '"'.preg_replace("/[hH][tT][tT][pP].?:/","",rtrim(SALON_UPLOAD_URL,'/')).'"';
+			
+			
+			
+						
+			$sql  = "UPDATE ".$wpdb->prefix."salon_photo SET photo_path=REPLACE(photo_path,".$old.",".$new."), photo_resize_path=REPLACE(photo_resize_path,".$old.",".$new.")";
+			$wpdb->query($sql);
+
+
+			foreach(glob(SALON_UPLOAD_DIR_OLD.DIRECTORY_SEPARATOR.'{*.jpg,*.gif,*.png}', GLOB_BRACE) as $image) {
+				@rename($image,rtrim(SALON_UPLOAD_DIR,'/').DIRECTORY_SEPARATOR.basename($image));
+			}
+			
 			//ver 1.3.1 
 			if (! $this->_isExixtColumn("salon_item","display_sequence") ) {
 				$wpdb->query("ALTER TABLE ".$wpdb->prefix."salon_item ADD `display_sequence` INT NOT NULL DEFAULT '0' AFTER `notes` ");
@@ -631,6 +661,7 @@ public function example_remove_dashboard_widgets() {
 				$wpdb->query("UPDATE ".$wpdb->prefix."salon_staff SET  display_sequence = staff_cd ");
 				
 			}
+			
 			
 		}
 		else {
