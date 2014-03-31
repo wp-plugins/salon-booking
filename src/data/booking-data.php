@@ -78,7 +78,7 @@ class Booking_Data extends Salon_Data {
 		return $result;
 	}
 	
-	public function getBranchData($branch_cd) {
+	public function getBranchData($branch_cd,$target_column = '*') {
 		$result = parent::getBranchData($branch_cd);
 		if ($result === false ) {
 			throw new Exception(Salon_Component::getMsg('E009',$branch_cd) );
