@@ -30,6 +30,8 @@ abstract class Salon_Data {
 		if (empty($result['SALON_CONFIG_DELETE_RECORD']) ) $result['SALON_CONFIG_DELETE_RECORD'] =  Salon_Config::DELETE_RECORD_NO;
 		if (empty($result['SALON_CONFIG_DELETE_RECORD_PERIOD']) ) $result['SALON_CONFIG_DELETE_RECORD_PERIOD'] =  Salon_Config::DELETE_RECORD_PERIOD;
 		if (empty($result['SALON_CONFIG_MAINTENANCE_INCLUDE_STAFF']) ) $result['SALON_CONFIG_MAINTENANCE_INCLUDE_STAFF'] =  Salon_Config::MAINTENANCE_INCLUDE_STAFF;
+		if (empty($result['SALON_CONFIG_SEND_MAIL_FROM']) ) $result['SALON_CONFIG_SEND_MAIL_FROM'] =  "";
+		if (empty($result['SALON_CONFIG_SEND_MAIL_RETURN_PATH']) ) $result['SALON_CONFIG_SEND_MAIL_RETURN_PATH'] =  "";
 		$this->config = $result;
 	}
 	
@@ -661,14 +663,29 @@ abstract class Salon_Data {
 		$to = $mail;
 		$subject = sprintf(__("your registration is completed",SL_DOMAIN));
 		$message = $this->_create_body($first_name,$last_name,$user_login,$pass);
-		$header = 'Content-Type:text/html;';
+
+		$header = $this->getConfigData('SALON_CONFIG_SEND_MAIL_FROM');	
+		if (!empty($header))	$header = "from:".$header."\n";
+
 		if (function_exists( 'mb_internal_encoding' )) {
-			$header = 'Content-Type:text/html; charset="'.mb_internal_encoding().'"';
+			$header .= 'Content-Type:text/html; charset="'.mb_internal_encoding().'"';
 		}
+		else {
+			$header .= 'Content-Type:text/html;';
+		}
+
+		add_action( 'phpmailer_init', array( &$this,'setReturnPath') );
+
 		if (wp_mail( $to,$subject, $message,$header ) === false ) {
 			$msg = error_get_last();
 			throw new Exception(Salon_Component::getMsg('E907',$msg['message']));
 		}
+	}
+
+	public function setReturnPath( $phpmailer ) {
+		$path = $this->getConfigData('SALON_CONFIG_SEND_MAIL_RETURN_PATH');
+		if (empty($path)) return;
+		$phpmailer->Sender = $path;
 	}
 
 	private function _create_body($first_name,$last_name,$user_login,$pass) {

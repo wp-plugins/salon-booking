@@ -13,7 +13,7 @@ class Config_Page extends Salon_Page {
 
 	public function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch);
-		$this->set_items = array('config_branch','config_user_login','send_mail_text','config_staff_holiday_set','config_no_prefernce','before_day','after_day','timeline_y_cnt','config_show_detail_msg','config_name_order_set','config_log','config_delete_record','config_delete_record_period','regist_mail_text','maintenance_include_staff');
+		$this->set_items = array('config_branch','config_user_login','send_mail_text','config_staff_holiday_set','config_no_prefernce','before_day','after_day','timeline_y_cnt','config_show_detail_msg','config_name_order_set','config_log','config_delete_record','config_delete_record_period','regist_mail_text','maintenance_include_staff','mail_from','mail_returnPath');
 	}
 	
 	public function set_config_datas($config) {
@@ -87,6 +87,10 @@ class Config_Page extends Salon_Page {
 			<?php if ( $this->config['SALON_CONFIG_MAINTENANCE_INCLUDE_STAFF'] == Salon_Config::MAINTENANCE_INCLUDE_STAFF ) $set_boolean = 'true';
 					else $set_boolean = 'false'; ?>
 			$j("#config_maintenance_include_staff").attr("checked",<?php echo $set_boolean; ?>);
+
+
+			$j("#mail_from").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_FROM']; ?>");
+			$j("#mail_returnPath").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_RETURN_PATH']; ?>");
 			
 							
 
@@ -116,6 +120,8 @@ class Config_Page extends Salon_Page {
 						,"config_after_day":$j("#after_day").val()						
 						,"config_timeline_y_cnt":$j("#timeline_y_cnt").val()
 						,"config_maintenance_include_staff":$j("#config_maintenance_include_staff").attr("checked")
+						,"config_mail_from":$j("#mail_from").val()	
+						,"config_mail_returnPath":$j("#mail_returnPath").val()	
 						,"nonce":"<?php echo $this->nonce; ?>"
 						,"menu_func":"Config_Edit"
 
@@ -137,7 +143,7 @@ class Config_Page extends Salon_Page {
 			 });			
 		}
 	
-		<?php parent::echoCheckClinet(array('chk_required','num','lenmax')); ?>		
+		<?php parent::echoCheckClinet(array('chk_required','num','lenmax','chkMail')); ?>		
 		
 	</script>
 
@@ -188,6 +194,8 @@ class Config_Page extends Salon_Page {
 		<input type="text" id="before_day" />
 		<input type="text" id="after_day" />
 		<input type="text" id="timeline_y_cnt" />
+		<input type="text" id="mail_from" />
+		<input type="text" id="mail_returnPath" />
 		<textarea id="send_mail_text"  ></textarea>
 		<textarea id="regist_mail_text"  ></textarea>
 		

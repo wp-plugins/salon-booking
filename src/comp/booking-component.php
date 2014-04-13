@@ -110,11 +110,19 @@ class Booking_Component {
 			$subject = sprintf(__("Confirm Reservation[%d]",SL_DOMAIN),$set_data['reservation_cd']);
 			$message = $this->_create_body($set_data['reservation_cd'],$set_data['non_regist_name'],$set_data['non_regist_activate_key'],$branch_data['name']);
 
-			$header = 'Content-Type:text/html;';
+			$header = $this->datas->getConfigData('SALON_CONFIG_SEND_MAIL_FROM');	
+			if (!empty($header))	$header = "from:".$header."\n";
+
+			
 			if (function_exists( 'mb_internal_encoding' )) {
-				$header = 'Content-Type:text/html; charset="'.mb_internal_encoding().'"';
+				$header .= 'Content-Type:text/html; charset="'.mb_internal_encoding().'"';
+			}
+			else {
+				$header .= 'Content-Type:text/html;';
 			}
 
+			add_action( 'phpmailer_init', array( &$this,'setReturnPath') );
+			
 			if (wp_mail( $to,$subject, $message,$header ) === false ) {
 				$msg = error_get_last();
 				throw new Exception(Salon_Component::getMsg('E907',$msg['message']));
@@ -124,6 +132,12 @@ class Booking_Component {
 		
 	}
 	
+	public function setReturnPath( $phpmailer ) {
+		$path = $this->datas->getConfigData('SALON_CONFIG_SEND_MAIL_RETURN_PATH');
+		if (empty($path)) return;
+		$phpmailer->Sender = $path;
+	}
+
 	private function _create_body($reservation_cd,$name ,$activate_key,$branch_name) {
 		$url = get_bloginfo( 'url' );
 		$page = get_option('salon_confirm_page_id');

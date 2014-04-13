@@ -1967,6 +1967,21 @@ EOT2;
 							,'search'=>'false'
 							,'visible'=>'true' ));
 
+
+		//[20140412]Ver1.3.6
+		$item_contents['mail_from'] =array('id'=>'mail_from'
+		 ,'class' => array()
+		 ,'check' => array()
+		 ,'label' => __('Mail from',SL_DOMAIN)
+		 ,'tips' => 'Name<XXX@XXX.XXX>');
+
+		$item_contents['mail_returnPath'] =array('id'=>'mail_returnPath'
+		 ,'class' => array()
+		 ,'check' => array( 'chkMail')
+		 ,'label' => __('Mail return path',SL_DOMAIN)
+		 ,'tips' => __('please XXX@XXX.XXX format',SL_DOMAIN));
+
+
 		return $item_contents;	
 	
 		

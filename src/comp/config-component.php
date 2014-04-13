@@ -29,6 +29,8 @@ class Config_Component {
 		$set_data['SALON_CONFIG_DELETE_RECORD'] = empty($_POST['config_delete_record']) ? Salon_Config::DELETE_RECORD_NO : Salon_Config::DELETE_RECORD_YES;
 		$set_data['SALON_CONFIG_DELETE_RECORD_PERIOD'] = empty($_POST['config_delete_record_period']) ? Salon_Config::DELETE_RECORD_PERIOD : $_POST['config_delete_record_period'];
 		$set_data['SALON_CONFIG_MAINTENANCE_INCLUDE_STAFF'] = empty($_POST['config_maintenance_include_staff']) ? Salon_Config::MAINTENANCE_NOT_INCLUDE_STAFF : Salon_Config::MAINTENANCE_INCLUDE_STAFF;
+		$set_data['SALON_CONFIG_SEND_MAIL_FROM'] = stripslashes($_POST['config_mail_from']);
+		$set_data['SALON_CONFIG_SEND_MAIL_RETURN_PATH'] = stripslashes($_POST['config_mail_returnPath']);
 		return $set_data;
 		
 	}
