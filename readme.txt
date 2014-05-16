@@ -1,10 +1,10 @@
 === Salon Booking ===
 Contributors: kuu(Tanaka Hisao)
 Donate link: http://salon.mallory.jp/en/
-Tags: hair salon,salon,appointment,booking,reservation,dental clinic,hospital,mutilingual
+Tags: hair salon,salon,appointment,booking,beauty apps,reservation,dental clinic,hospital,mutilingual
 Requires at least: 3.8
-Tested up to: 3.8
-Stable tag: 1.3.6
+Tested up to: 3.8.1
+Stable tag: 1.3.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -46,8 +46,7 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 == Installation ==
 
 1. Upload `salon-booking` to the `/wp-content/plugins/` directory.
-2. `/wp-content/plugins/salon-booking/uploads` directory change permissons(read and write).
-3. Activate the plugin through the 'Plugins' menu in WordPress.
+2. Activate the plugin through the 'Plugins' menu in WordPress.
 
 = alredey installed (version 1.3.4 or later) =
 
@@ -90,6 +89,9 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 10. Admin form(timecard)
 
 == Changelog ==
+= 1.3.7 =
+* Added: New screen for smart phone.
+* Fixed: At the screen of "Booking",missing the display of "month" scr ....
 
 = 1.3.6 =
 * Added: The ability to set "From" and "Return-path" fields of mail header.

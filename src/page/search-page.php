@@ -30,7 +30,7 @@ class Search_Page extends Salon_Page {
 	public function check_request() {
 		//ここは、弱い権限でログインしているスタッフがrequestを偽造して全部取得する場合などを想定
 		if (!$this->isSalonAdmin() ) {
-			throw new Exception(Salon_Component::getMsg('E901',null) );
+			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
 		}
 	}
 	

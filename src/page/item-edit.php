@@ -33,13 +33,16 @@ class Item_Edit extends Salon_Page {
 	
 	public function check_request() {
 		if	( ($_POST['type'] != 'inserted' ) && empty($_POST['item_cd']) ) {
-			throw new Exception(Salon_Component::getMsg('E901',null) );
+			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
 		}
 		$msg = null;
 		if ($_POST['type'] != 'deleted' ) {
 			if (Salon_Page::serverCheck(array('item_name','short_name','branch_cd','minute','price','remark'),$msg) == false) {
 				throw new Exception($msg );
 			}
+		}
+		if (defined ( 'SALON_DEMO' ) && SALON_DEMO && $_POST['type'] == 'deleted' ) {
+			throw new Exception(Salon_Component::getMsg('I003',null) ,1);
 		}
 	}
 

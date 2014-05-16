@@ -16,8 +16,8 @@ abstract class Salon_Data {
 	public function __construct() {
 		$result =  unserialize(get_option( 'SALON_CONFIG'));
 		if (empty($result['SALON_CONFIG_BRANCH']) ) $result['SALON_CONFIG_BRANCH'] =  Salon_Config::MULTI_BRANCH;
-		if (empty($result['SALON_CONFIG_USER_LOGIN']) ) $result['SALON_CONFIG_USER_LOGIN'] = Salon_Config::USER_LOGIN_OK;
-		if (empty($result['SALON_CONFIG_SEND_MAIL_TEXT']) ) $result['SALON_CONFIG_SEND_MAIL_TEXT'] = __('Mr/Ms {X-TO_NAME} Please Fixed this reservation.Click the following URL</br>{X-SHOP}',SL_DOMAIN);
+		if (!isset($result['SALON_CONFIG_USER_LOGIN']) && empty($result['SALON_CONFIG_USER_LOGIN']) ) $result['SALON_CONFIG_USER_LOGIN'] = Salon_Config::USER_LOGIN_OK;
+		if (empty($result['SALON_CONFIG_SEND_MAIL_TEXT']) ) $result['SALON_CONFIG_SEND_MAIL_TEXT'] = __('Mr/Ms {X-TO_NAME} Please Fixed this reservation.Click the following URL<br>{X-SHOP}',SL_DOMAIN);
 		if (empty($result['SALON_CONFIG_SEND_MAIL_TEXT_USER']) ) $result['SALON_CONFIG_SEND_MAIL_TEXT_USER'] = __('Mr/Ms {X-TO_NAME} Thank you for registration .your User_id is %s,your initial password is %s',SL_DOMAIN);
 		if (empty($result['SALON_CONFIG_STAFF_HOLIDAY_SET']) ) $result['SALON_CONFIG_STAFF_HOLIDAY_SET'] =  Salon_Config::SET_STAFF_NORMAL;
 		if (empty($result['SALON_CONFIG_BEFORE_DAY']) ) $result['SALON_CONFIG_BEFORE_DAY'] =  Salon_Config::DEFALUT_BEFORE_DAY;
@@ -25,13 +25,17 @@ abstract class Salon_Data {
 		if (empty($result['SALON_CONFIG_TIMELINE_Y_CNT']) ) $result['SALON_CONFIG_TIMELINE_Y_CNT'] =  Salon_Config::DEFALUT_TIMELINE_Y_CNT;
 		if (empty($result['SALON_CONFIG_SHOW_DETAIL_MSG']) ) $result['SALON_CONFIG_SHOW_DETAIL_MSG'] =  Salon_Config::DETAIL_MSG_NG;
 		if (empty($result['SALON_CONFIG_NAME_ORDER']) ) $result['SALON_CONFIG_NAME_ORDER'] =  Salon_Config::NAME_ORDER_JAPAN;
-		if (empty($result['SALON_CONFIG_NO_PREFERENCE']) ) $result['SALON_CONFIG_NO_PREFERENCE']  = Salon_Config::NO_PREFERNCE_OK;
+		if (!isset($result['SALON_CONFIG_NO_PREFERENCE']) && empty($result['SALON_CONFIG_NO_PREFERENCE']) ) $result['SALON_CONFIG_NO_PREFERENCE']  = Salon_Config::NO_PREFERNCE_OK;
 		if (empty($result['SALON_CONFIG_LOG']) ) $result['SALON_CONFIG_LOG']  = Salon_Config::LOG_NEED;
 		if (empty($result['SALON_CONFIG_DELETE_RECORD']) ) $result['SALON_CONFIG_DELETE_RECORD'] =  Salon_Config::DELETE_RECORD_NO;
 		if (empty($result['SALON_CONFIG_DELETE_RECORD_PERIOD']) ) $result['SALON_CONFIG_DELETE_RECORD_PERIOD'] =  Salon_Config::DELETE_RECORD_PERIOD;
 		if (empty($result['SALON_CONFIG_MAINTENANCE_INCLUDE_STAFF']) ) $result['SALON_CONFIG_MAINTENANCE_INCLUDE_STAFF'] =  Salon_Config::MAINTENANCE_INCLUDE_STAFF;
 		if (empty($result['SALON_CONFIG_SEND_MAIL_FROM']) ) $result['SALON_CONFIG_SEND_MAIL_FROM'] =  "";
 		if (empty($result['SALON_CONFIG_SEND_MAIL_RETURN_PATH']) ) $result['SALON_CONFIG_SEND_MAIL_RETURN_PATH'] =  "";
+		
+		if (empty($result['SALON_CONFIG_MOBILE_USE']) ) $result['SALON_CONFIG_MOBILE_USE']  = Salon_Config::MOBILE_USE_YES;
+		if (empty($result['SALON_CONFIG_MOBILE_NO_PHOTO']) ) $result['SALON_CONFIG_MOBILE_NO_PHOTO']  = "";
+		
 		$this->config = $result;
 	}
 	
@@ -79,7 +83,7 @@ abstract class Salon_Data {
 				$this->_unset_roles($result,array('administrator','editor','author'));
 				break;
 			default:
-				throw new Exception(Salon_Component::getMsg('E901',__function__));
+				throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__.':'.__function__));
 		}
 		return $result;		
 	}
@@ -193,6 +197,41 @@ abstract class Salon_Data {
 		}
 		return $result;
 	}
+	
+	public function getUserInfDataByUserlogin($user_login) {
+		global $wpdb;
+		if ($this->config['SALON_CONFIG_NAME_ORDER'] == Salon_Config::NAME_ORDER_JAPAN ) {
+			$name_order = 'um2.meta_value," " ,um1.meta_value';
+		}
+		else {
+			$name_order = 'um1.meta_value," " ,um2.meta_value';
+		}
+		
+		$sql = 	' SELECT us.user_login as user_login,concat('.$name_order.') as user_name , us.user_email , um3.meta_value as tel , um4.meta_value as mobile'.
+				' FROM '.$wpdb->prefix.'users us  '.
+				' INNER JOIN '.$wpdb->prefix.'usermeta um1  '.
+				'       ON    us.ID = um1.user_id AND um1.meta_key ="first_name" '.
+				' INNER JOIN '.$wpdb->prefix.'usermeta um2  '.
+				'       ON    us.ID = um2.user_id AND um2.meta_key ="last_name" '.
+				' LEFT JOIN '.$wpdb->prefix.'usermeta um3  '.
+				'       ON    us.ID = um3.user_id AND um3.meta_key ="tel" '.
+				' LEFT JOIN '.$wpdb->prefix.'usermeta um4  '.
+				'       ON    us.ID = um4.user_id AND um4.meta_key ="mobile" '.
+				'WHERE us.user_login = %s  ';
+		$result = $wpdb->get_results($wpdb->prepare($sql,$user_login),ARRAY_A);
+		//
+		if ($result === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		
+		if (empty($result[0]['tel']) && !empty($result[0]['mobile']) ) {
+			$result[0]['tel'] = $result[0]['mobile'];
+		}
+		
+		return $result[0];
+
+	}
+
 
 
 	
@@ -854,12 +893,12 @@ abstract class Salon_Data {
 	public function deletePhotoData($photo_id) {
 		$res = $this->getPhotoDataForDelete($photo_id);
 		if (count($res) == 0 ) {
-			throw new Exception(Salon_Component::getMsg('E901',__LINE__),__('NO PHOTO DATA',SL_DOMAIN));
+			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__),__('NO PHOTO DATA',SL_DOMAIN));
 		}
 		$files = array($res[0]['photo_path'],$res[0]['photo_resize_path']);
 		foreach ($files as $d1) {
 			if ( ! unlink(SALON_UPLOAD_DIR.basename($d1)) ) {
-				throw new Exception(Salon_Component::getMsg('E901',__LINE__),__('PHOTO DATA CAN\'T DELETE',SL_DOMAIN));
+				throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__),__('PHOTO DATA CAN\'T DELETE',SL_DOMAIN));
 			}
 		}
 	}
@@ -925,7 +964,7 @@ abstract class Salon_Data {
 			$files = array($d1['photo_path'],$d1['photo_resize_path']);
 			foreach ($files as $d2) {
 				if ( ! unlink(SALON_UPLOAD_DIR.basename($d2)) ) {
-					throw new Exception(Salon_Component::getMsg('E901',__LINE__),__('PHOTO DATA CAN\'T DELETE',SL_DOMAIN));
+					throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__),__('PHOTO DATA CAN\'T DELETE',SL_DOMAIN));
 				}
 			}
 		}
@@ -1016,9 +1055,9 @@ abstract class Salon_Data {
 	}
 
 
+	
 
-
-	protected function _dbAccessAbnormalEnd () {
+	public function _dbAccessAbnormalEnd () {
 		global $wpdb;
 		throw new Exception(Salon_Component::getMsg('E902',array($wpdb->last_error,$wpdb->last_query)) );
 	}

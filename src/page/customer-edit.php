@@ -41,7 +41,7 @@ class Customer_Edit extends Salon_Page {
 	
 	public function check_request() {
 		if	( ($_POST['type'] != 'inserted' ) && empty($_POST['customer_cd']) ) {
-			throw new Exception(Salon_Component::getMsg('E901',null) );
+			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
 		}
 		$msg = null;
 		if ($_POST['type'] != 'deleted' ) {

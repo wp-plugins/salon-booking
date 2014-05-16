@@ -126,7 +126,6 @@ class Staff_Data extends Salon_Data {
 
 			}
 		}
-
 		return $result;
 
 	}

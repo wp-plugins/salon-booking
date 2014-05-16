@@ -229,10 +229,10 @@ class Staff_Component {
 			$attr = substr($base_name, strrpos($base_name, '.') );
 			$randam_file_name = substr(md5(uniqid(mt_rand())),0,8).$attr;
 			if (!copy(SALON_UPLOAD_DIR.$base_name,SALON_UPLOAD_DIR.$randam_file_name) ) {
-				throw new Exception(Salon_Component::getMsg('E901',__LINE__),__('PHOTO IMAGE CAN\'T COPY',SL_DOMAIN));
+				throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__),__('PHOTO IMAGE CAN\'T COPY',SL_DOMAIN));
 			}
 			if (!copy(SALON_UPLOAD_DIR. $target_width."_".$target_height."_".$base_name,SALON_UPLOAD_DIR. $target_width."_".$target_height."_".$randam_file_name) ) {
-				throw new Exception(Salon_Component::getMsg('E901',__LINE__),__('PHOTO IMAGE CAN\'T COPY',SL_DOMAIN));
+				throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__),__('PHOTO IMAGE CAN\'T COPY',SL_DOMAIN));
 			}
 
 			$new_photo_id_array[$photo_id] =	$this->datas->insertPhotoData($photo_id,$randam_file_name);

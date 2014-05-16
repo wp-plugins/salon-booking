@@ -6,8 +6,7 @@
 class Booking_Edit extends Salon_Page {
 	
 	
-	private $branch_datas = null;
-	private $table_data = null;
+	protected $table_data = null;
 	private $reservation_cd = '';
 
 	public function __construct($is_multi_branch) {

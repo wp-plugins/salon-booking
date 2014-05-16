@@ -15,6 +15,7 @@ class Booking_Data extends Salon_Data {
 		global $wpdb;
 		if (empty($day_from) ) $day_from = Salon_Component::computeDate(-1);
 		if (empty($day_to) ) $day_to = Salon_Component::computeMonth(1);
+		//from toは日がまたがっている前提
 		$sql =	' SELECT  '.
 				' wk.staff_cd,DATE_FORMAT(in_time,"%%Y%%m%%d") as day ,'.
 				' DATE_FORMAT(in_time,"%%Y%%m%%d%%H%%i") as in_time,'.
@@ -52,12 +53,22 @@ class Booking_Data extends Salon_Data {
 	}
 	
 	
-	public function getAllEventData($target_day = null,$target_branch_cd = null){
+	public function getAllEventData($target_day ,$target_branch_cd = null,$isOnly_target_day =false){
 		global $wpdb;
-		if (empty($target_day) ) $target_day = sl_computeDate(-2);
-		if (empty($target_branch_cd) ) $target_branch_cd = 2;	//本店
-		$result = $wpdb->get_results(
-					$wpdb->prepare(
+		if (empty($target_branch_cd) ) $target_branch_cd = Salon_Default::BRANCH_CD;
+
+		$to_date = '2099-12-31 12:00:00';
+		//モバイルの場合はYYYYMMDDなのでここで変換
+		if ($isOnly_target_day) {
+			$to_date = salon_component::computeDate(1,substr($target_day,0,4),substr($target_day,4,2),substr($target_day,6,2));
+			$target_day = salon_component::computeDate(0,substr($target_day,0,4),substr($target_day,4,2),substr($target_day,6,2));
+		}
+		else {
+			$now = date_i18n('Ymd');
+			$to_date = salon_component::computeDate($this->getConfigData('SALON_CONFIG_AFTER_DAY'),substr($now,0,4),substr($now,4,2),substr($now,6,2));
+		}
+		
+		$sql = 	$wpdb->prepare(
 						' SELECT '.
 						'reservation_cd,branch_cd,staff_cd,'.
 						'user_login,non_regist_name as name,non_regist_email as email,'.
@@ -66,15 +77,20 @@ class Booking_Data extends Salon_Data {
 						'remark,memo,notes,delete_flg,insert_time,update_time '.
 						' FROM '.$wpdb->prefix.'salon_reservation '.
 						'   WHERE time_from >= %s '.
+						'     AND time_to < %s '.
 						'     AND (status = %d OR status = %d) '.
 						'     AND delete_flg <> '.Salon_Reservation_Status::DELETED.
-						'     AND branch_cd = %s ',
-						$target_day,Salon_Reservation_Status::COMPLETE,Salon_Reservation_Status::TEMPORARY,$target_branch_cd
-					),ARRAY_A
+						'     AND branch_cd = %s '.
+						' ORDER BY time_from ',
+						$target_day,$to_date,Salon_Reservation_Status::COMPLETE,Salon_Reservation_Status::TEMPORARY,$target_branch_cd
 				);
-		if ($result === false ) {
+		if ($wpdb->query($sql) === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+
 		return $result;
 	}
 	

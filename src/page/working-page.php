@@ -107,6 +107,10 @@ class Working_Page extends Salon_Page {
 <?php //小さいメニューバーを出さない ?>
 		scheduler.xy.menu_width = 0;
 
+<?php //locale_jaを使用しないように 
+		parent::echoLocaleDef();
+?>
+
 		$j(document).ready(function() {
 <?php			
 			if ($this->isSalonAdmin() ) { 
@@ -360,10 +364,10 @@ EOT;
 			}
 			$j("#name").text( staff_name );
 			$j("#target_day").text(ev.start_date.getFullYear()+"/"+ ('00' + (ev.start_date.getMonth() + 1)).slice(-2) +"/"+('00' + (ev.end_date.getDate())).slice(-2) );
-			save_in_time = ev.start_date.getHours()+":"+(ev.start_date.getMinutes()<10?'0':'')+ev.start_date.getMinutes() ;
+			save_in_time = ('00' + (ev.start_date.getHours())).slice(-2)+":"+('00' + (ev.start_date.getMinutes())).slice(-2) ;
 			key_in_time = new Date(ev.start_date);
 			key_out_time = new Date(ev.end_date);
-			save_out_time = ev.end_date.getHours()+":"+(ev.end_date.getMinutes()<10?'0':'')+ev.end_date.getMinutes() ;
+			save_out_time = ('00' + (ev.end_date.getHours())).slice(-2)+":"+('00' + (ev.end_date.getMinutes())).slice(-2) ; 
 			$j("#in_time").val(save_in_time );
 			$j("#out_time").val( save_out_time );
 			$j("#remark").val( htmlspecialchars_decode(ev.remark) );

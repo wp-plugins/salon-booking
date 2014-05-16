@@ -22,7 +22,7 @@ class Photo_Edit extends Salon_Page {
 			throw new Exception($msg );
 		}
 		if	( ($_REQUEST['type'] == 'deleted' ) && empty($_POST['photo_id']) ) {
-			throw new Exception(Salon_Component::getMsg('E901',null) );
+			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
 		}
 		$msg = null;
 		if ($_REQUEST['type'] == 'inserted' ) {

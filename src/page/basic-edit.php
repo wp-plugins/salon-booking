@@ -28,7 +28,7 @@ class Basic_Edit extends Salon_Page {
 	
 	public function check_request() {
 		if ( empty($_POST['target_branch_cd'] ) ){
-			throw new Exception(Salon_Component::getMsg('E901',null) );
+			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
 		}
 		$checks = array();
 		if ($_POST['type'] == 'updated' ) {

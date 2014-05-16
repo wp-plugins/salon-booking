@@ -14,7 +14,7 @@ class Working_Get_Data extends Salon_Page {
 	
 	public function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch);
-		$this->target_day = Salon_Component::computeDate(-500);	//[debug]
+		$this->target_day = Salon_Component::computeDate(-3650);	//[debug]
 		$this->branch_cd = $_GET['branch_cd'];
 		$this->staff_cd =  $_GET['staff_cd'];
 	}

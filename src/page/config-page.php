@@ -13,7 +13,7 @@ class Config_Page extends Salon_Page {
 
 	public function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch);
-		$this->set_items = array('config_branch','config_user_login','send_mail_text','config_staff_holiday_set','config_no_prefernce','before_day','after_day','timeline_y_cnt','config_show_detail_msg','config_name_order_set','config_log','config_delete_record','config_delete_record_period','regist_mail_text','maintenance_include_staff','mail_from','mail_returnPath');
+		$this->set_items = array('config_branch','config_user_login','send_mail_text','config_staff_holiday_set','config_no_prefernce','before_day','after_day','timeline_y_cnt','config_show_detail_msg','config_name_order_set','config_log','config_delete_record','config_delete_record_period','regist_mail_text','maintenance_include_staff','mail_from','mail_returnPath','mobile_use');
 	}
 	
 	public function set_config_datas($config) {
@@ -88,7 +88,11 @@ class Config_Page extends Salon_Page {
 					else $set_boolean = 'false'; ?>
 			$j("#config_maintenance_include_staff").attr("checked",<?php echo $set_boolean; ?>);
 
-
+			<?php if ( $this->config['SALON_CONFIG_MOBILE_USE'] == Salon_Config::MOBILE_USE_YES ) $set_boolean = 'true';
+					else $set_boolean = 'false'; ?>
+			$j("#config_mobile_use").attr("checked",<?php echo $set_boolean; ?>);
+			
+							
 			$j("#mail_from").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_FROM']; ?>");
 			$j("#mail_returnPath").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_RETURN_PATH']; ?>");
 			
@@ -99,6 +103,11 @@ class Config_Page extends Salon_Page {
 
 		function fnClickUpdate() {
 			if ( ! checkItem("data_detail") ) return false;
+			if ( $j("input[name=\"config_staff_holiday_set\"]:checked").val() == <?php echo Salon_Config::SET_STAFF_REVERSE;?> &&
+				$j("#config_is_no_preference").attr("checked") == "checked" ) {
+					alert("<?php _e('can\'t check \"No Designation of Staff\"',SL_DOMAIN); ?>");
+					return false;
+			}
 			$j.ajax({
 				 	type: "post",
 					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=config", 
@@ -120,6 +129,7 @@ class Config_Page extends Salon_Page {
 						,"config_after_day":$j("#after_day").val()						
 						,"config_timeline_y_cnt":$j("#timeline_y_cnt").val()
 						,"config_maintenance_include_staff":$j("#config_maintenance_include_staff").attr("checked")
+						,"config_mobile_use":$j("#config_mobile_use").attr("checked")
 						,"config_mail_from":$j("#mail_from").val()	
 						,"config_mail_returnPath":$j("#mail_returnPath").val()	
 						,"nonce":"<?php echo $this->nonce; ?>"
@@ -174,15 +184,15 @@ class Config_Page extends Salon_Page {
 		</div>
 		<div id="config_staff_holday_set_wrap" class="config_item_wrap" >
 			<input id="config_staff_holiday_normal" name="config_staff_holiday_set" type="radio" class="config_item_inline_input" value="<?php echo Salon_Config::SET_STAFF_NORMAL; ?>" />
-			<label for="config_staff_holiday_normal"  class="config_item_inline_label"><?php echo  _e('unable to enter when holidays',SL_DOMAIN); ?></label>
+			<label for="config_staff_holiday_normal"  class="config_item_inline_label"><?php _e('unable to enter when holidays',SL_DOMAIN); ?></label>
 			<input id="config_staff_holiday_reverse" name="config_staff_holiday_set" type="radio" class="config_item_inline_input" value="<?php echo Salon_Config::SET_STAFF_REVERSE;?>" />
-			<label for="config_staff_holiday_reverse"  class="config_item_inline_label"><?php echo  _e('unable to enter other than when attendant',SL_DOMAIN); ?></label>
+			<label for="config_staff_holiday_reverse"  class="config_item_inline_label"><?php _e('unable to enter other than when attendant',SL_DOMAIN); ?></label>
 		</div>
 		<div id="config_name_order_set_wrap" class="config_item_wrap" >
 			<input id="config_name_order_japan" name="config_name_order_set" type="radio" class="config_item_inline_input" value="<?php echo Salon_Config::NAME_ORDER_JAPAN; ?>" />
-			<label for="config_name_order_japan"  class="config_item_inline_label"><?php echo  _e('Sur Name first',SL_DOMAIN); ?></label>
+			<label for="config_name_order_japan"  class="config_item_inline_label"><?php _e('Sur Name first',SL_DOMAIN); ?></label>
 			<input id="config_name_order_other" name="config_name_order_set" type="radio" class="config_item_inline_input" value="<?php echo Salon_Config::NAME_ORDER_OTHER;?>" />
-			<label for="config_name_order_other"  class="config_item_inline_label"><?php echo  _e('Given Name first',SL_DOMAIN); ?></label>
+			<label for="config_name_order_other"  class="config_item_inline_label"><?php _e('Given Name first',SL_DOMAIN); ?></label>
 		</div>
 
 		<div id="config_is_no_preference_wrap" class="config_item_wrap" >
@@ -190,6 +200,9 @@ class Config_Page extends Salon_Page {
 		</div>
 		<div id="config_maintenance_include_staff_wrap" class="config_item_wrap" >
 			<input id="config_maintenance_include_staff" type="checkbox" class="config_item_inline_input" value="<?php echo Salon_Config::MAINTENANCE_INCLUDE_STAFF; ?>" />
+		</div>
+		<div id="config_mobile_use_wrap" class="config_item_wrap" >
+			<input id="config_mobile_use" type="checkbox" class="config_item_inline_input" value="<?php echo Salon_Config::MOBILE_USE_YES; ?>" />
 		</div>
 		<input type="text" id="before_day" />
 		<input type="text" id="after_day" />

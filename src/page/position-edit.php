@@ -28,10 +28,10 @@ class Position_Edit extends Salon_Page {
 			throw new Exception(Salon_Component::getMsg('I001',null) ,1);
 		}
 		if	( ($_POST['type'] != 'inserted' ) && empty($_POST['position_cd']) ) {
-			throw new Exception(Salon_Component::getMsg('E901',null) );
+			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
 		}
 		if	(  ($_POST['type'] != 'inserted' )  && !empty($_POST['position_cd']) && $_POST['position_cd'] == Salon_Position::MAINTENANCE ) {
-			throw new Exception(Salon_Component::getMsg('E901',null) );
+			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
 		}
 		$msg = null;
 		if ($_POST['type'] != 'deleted' ) {

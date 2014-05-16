@@ -341,6 +341,7 @@ div.dhx_modal_cover {
 	border-right:1px dotted #586A7E;
 /*[hisa] */	
 	border-bottom:1px dotted #586A7E;
+	font-size:12px;
 }
 .dhx_month_body{
 	border-right:1px dotted #586A7E;
@@ -1576,12 +1577,21 @@ input.dhx_repeat_checkbox {
 }
 
 .dhx_scheduler_month td {
-	padding:0px;		
+	padding:0px;
+	border-top-width:1px;
+	border-top-style:solid;
+	border-top-color:#EDEDED;
 }
 
 /* enabling marked timespans for month view */
 .dhx_scheduler_month .dhx_marked_timespan {
 	display: block;
+}
+
+
+/*[hisa] */
+.dhx_scheduler_month div {
+	box-sizing:content-box;
 }
 
 .yellow_section {

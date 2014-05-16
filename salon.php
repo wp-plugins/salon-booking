@@ -3,7 +3,7 @@
 Plugin Name: Salon booking 
 Plugin URI: http://salon.mallory.jp/en
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff. 
-Version: 1.3.6
+Version: 1.3.7
 Author: kuu
 Author URI: http://salon.mallory.jp/en
 */
@@ -101,22 +101,19 @@ class Salon_Booking {
 		add_action('wp_ajax_nopriv_search', array( &$this,'edit_search')); 
 
 
-		if (SALON_DEMO ) {		
+		if (SALON_DEMO ) {
 			add_action( 'admin_bar_menu',  array( &$this,'remove_admin_bar_menu'), 201 );
 			add_action('admin_head',  array( &$this,'my_admin_head'));
 			add_action('wp_before_admin_bar_render',  array( &$this,'add_new_item_in_admin_bar'));
 			add_action('wp_dashboard_setup', array( &$this,'example_remove_dashboard_widgets'));
+			remove_action( 'admin_menu', 'wpcf7_admin_menu', 9 );
 		}
 		
 		if(!file_exists(SALON_UPLOAD_DIR)){
 			mkdir(SALON_UPLOAD_DIR,0744,true);	
 		}
 
-
 	}
-
-
-	
 	
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ デモ	
 // 管理バーの項目を非表示
@@ -542,20 +539,60 @@ public function example_remove_dashboard_widgets() {
 	}
 	
 	public function front_javascript() {
-		wp_enqueue_script( 'jquery');		
-		wp_enqueue_script( 'colorbox', SL_PLUGIN_URL.'js/jquery.colorbox-min.js',array( 'jquery' ) );
-		wp_enqueue_style('colorbox', SL_PLUGIN_URL.'css/colorbox.css');
-		wp_enqueue_style('salon', SL_PLUGIN_URL.'css/salon.css');
-		wp_enqueue_script( 'dhtmlxscheduler', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler.js',array( 'jquery' ) );
+		
+		if (Salon_Component::isMobile() ) {
 
-		if (defined ( 'WPLANG' ) && file_exists(SL_PLUGIN_DIR.SALON_JS_DIR.'locale_'.WPLANG.'.js') ) 
-			wp_enqueue_script( 'dhtmlxscheduler_locale', SL_PLUGIN_URL.SALON_JS_DIR.'locale_'.WPLANG.'.js',array( 'dhtmlxscheduler' ) );
-		wp_enqueue_script( 'dhtmlxscheduler_limit', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler_limit.js',array( 'dhtmlxscheduler' ) );
-		wp_enqueue_script( 'dhtmlxscheduler_timeline', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler_timeline.js',array( 'dhtmlxscheduler' ) );
-		wp_enqueue_script( 'dhtmlxscheduler_collision', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler_collision.js',array( 'dhtmlxscheduler' ) );
+			// metaやlinkの削除
+			//remove_action('wp_head','wp_enqueue_scripts',1);	//headを表示するにはいる
+			remove_action('wp_head','feed_links',2);
+			remove_action('wp_head','feed_links_extra',3);
+			remove_action('wp_head','rsd_link');
+			remove_action('wp_head','wlwmanifest_link');
+			remove_action('wp_head','adjacent_posts_rel_link_wp_head',10,0);
+			remove_action('wp_head','locale_stylesheet');
+			remove_action('wp_head','noindex',1);
+			//remove_action('wp_head','wp_print_styles',8);	//headを表示するにはいる
+			//remove_action('wp_head','wp_print_head_scripts',9); //jqueryにはいる
+			remove_action('wp_head','wp_generator');
+			remove_action('wp_head','rel_canonical');
+
+			
+//			wp_deregister_script('jquery');			//使用有無
+
+
+			wp_deregister_script('comment-reply');			
+			add_action( 'widgets_init', 'remove_recent_comments_style' );			
+	
+
+			wp_enqueue_script( 'salon-mobile', SL_PLUGIN_URL.'js/salon_mobile.js',array( 'jquery' ) );
+			wp_enqueue_style('salon-mobile', SL_PLUGIN_URL.'css/salon_mobile.css');
+
+
+		}
+		else {
+		
+
+			wp_enqueue_script( 'jquery');		
+			wp_enqueue_script( 'colorbox', SL_PLUGIN_URL.'js/jquery.colorbox-min.js',array( 'jquery' ) );
+			wp_enqueue_style('colorbox', SL_PLUGIN_URL.'css/colorbox.css');
+			wp_enqueue_style('salon', SL_PLUGIN_URL.'css/salon.css');
+			wp_enqueue_style('colorbox', SL_PLUGIN_URL.'css/colorbox.css');
+//templateのIDがわからないので、ここではやはり無理
+//			wp_enqueue_style( 'dhtmlxscheduler', SL_PLUGIN_URL.SALON_CSS_DIR.'dhtmlxscheduler.css' );
+			wp_enqueue_script( 'dhtmlxscheduler', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler.js',array( 'jquery' ) );
+	
+			if (defined ( 'WPLANG' ) && file_exists(SL_PLUGIN_DIR.SALON_JS_DIR.'locale_'.WPLANG.'.js') ) 
+				wp_enqueue_script( 'dhtmlxscheduler_locale', SL_PLUGIN_URL.SALON_JS_DIR.'locale_'.WPLANG.'.js',array( 'dhtmlxscheduler' ) );
+			wp_enqueue_script( 'dhtmlxscheduler_limit', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler_limit.js',array( 'dhtmlxscheduler' ) );
+			wp_enqueue_script( 'dhtmlxscheduler_timeline', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler_timeline.js',array( 'dhtmlxscheduler' ) );
+			wp_enqueue_script( 'dhtmlxscheduler_collision', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler_collision.js',array( 'dhtmlxscheduler' ) );
+		
+		}
 	}
 
+
 	public function salon_booking_shortcode($atts) {
+		
 		extract(shortcode_atts(array('branch_cd' => '1'), $atts));
 		require_once(SL_PLUGIN_SRC_DIR.'/control/booking-control.php');
 	

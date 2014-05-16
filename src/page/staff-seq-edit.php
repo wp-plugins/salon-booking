@@ -19,7 +19,7 @@ class Staff_Seq_Edit extends Salon_Page {
 	public function check_request() {
 
 		if ( empty($_POST['staff_cd']) ) {
-			throw new Exception(Salon_Component::getMsg('E901',__FILE__.__LINE__) );
+			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
 		}
 		$msg = '';
 		if (Salon_Page::serverCheck(array(),$msg) == false) return;

@@ -80,12 +80,12 @@ class Photo_Component {
 		foreach ($ids as $d1) {
 			$res = $this->datas->getPhotoDataForDelete($d1);
 			if (count($res) == 0 ) {
-				throw new Exception(Salon_Component::getMsg('E901',__LINE__),__('NO PHOTO DATA',SL_DOMAIN));
+				throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__),__('NO PHOTO DATA',SL_DOMAIN));
 			}
 			$files = array($res[0]['photo_path'],$res[0]['photo_resize_path']);
 			foreach ($files as $d2) {
 				if ( ! unlink(SALON_UPLOAD_DIR.basename($d2)) ) {
-					throw new Exception(Salon_Component::getMsg('E901',__LINE__),__('PHOTO DATA CAN\'T DELETE',SL_DOMAIN));
+					throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__),__('PHOTO DATA CAN\'T DELETE',SL_DOMAIN));
 				}
 			}
 		}

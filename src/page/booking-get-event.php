@@ -11,15 +11,16 @@ class Booking_Get_Event extends Salon_Page {
 	private $branch_cd = '';
 	
 	private $user_login = '';
+
 	
 	public function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch);
-		$this->target_day = Salon_Component::computeDate(-500);	//[debug]
 		$this->branch_cd = $_GET['branch_cd'];
 
 	}
 	
-	public function get_target_day() {
+	public function get_target_day($before) {
+		$this->target_day = Salon_Component::computeDate(-1*$before);	
 		return $this->target_day;
 	}
 	

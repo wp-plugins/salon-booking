@@ -21,8 +21,9 @@ class Branch_Component {
 			if ($_POST['type'] == 'updated' ) 	$set_data['branch_cd'] = intval($_POST['branch_cd']);
 
 			$set_data['name'] = stripslashes($_POST['name']);
-			$set_data['zip'] = str_replace('-','',$_POST['zip']);
-			$set_data['zip'] = substr($set_data['zip'],0,3).'-'.substr($set_data['zip'],3);
+//			$set_data['zip'] = str_replace('-','',$_POST['zip']);
+//			$set_data['zip'] = substr($set_data['zip'],0,3).'-'.substr($set_data['zip'],3);
+			$set_data['zip'] = $_POST['zip'];
 			$set_data['address'] = stripslashes($_POST['address']);
 			$set_data['tel'] = $_POST['tel'];
 			$set_data['mail'] = $_POST['mail'];

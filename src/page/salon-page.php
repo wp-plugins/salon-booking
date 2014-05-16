@@ -11,7 +11,7 @@ if (! $set_lang ) {
 	$file_name = SL_PLUGIN_DIR.'/lang/salon-page-com.php';
 	if ( file_exists($file_name) ) require_once($file_name);
 	else {
-		throw new Exception(Salon_Component::getMsg('E007',__FILE__.':'.__LINE__ ) );
+		throw new Exception(Salon_Component::getMsg('E007',basename(__FILE__).':'.__LINE__ ) );
 	}
 }
 
@@ -33,6 +33,7 @@ class Salon_Page {
 	public function __construct($is_multi_branch) {
 		$this->is_multi_branch = $is_multi_branch;
 		$this->nonce = wp_create_nonce(session_id());
+		
 	}
 	public function set_isSalonAdmin($is_salon_admin){
 		$this->is_salon_admin = $is_salon_admin;
@@ -94,6 +95,26 @@ class Salon_Page {
 		self::echoHtmlpecialchars();
 
 	}
+
+	static function echoClientItemMobile($items) {
+		$item_contents = Salon_Page::setItemContents();	
+		echo 'var check_items = { ';
+		$tmp = array();
+		if (is_array($items) ){
+			foreach ($items as $d1) {
+				$add_class = '';
+				$tmp[] ='"'.$item_contents[$d1]['id'].'": '.
+						'{'.
+						' "id" : "'.$item_contents[$d1]['id'].'"'.
+						',"label" : "'.$item_contents[$d1]['label'].'"'.
+						'}';
+			}
+		}
+		echo join(',',$tmp);
+		echo '};';
+		self::echoHtmlpecialchars();
+
+	}
 	
 
 	static function echoHtmlpecialchars() {
@@ -144,6 +165,17 @@ EOT2;
 		}
 	}
 
+	static  function echoSetItemLabelMobile() {
+		echo <<<EOT
+			for(index in check_items) {
+				if (check_items[index] ) {
+					var id = check_items[index]["id"];
+					\$j("#"+id).attr("placeholder",check_items[index]["label"]);
+					\$j("#"+id).parent().before("<li class=\"slm_label\"><label id=\""+id+"_lbl\" for=\""+id+"\" >"+check_items[index]["label"]+":</label></li>");
+				}
+			}
+EOT;
+	}
 
 	static function echoCommonButton($add_operation = '"inserted"'){
 		$show = __('Show Details',SL_DOMAIN);
@@ -658,7 +690,8 @@ EOT;
 		$echo_data =  '<select name="'.$id.'" id="'.$id.'">';
 //		$echo_data .=   '<option value="-1" >'.__('no setting',SL_DOMAIN).'</option>';
 		while($dt <= $dt_max ) {
-			$echo_data .= '<option value="'.$dt->format("G:i").'" >'.$dt->format("H:i").'</option>';
+//			$echo_data .= '<option value="'.$dt->format("G:i").'" >'.$dt->format("H:i").'</option>';
+			$echo_data .= '<option value="'.$dt->format("H:i").'" >'.$dt->format("H:i").'</option>';
 			$dt->modify("+".$time_step." minutes");
 		}
 		$echo_data .= '</select>';
@@ -961,6 +994,36 @@ EOT;
 		
 	}
 
+	static function echoLocaleDef() {
+		echo '
+			scheduler.locale={
+				date: {
+					month_full:['.__('"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"',SL_DOMAIN).'],
+					month_short:[ '.__('"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"',SL_DOMAIN).'],
+					day_full:['.__('"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"',SL_DOMAIN).'],
+					day_short:['.__('"Sun","Mon","Tue","Wed","Thu","Fri","Sat"',SL_DOMAIN).']
+				},
+				labels:{
+					dhx_cal_today_button:"'.__('today',SL_DOMAIN).'",
+					day_tab:"'.__('Day',SL_DOMAIN).'",
+					week_tab:"'.__('Week',SL_DOMAIN).'",
+					month_tab:"'.__('Month',SL_DOMAIN).'",
+				}
+			};
+			
+			scheduler.config.default_date = "'.__('%j %M %Y',SL_DOMAIN).'";
+			scheduler.config.month_date ="'.__('%F %Y',SL_DOMAIN).'";
+			scheduler.config.week_date = "'.__('%l',SL_DOMAIN).'";
+			scheduler.config.day_date = "'.__('%D, %F %j',SL_DOMAIN).'";
+
+//			scheduler.config.default_date = "%Y/%m/%d(%D)";
+//			scheduler.config.month_date = "%Y/%m";
+//			scheduler.config.week_date = "%l";
+//			scheduler.config.day_date = "%n/%d(%D)";
+		
+		';
+		
+	}
 	static function set_datepickerDefault($is_maxToday = false){
 		$range = 'minDate: new Date()';
 		if ($is_maxToday) $range = 'maxDate: new Date()';
@@ -1057,7 +1120,7 @@ EOT2;
 				};
 				scheduler.addMarkedTimespan(options);
 EOT;
-				if (strpos($branch_datas['closed'],date('w') ) !== false ) $is_todayHoliday = true;
+				if (strpos($branch_datas['closed'],date_i18n('w') ) !== false ) $is_todayHoliday = true;
 				//特殊な日の設定（定休日だけど営業するor営業日だけど休むなど）
 				$sp_dates = unserialize($branch_datas['sp_dates']);
 				$on_business_array = array();
@@ -1110,14 +1173,15 @@ EOT;
 	
 EOT2;
 
-				if (isset($today_check_array[date('Ymd')]) ) {
-					if ($today_check_array[date('Ymd')] == Salon_Status::OPEN ) $is_todayHoliday = false;
+				if (isset($today_check_array[date_i18n('Ymd')]) ) {
+					if ($today_check_array[date_i18n('Ymd')] == Salon_Status::OPEN ) $is_todayHoliday = false;
 					else $is_todayHoliday = true;
 				}
 			}
 			return $is_todayHoliday;
 		
 	}
+
 
 
 	static function echoCheckClinet($check_patern) {
@@ -1575,31 +1639,31 @@ EOT2;
 		 ,'class' => array()
 		 ,'check' => array( 'chkTel','reqOther_mobile')
 		 ,'label' => __('Tel',SL_DOMAIN)
-		 ,'tips' => __('please XXXX-XXX-XXXX format',SL_DOMAIN));
+		 ,'tips' => __('within 15 charctors',SL_DOMAIN));
 
 		$item_contents['branch_tel'] =array('id'=>'tel'
 		 ,'class' => array()
 		 ,'check' => array( 'chk_required','chkTel')
 		 ,'label' => __('Tel',SL_DOMAIN)
-		 ,'tips' => __('please XXXX-XXX-XXXX format',SL_DOMAIN));
+		 ,'tips' => __('within 15 charctors',SL_DOMAIN));
 	
 		$item_contents['customer_tel'] =array('id'=>'tel'
 		 ,'class' => array()
 		 ,'check' => array( 'chkTel','reqOther_mobile_mail')
 		 ,'label' => __('Tel',SL_DOMAIN)
-		 ,'tips' => __('please XXXX-XXX-XXXX format',SL_DOMAIN));
+		 ,'tips' => __('within 15 charctors',SL_DOMAIN));
 	
 		$item_contents['mobile'] =array('id'=>'mobile'
 		 ,'class' => array()
 		 ,'check' => array( 'chkTel','reqOther_tel')
 		 ,'label' => __('Mobile',SL_DOMAIN)
-		 ,'tips' => __('please XXXX-XXX-XXXX format',SL_DOMAIN));
+		 ,'tips' => __('within 15 charctors',SL_DOMAIN));
 
 		$item_contents['customer_mobile'] =array('id'=>'mobile'
 		 ,'class' => array()
 		 ,'check' => array( 'chkTel','reqOther_tel_mail')
 		 ,'label' => __('Mobile',SL_DOMAIN)
-		 ,'tips' => __('please XXXX-XXX-XXXX format',SL_DOMAIN));
+		 ,'tips' => __('within 15 charctors',SL_DOMAIN));
 	
 		$item_contents['mail'] =array('id'=>'mail'
 		 ,'class' => array()
@@ -1611,7 +1675,7 @@ EOT2;
 		 ,'class' => array()
 		 ,'check' => array( 'chkTel','reqOther_mail')
 		 ,'label' => __('Tel',SL_DOMAIN)
-		 ,'tips' => __('please XXXX-XXX-XXXX format',SL_DOMAIN));
+		 ,'tips' => __('within 15 charctors',SL_DOMAIN));
 
 		$item_contents['mail_norequired'] =array('id'=>'mail'
 		 ,'class' => array()
@@ -1630,7 +1694,7 @@ EOT2;
 		 ,'class' => array()
 		 ,'check' => array( 'chkTel','reqOther_mail')
 		 ,'label' => __('Tel',SL_DOMAIN)
-		 ,'tips' => __('please XXXX-XXX-XXXX format',SL_DOMAIN));
+		 ,'tips' => __('within 15 charctors',SL_DOMAIN));
 
 		$item_contents['reserved_mail'] =array('id'=>'mail'
 		 ,'class' => array()
@@ -1667,6 +1731,11 @@ EOT2;
 							,'sort'=>'true'
 							,'search'=>'true'
 							,'visible'=>'true' ));
+		$item_contents['target_day_mobile'] =array('id'=>'target_day'
+		 ,'class' => array()
+		 ,'check' => array( 'chk_required')
+		 ,'label' => ""
+		 ,'tips' => __('please MM/DD/YYYY or MMDDYYYY format',SL_DOMAIN));
 	
 		$item_contents['employed_day'] =array('id'=>'employed_day'
 		 ,'class' => array()
@@ -1734,12 +1803,7 @@ EOT2;
 		 ,'label' => __('Menu',SL_DOMAIN)
 		 ,'tips' => __('please select',SL_DOMAIN));
 	
-		$item_contents['button_upload'] =array('id'=>'button_upload'
-		 ,'class'	=>array()
-		 ,'check' => array( )
-		 ,'label' => __('Photo',SL_DOMAIN)
-		 ,'tips' => __('plese select [From Computer] or [Media Libraly].and click [Insert into Post].forget not to click the button either [add] or [update]',SL_DOMAIN));
-	
+
 		$item_contents['config_branch'] =array('id'=>'config_only_branch'
 		 ,'class'	=>array()
 		 ,'check' => array()
@@ -1773,7 +1837,7 @@ EOT2;
 		$item_contents['config_show_detail_msg'] =array('id'=>'config_is_show_detail_msg'
 		 ,'class'	=>array()
 		 ,'check' => array()
-		 ,'label' => __('Display Details',SL_DOMAIN)
+		 ,'label' => __('Display Details at messages',SL_DOMAIN)
 		 ,'tips' => __('when debgug, check here',SL_DOMAIN));
 
 		$item_contents['regist_customer'] =array('id'=>'regist_customer'
@@ -1817,7 +1881,6 @@ EOT2;
 		 ,'check' => array()
 		 ,'label' => __('Maintenance staff member include staff',SL_DOMAIN)
 		 ,'tips' => __('if maintenance staff member display front form  ,check here',SL_DOMAIN));
-
 
 
 		$item_contents['booking_user_login'] =array('id'=>'login_username'
@@ -1982,6 +2045,27 @@ EOT2;
 		 ,'tips' => __('please XXX@XXX.XXX format',SL_DOMAIN));
 
 
+		//[20140416]Ver1.3.5
+		$item_contents['mobile_search_day'] =array('id'=>'slm_searchdate'
+		 ,'class' => array()
+		 ,'check' => array( '')
+		 ,'label' => __('Date',SL_DOMAIN)
+		 ,'tips' => __('MM/DD/YYYY',SL_DOMAIN));
+
+		$item_contents['mobile_tel'] =array('id'=>'tel'
+		 ,'class' => array()
+		 ,'check' => array( 'chk_required','chkTel')
+		 ,'label' => __('Tel',SL_DOMAIN)
+		 ,'tips' => __('within 15 charctors',SL_DOMAIN));
+
+		$item_contents['mobile_use'] =array('id'=>'config_mobile_use'
+		 ,'class'	=>array()
+		 ,'check' => array()
+		 ,'label' => __('Mobile screen use',SL_DOMAIN)
+		 ,'tips' => __('if use the screen of  mobiles and pc, check here',SL_DOMAIN));
+
+
+
 		return $item_contents;	
 	
 		
@@ -2098,7 +2182,7 @@ EOT2;
 	
 	static function serverEachCheck($target,$check,$label,&$err_msg){
 		if (trim($check) == 'chk_required') {
-			if (empty($target)&& $target!=0) {
+			if (empty($target)&& $target!==0) {
 				$err_msg[] = Salon_Component::getMsg('E201',$label);
 				return false;
 			}
@@ -2134,7 +2218,7 @@ EOT2;
 					break;
 				
 				case 'chkTel':
-					if (preg_match('/^[\d\-]{10,13}$/',$target,$matches) == 0 ) {
+					if (preg_match('/^[\d\-]{1,15}$/',$target,$matches) == 0 ) {
 						$err_msg[] = Salon_Component::getMsg('E206',$label);
 					}
 					break;
@@ -2219,8 +2303,8 @@ EOT2;
 		//数字だけだと見えにくいのでハイフンを入れる
 		$check_contens['chkTel'] = '
 							if ($j('.$target.').hasClass("chkTel") ) {
-								if( ! val.match(/^[\d\-]{10,13}$/) ){
-									item_errors.push( "'.__('please XXXX-XXX-XXXX format',SL_DOMAIN).'");
+								if( ! val.match(/^[\d\-]{1,15}$/) ){
+									item_errors.push( "'.__('within 15 charctors',SL_DOMAIN).'");
 								}
 							}';
 		$check_contens['chkMail'] = '
@@ -2487,8 +2571,180 @@ EOT;
 		
 	}
 //[2013/11/10]Ver 1.3.1 To
-	
 
-	
-	
+//[2014/04/23]Ver 1.3.7 From
+//
+	private function _editDate($yyyymmdd) {
+		return substr($yyyymmdd,0,4). substr($yyyymmdd,5,2).  substr($yyyymmdd,8,2);
+	}
+	private function _editTime($yyyymmdd) {
+		return substr($yyyymmdd,11,2). substr($yyyymmdd,14,2);
+	}
+
+	public function echoMobileData($reservation_datas ,$target_day,$first_hour,$user_login="") {
+		//全件読むパターン
+		$dayStaff = array();
+		$return_set = array();
+		$randam_num = mt_rand(1000000,9999999);
+		foreach($reservation_datas as $k1 => $d1 ) {
+			$date = $this->_editDate($d1['time_from']);
+			$from = $this->_editTime($d1['time_from']);
+			$to = $this->_editTime($d1['time_to']);
+			if (( ! empty($user_login) &&  $user_login === $d1['user_login'] ) || 	$this->isSalonAdmin() ) {
+				$dayStaff[$date][$d1['staff_cd']][] = 
+					array('s'=>$from
+						,'e'=>$to
+						,'ev'=>$d1['reservation_cd']
+						,'st'=>$d1['status']
+						,'it'=>$d1['item_cds']
+						,'name'=>$d1['name']
+						,'tel'=>$d1['tel']
+						,'mail'=>$d1['email']
+						,'remark'=>$d1['remark']
+						,'p2'=>$d1['non_regist_activate_key']
+						);
+			}
+			else {
+				$dayStaff[$date][$d1['staff_cd']][] = array('s'=>$from,'e'=>$to,'ev'=>$d1['reservation_cd']+$randam_num,'st'=>Salon_Edit::NG);
+			}
+		}
+		
+
+		//同一スタッフでの重複をチェック->予約済みのDIVの高さを求める分母として使用
+		//k1は日付単位。現状、１日だが複数日も可能にしとく
+		if(count($dayStaff) >  0 ) {
+			foreach($dayStaff as $k1 => $d1 ) {
+				//k2はスタッフコード単位
+				$set_array = array();
+				foreach($d1 as $k2 => $d2) {
+					//複数ある場合のみチェック
+					$dup_table = array();
+					//添字は階層を意味する
+					$dup_table[0][] = $d2[0];
+					$set_cnt = 1;
+					if (count($d2) > 1 ) {
+						$max_dup = 0;
+						for ($i = 1 ; $i < count($d2) ; $i++  ) {
+							$dup_flg = false;
+							//階層の中で重複しない
+							for($j = 0 ;  $j <= $max_dup ;$j++ ) {
+								foreach ($dup_table[$j]  as $k3 => $d3 ){
+									//重複したら次の階層へ
+									if ($d2[$i]['e'] <= $d3['s'] || $d3['e'] <= $d2[$i]['s'] ) {
+									}
+									else {
+										$dup_flg = true;
+										continue 2;
+									}
+								}
+								//ここにきたら重複はない
+								$dup_table[$j][] = $d2[$i];
+								$dup_flg = false;
+								break 2;
+							}
+							//新しい階層をつくる場合
+							if ($dup_flg) {
+								$max_dup++;
+								$dup_table[$max_dup][] = $d2[$i];
+							}
+						}
+						$set_cnt = $max_dup+1;
+					}
+					//ここで階層と階層の内容を設定k4は階層
+					$set_time = array();						
+					foreach ($dup_table as  $k4 => $d4 ) {
+						//d5は実際の時間
+						foreach ($d4 as $k5 => $d5 ) {
+							//15分単位で左と幅を算出$this->branch_datas['time_step']を使う？								
+							$left = salon_component::calcMinute($first_hour.'00',$d5['s'])/15;
+							$width = salon_component::calcMinute($d5['s'], $d5['e'])/15;
+							if ($d5['st'] == Salon_Edit::OK) {
+								$set_time[] = array($k4=>array("b"=>array($left,$width,$d5['ev'],$d5['s'],$d5['e'],$d5['st']),
+																"d"=>array($d5['it']
+																			,$d5['remark']
+																			,$d5['p2']
+																			,$d5['name']
+																			,$d5['tel']
+																			,$d5['mail']
+																			)
+																)
+													);						
+							}
+							else  {
+								$set_time[] = array($k4=>array("b"=>array($left,$width,$d5['ev'],$d5['s'],$d5['e'],$d5['st']),"d"=>array()));
+							}
+							
+						}
+					}
+					$set_array[] = array($k2=>array("s"=>$set_cnt,
+													"d"=>$set_time)
+										);
+				}
+				$return_set[$k1] = json_encode(array("e"=>1,"d"=>$set_array));
+			}
+		}
+		else {
+				$return_set[$target_day] = json_encode(array("e"=>0));
+		}
+		return $return_set;
+	}
+
+	static function echoSetHolidayMobile($branch_datas,$working_datas,$target_year,$first_hour) {
+		if (!empty($branch_datas['closed']) || $branch_datas['closed']==0 ) {
+
+			echo 'slmSchedule.config.days = ['.$branch_datas['closed'].'];';
+
+
+			//特殊な日の設定（定休日だけど営業するor営業日だけど休むなど）
+			$sp_dates = unserialize($branch_datas['sp_dates']);
+			$on_business_array = array();
+			$holiday_array = array();
+			$today_check_array = array();
+			for ($i=0;$i<2;$i++) {	//指定年と＋１(年末のことを考えて）
+				$tmp_year = intval($target_year) + $i;
+				if ($sp_dates && !empty($sp_dates[$tmp_year])) {
+					foreach ($sp_dates[$tmp_year] as $k1 => $d1) {
+						$today_check_array[$k1] = $d1;
+						$tmp = 'new Date('.$tmp_year.','.(string)(intval(substr($k1,4,2))-1).','.(string)(intval(substr($k1,6,2))+0).')';
+						if ($d1== Salon_Status::OPEN ) {
+							$on_business_array[] = $tmp;
+							
+						}
+						elseif ($d1== Salon_Status::CLOSE ) {
+							$holiday_array[] = $tmp;
+						}
+					}
+				}
+			}
+			echo 'slmSchedule.config.on_business = [ '.implode(',',$on_business_array).' ];';
+			echo 'slmSchedule.config.holidays = [ '.implode(',',$holiday_array).' ];';
+			
+		}
+			
+		echo "slmSchedule.config.staff_holidays = {}; ";
+		if (count($working_datas)>0) {
+			$timeline_array = array();
+			//k1はYYYYMMDD
+			foreach ($working_datas as $k1 => $d1 ) {
+				echo  'slmSchedule.config.staff_holidays["'.$k1.'"] = {};';
+				//1日複数回の出勤があり得る
+				$tmp_time_array = array();
+				$staff_cd = "";
+				//k2は休日パターンの場合はスタッフコードだが、出勤パターンの場合は通番
+				foreach ($d1 as $k2 => $d2 ) {
+					$staff_cd = $d2['staff_cd'];
+					$from = substr($d2['in_time'],8,4);
+					$to = substr($d2['out_time'],8,4);
+					$left = salon_component::calcMinute($first_hour.'00',$from)/15;
+					$width = salon_component::calcMinute($from,$to)/15;
+					$tmp_time_array[] = array($left,$width,substr($d2['in_time'],8,4),substr($d2['out_time'],8,4));
+				}
+				echo 'slmSchedule.config.staff_holidays["'.$k1.'"]["'.$staff_cd.'"] = '.json_encode($tmp_time_array).';'; 
+			}
+		}
+	}
+
+
+
+//[2014/04/23]Ver 1.3.7 To
 }

@@ -39,10 +39,10 @@ class Confirm_Edit extends Salon_Page {
 			throw new Exception(Salon_Component::getMsg('E005',__LINE__ ) );
 		}
 		if ( empty($_POST['target']) || ( $_POST['type'] !== 'exec' && $_POST['type'] !== 'cancel' ) ) {
-			throw new Exception(Salon_Component::getMsg('E901',null) );
+			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
 		}
 		if ( count($this->datas) == 0  ||  $this->datas['non_regist_activate_key'] !== $this->activation_key ) {
-			throw new Exception(Salon_Component::getMsg('E901',null) );
+			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
 		}
 	}
 

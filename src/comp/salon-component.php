@@ -54,6 +54,11 @@ class Salon_Config {
 	const DELETE_RECORD_PERIOD = 6;
 	const MAINTENANCE_INCLUDE_STAFF = 0;
 	const MAINTENANCE_NOT_INCLUDE_STAFF = 1;
+	//mobile
+	const MOBILE_NO_PHOTO = 1;
+	const TAP_INTERVAL = 500;
+	const MOBILE_USE_YES = 1;
+	const MOBILE_USE_NO = 2;
 	
 }
 
@@ -166,12 +171,12 @@ class Salon_Component {
 		$reservation_data = '';
 		if ( $_POST['type'] == 'inserted'    ) {
 			if ( ! empty($set_data['reservation_cd']) )
-				throw new Exception(self::getMsg('E901',__LINE__),1);
+				throw new Exception(self::getMsg('E901',basename(__FILE__).':'.__LINE__),1);
 		}
 		else {
 			$reservation_data = $datas->getTargetSalesData($set_data['reservation_cd']);
 			if ($_POST['p2'] != $reservation_data[0]['non_regist_activate_key'] ) {
-				throw new Exception(self::getMsg('E901',__LINE__),1);
+				throw new Exception(self::getMsg('E901', basename(__FILE__).':'.__LINE__),1);
 			}
 		}
 		
@@ -202,11 +207,44 @@ class Salon_Component {
 			else {
 				$holidays = explode(',',$result_branch[0]['closed']);
 				if (in_array(salon_component::getDayOfWeek($set_data['time_from']),$holidays) ) {
-					throw new Exception(self::getMsg('E901',__LINE__),1);
+					throw new Exception(self::getMsg('E901',basename(__FILE__).':'.__LINE__),1);
 				}
 			}
-			
 			if  ($set_data['staff_cd'] !=  Salon_Default::NO_PREFERENCE ) {
+				//スタッフの休みのチェック 該当時間のスタッフの状態を取得
+				$sql =	' SELECT working_cds '.
+						' FROM '.$wpdb->prefix.'salon_working wk '.
+						'   WHERE ((in_time <= %s AND %s <= out_time ) '.
+						'     OR   (in_time <= %s AND %s <= out_time ) )'.
+						'     AND staff_cd = %d ';
+				$sql  = $wpdb->prepare($sql,$set_data['time_from'],$set_data['time_from'],$set_data['time_to'],$set_data['time_to'],$set_data['staff_cd']);
+				if ($wpdb->query($sql) === false ) {
+					$datas->_dbAccessAbnormalEnd();
+				}
+				else {
+					$result = $wpdb->get_results($sql,ARRAY_A);					
+				}
+				if (count($result) > 0 ) {
+					$working_cds = explode( ',',$result[0]['working_cds']);
+					if ($datas->getConfigData('SALON_CONFIG_STAFF_HOLIDAY_SET') == Salon_Config::SET_STAFF_NORMAL ) {
+						if (in_array(Salon_Working::DAY_OFF,$working_cds) ) {
+							throw new Exception(__('today this staff can not be reserved ',SL_DOMAIN),1);
+						}
+					}
+					else {
+						//出勤時間ならＯＫ
+						if ( ! in_array(Salon_Working::USUALLY,$working_cds) &&
+							! in_array(Salon_Working::HOLIDAY_WORK,$working_cds)){
+							throw new Exception(__('this staff can not be reserved in this time range',SL_DOMAIN),1);
+						}
+					}
+				}
+				else {
+					if ($datas->getConfigData('SALON_CONFIG_STAFF_HOLIDAY_SET') == Salon_Config::SET_STAFF_REVERSE ) {
+							throw new Exception(__('this staff can not be reserved in this time range',SL_DOMAIN),1);
+					}
+				}
+
 				$result = $wpdb->get_results(
 							$wpdb->prepare(
 								' SELECT  '.
@@ -219,6 +257,7 @@ class Salon_Component {
 				if ($result === false ) {
 					$datas->_dbAccessAbnormalEnd();
 				}
+				//スタッフの重複可能数のチェック
 				$cnt = $datas->countReservation($set_data['staff_cd'],$set_data['time_from'],$set_data['time_to'],$reservation_cd);
 				if ($cnt > $result[0]['duplicate_cnt'] ) {
 					throw new Exception(self::getMsg('W002',array(__('staff',SL_DOMAIN), $result[0]['duplicate_cnt']+1)),1);
@@ -352,7 +391,7 @@ class Salon_Component {
 				$err_msg = sprintf(__("%s space input between fires-name and last-name[%s]",SL_DOMAIN),$err_cd,$add_char);
 				break;	
 			case 'E211':
-				$err_msg = sprintf(__("%s within %d charctors[%s]",SL_DOMAIN),$err_cd,$add_char[0],$add_char[1]);
+				$err_msg = sprintf(__("%s within %d characters[%s]",SL_DOMAIN),$err_cd,$add_char[0],$add_char[1]);
 				break;	
 			case 'E401':
 				$err_msg = __('an unexpected error has occurred',SL_DOMAIN);
@@ -389,6 +428,9 @@ class Salon_Component {
 				break;	
 			case 'I002':
 				$err_msg = sprintf(__("Customer is registerd.\nUser Login : %s\nPassword : %s",SL_DOMAIN),$add_char[0],$add_char[1]);
+				break;	
+			case 'I003':
+				$err_msg = sprintf(__("when demo site ,can't delete.",SL_DOMAIN),$add_char);
 				break;	
 			default:
 				$err_msg = $err_cd.__("message not found",SL_DOMAIN).$add_char;
@@ -464,6 +506,43 @@ class Salon_Component {
 	static function getDayOfWeek($in) {
 		return date("w", strtotime($in));
 	}
+	
+	static function isMobile($checkRequest = true){
+
+		$result =  unserialize(get_option( 'SALON_CONFIG'));
+		if (!empty($result['SALON_CONFIG_MOBILE_USE']) && ($result['SALON_CONFIG_MOBILE_USE'] == Salon_Config::MOBILE_USE_NO )) return false;
+
+		if ( $checkRequest && isset($_REQUEST['sl_desktop']) && $_REQUEST['sl_desktop'] == 'true'  ) return false; 
+		$useragents = array(
+			'iPhone', // iPhone
+			'iPod', // iPod touch
+			'Android.*Mobile', // 1.5+ Android *** Only mobile
+			'Windows.*Phone', // *** Windows Phone
+			'dream', // Pre 1.5 Android
+			'CUPCAKE', // 1.5+ Android
+			'blackberry9500', // Storm
+			'blackberry9530', // Storm
+			'blackberry9520', // Storm v2
+			'blackberry9550', // Storm v2
+			'blackberry9800', // Torch
+			'webOS', // Palm Pre Experimental
+			'incognito', // Other iPhone browser
+			'webmate' // Other iPhone browser
+		);
+		$pattern = '/'.implode('|', $useragents).'/i';
+		return preg_match($pattern, $_SERVER['HTTP_USER_AGENT']);
+	}
+	
+	static function calcMinute($from,$to) {
+		//$from toはHHMM
+		if (strlen($from) == 3 ) $from = '0'.$from;
+		if (strlen($to) == 3 ) $to = '0'.$to;
+		$pasttime=strtotime('2000/01/01 '.sprintf("%s:%s:00",substr($from,0,2),substr($from,2,2)));
+		$thistime=strtotime('2000/01/01 '.sprintf("%s:%s:00",substr($to,0,2),substr($to,2,2)));
+		$diff=$thistime-$pasttime;
+		return floor($diff/60);
+	}
+
 
 	
 }

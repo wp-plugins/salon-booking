@@ -19,7 +19,7 @@ class Branch_Col_Edit extends Salon_Page {
 	public function check_request() {
 
 		if ( empty($_POST['branch_cd']) ) {
-			throw new Exception(Salon_Component::getMsg('E901',null) );
+			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
 		}
 		$check_item = '';
 		switch (intval($_POST['column'])) {

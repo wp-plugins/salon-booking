@@ -30,7 +30,6 @@ class Booking_Component {
 		$day_from = Salon_Component::computeDate(-1 * $this->datas->getConfigData('SALON_CONFIG_BEFORE_DAY'));
 		$day_to = Salon_Component::computeDate( $this->datas->getConfigData('SALON_CONFIG_AFTER_DAY'));
 		$result = $this->datas->getWorkingDataByBranchCd($branch_cd ,$day_from,$day_to);
-
 		$result_after = array();
 		$is_normal_patern = true;
 		if ($this->datas->getConfigData('SALON_CONFIG_STAFF_HOLIDAY_SET') == Salon_Config::SET_STAFF_REVERSE ) {
@@ -81,14 +80,20 @@ class Booking_Component {
 			else {
 				$set_data['status'] = Salon_Reservation_Status::COMPLETE;
 				if ( $this->datas->isSalonAdmin($user_login) ) {
-					if (empty($_POST['user_login']) ) {
-						if (empty($_POST['regist_customer'] ) ) $regist_customer = false;
-						else $regist_customer = true;
-						$set_data['user_login'] = $this->datas->registCustomer($set_data['branch_cd'],$set_data['non_regist_email'], $set_data['non_regist_tel'] ,$set_data['non_regist_name'],__('registerd by reservation process(booking)',SL_DOMAIN),'','','',$regist_customer,false);
+					if (Salon_Component::isMobile() ) {
+						$set_data['user_login'] =$user_login;
 					}
 					else {
-						$set_data['user_login'] = $_POST['user_login'];
+						if (empty($_POST['user_login']) ) {
+							if (empty($_POST['regist_customer'] ) ) $regist_customer = false;
+							else $regist_customer = true;
+							$set_data['user_login'] = $this->datas->registCustomer($set_data['branch_cd'],$set_data['non_regist_email'], $set_data['non_regist_tel'] ,$set_data['non_regist_name'],__('registerd by reservation process(booking)',SL_DOMAIN),'','','',$regist_customer,false);
+						}
+						else {
+							$set_data['user_login'] = $_POST['user_login'];
+						}
 					}
+					
 				}
 				else {
 					$set_data['user_login'] = $user_login;
@@ -143,7 +148,7 @@ class Booking_Component {
 		$page = get_option('salon_confirm_page_id');
 		$send_mail_text = $this->datas->getConfigData('SALON_CONFIG_SEND_MAIL_TEXT');
 		$body = sprintf(Salon_Component::writeMailHeader().
-			'<body>'.$send_mail_text.'</br>
+			'<body>'.$send_mail_text.'<br>
 				<a href="%s/?page_id=%d&P1=%d&P2=%s" >'.__('to confirmed reservation form',SL_DOMAIN).'</a>
 			</body>',$url,intval($page),intval($reservation_cd),$activate_key);
 		$body = str_replace('{X-TO_NAME}',htmlspecialchars($name,ENT_QUOTES),$body);
