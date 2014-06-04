@@ -83,8 +83,8 @@ As for the security, all the measures are included in this system,
 namely against identity frauds, malicious requests to reserve, SQL injection attacks and so.
 
 以下の２点を、このプラグインでなくして欲しいっす。
-・電話予約での空いている時間のやり取り
-・髪を切ってもらっている間に掛かってくる電話による中断
+* 電話予約での空いている時間のやり取り
+* 髪を切ってもらっている間に掛かってくる電話による中断
 
 == Installation ==
 
