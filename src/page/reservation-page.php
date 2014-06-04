@@ -21,7 +21,7 @@ class Reservation_Page extends Salon_Page {
 
 	function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch);
-		$this->set_items = array('reserved_mail','reserved_tel','customer_name','target_day','staff_cd','item_cds','remark','price','regist_customer');
+		$this->set_items = array('reserved_mail','reserved_tel','customer_name','target_day','staff_cd','item_cds','remark','price','regist_customer','rstatus');
 	}
 	
 	public function set_all_branch_datas ($branch_datas) {
@@ -152,7 +152,7 @@ EOT;
 			target = $j("#lists").dataTable({
 				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=sales",
 				<?php parent::echoDataTableLang(); ?>
-				<?php parent::echoTableItem(array('reserved_time','customer_name','remark')); //for only_branch?>
+				<?php parent::echoTableItem(array('reserved_time','customer_name','rstatus','remark')); //for only_branch?>
 
 
 				"fnServerParams": function ( aoData ) {
@@ -194,7 +194,7 @@ EOT;
 				}
 			});
 			$j("#price").val(price);
-			if ( $j("#time_from_aft").val()  != -1  &&  $j("#target_day").val() != ""  ) {
+			if ( $j("#time_from_aft").val() && $j("#time_from_aft").val()  != -1  &&  $j("#target_day").val() != ""  ) {
 				var dt = new Date($j("#target_day").val() + " " + $j("#time_from_aft").val() );
 				dt.setMinutes(dt.getMinutes() + minute);
 				$j("#time_to_aft").val(dt.getHours() + ":" + (dt.getMinutes()<10?'0':'') + dt.getMinutes());
@@ -226,6 +226,8 @@ EOT;
 			$j("#remark").val(htmlspecialchars_decode(setData['aoData'][position[0]]['_aData']['remark_bef']));	
 			$j("#price").val(setData['aoData'][position[0]]['_aData']['price']);
 			$j("#tel").val(setData['aoData'][position[0]]['_aData']['tel']);
+
+			$j("#rstatus").text(setData['aoData'][position[0]]['_aData']['rstatus']);
 
 			save_user_login = setData['aoData'][position[0]]['_aData']['user_login']; 
 			save_mail = setData['aoData'][position[0]]['_aData']['email'];
@@ -353,6 +355,7 @@ EOT;
 			
 			$j("#button_search").attr("disabled",false);
 			$j("#regist_customer").attr("checked", false);
+			$j("#rstatus").text("");
 
 			save_k1 = "";
 			save_item_cds_aft = "";
@@ -375,9 +378,7 @@ EOT;
 	</script>
 
 
-	<?php screen_icon(); ?>
-
-	<h2><?php _e('Reservation Regist',SL_DOMAIN); ?>
+	<h2 id="sl_admin_title"><?php _e('Reservation Regist',SL_DOMAIN); ?>
 	<?php  
 			if ( $this->is_multi_branch ) {	//for only_branch
 				if ($this->isSalonAdmin() ) {
@@ -413,6 +414,7 @@ EOT;
 	</div>
 
 	<div id="data_detail" >
+	    <span id="rstatus" class="sl_admin_span" ></span>
 		<div id="multi_item_wrap" >
 		<input id="mail" type="text" />
 		<input id="button_search" type="button" class="sl_button" value="<?php _e('Search',SL_DOMAIN); ?>"/>

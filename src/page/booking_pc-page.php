@@ -710,7 +710,7 @@ EOT3;
 			<?php echo sprintf( __('Mr/Ms %s',SL_DOMAIN),$this->user_inf['user_name']); ?>
 				<a href="<?php echo wp_logout_url(get_permalink() ); ?>" ><?php _e('logout here',SL_DOMAIN); ?></a>
 		<?php else : ?>
-				<p><?php _e('Reservations are avalable without log in',SL_DOMAIN); ?></p>
+				<p><?php _e('Reservations are available without log in',SL_DOMAIN); ?></p>
 				<input type="text" id="login_username" value="" />
 				<input type="password" id="login_password" value="" />
 				<label  >&nbsp;</label>

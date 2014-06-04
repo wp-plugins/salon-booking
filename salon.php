@@ -3,7 +3,7 @@
 Plugin Name: Salon booking 
 Plugin URI: http://salon.mallory.jp/en
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff. 
-Version: 1.3.7
+Version: 1.3.8
 Author: kuu
 Author URI: http://salon.mallory.jp/en
 */
@@ -50,6 +50,7 @@ class Salon_Booking {
 	private $management = '';
 	
 	private $user_role = '';
+	
 	
 	public function __construct() {
 
@@ -103,7 +104,7 @@ class Salon_Booking {
 
 		if (SALON_DEMO ) {
 			add_action( 'admin_bar_menu',  array( &$this,'remove_admin_bar_menu'), 201 );
-			add_action('admin_head',  array( &$this,'my_admin_head'));
+//			add_action('admin_head',  array( &$this,'my_admin_head'));
 			add_action('wp_before_admin_bar_render',  array( &$this,'add_new_item_in_admin_bar'));
 			add_action('wp_dashboard_setup', array( &$this,'example_remove_dashboard_widgets'));
 			remove_action( 'admin_menu', 'wpcf7_admin_menu', 9 );
@@ -112,6 +113,10 @@ class Salon_Booking {
 		if(!file_exists(SALON_UPLOAD_DIR)){
 			mkdir(SALON_UPLOAD_DIR,0744,true);	
 		}
+
+
+		add_action('admin_head',array( &$this, 'display_favicon'));
+
 
 	}
 	
@@ -382,31 +387,37 @@ public function example_remove_dashboard_widgets() {
 			add_menu_page( __('Salon Maintenance',SL_DOMAIN), __('Salon Maintenance',SL_DOMAIN), 'level_1', $this->maintenance, array( &$this,$show_menu[$this->maintenance][0]),WP_PLUGIN_URL.'/salon-booking/images/menu-icon.png' );
 			if (in_array('edit_customer',$show_menu[$this->maintenance]) ) {
 				$file = $show_menu[$this->maintenance][0] == 'edit_customer' ? $this->maintenance : 'salon_customer';
-				add_submenu_page(  $this->maintenance, __('Customer Info',SL_DOMAIN), __('Customer Info',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_customer' ) );
+				$my_admin_page = add_submenu_page(  $this->maintenance, __('Customer Info',SL_DOMAIN), __('Customer Info',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_customer' ) );
+				add_action('load-'.$my_admin_page, array(&$this,'admin_add_help_customer'));
 			}
 			if (in_array('edit_item',$show_menu[$this->maintenance]) ) {
 				$file = $show_menu[$this->maintenance][0] == 'edit_item' ? $this->maintenance : 'salon_item';
-				add_submenu_page(  $this->maintenance, __('Menu Information',SL_DOMAIN), __('Menu Information',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_item' ) );
+				$my_admin_page = add_submenu_page(  $this->maintenance, __('Menu Information',SL_DOMAIN), __('Menu Information',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_item' ) );
+				add_action('load-'.$my_admin_page, array(&$this,'admin_add_help_item'));
 			}
 			if (in_array('edit_staff',$show_menu[$this->maintenance]) ) {
 				$file = $show_menu[$this->maintenance][0] == 'edit_staff' ? $this->maintenance : 'salon_staff';
-				add_submenu_page(  $this->maintenance, __('Staff Information',SL_DOMAIN), __('Staff Information',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_staff' ) );
+				$my_admin_page = add_submenu_page(  $this->maintenance, __('Staff Information',SL_DOMAIN), __('Staff Information',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_staff' ) );
+				add_action('load-'.$my_admin_page, array(&$this,'admin_add_help_staff'));
 			}
 			if (in_array('edit_branch',$show_menu[$this->maintenance]) &&  $this->is_multi_branch() )  {
 				$file = $show_menu[$this->maintenance][0] == 'edit_branch' ? $this->maintenance : 'salon_branch';
-					add_submenu_page( $this->maintenance, __('Shop Information',SL_DOMAIN), __('Shop Information',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_branch' ) );
+				$my_admin_page = add_submenu_page( $this->maintenance, __('Shop Information',SL_DOMAIN), __('Shop Information',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_branch' ) );
+				add_action('load-'.$my_admin_page, array(&$this,'admin_add_help_branch'));
 			}
 			if (in_array('edit_config',$show_menu[$this->maintenance]) ) {
 				$file = $show_menu[$this->maintenance][0] == 'edit_config' ? $this->maintenance : 'salon_config';
-				add_submenu_page(  $this->maintenance, __('Environment Setting',SL_DOMAIN), __('Environment Setting',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_config' ) );
+				$my_admin_page = add_submenu_page(  $this->maintenance, __('Environment Setting',SL_DOMAIN), __('Environment Setting',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_config' ) );
+				add_action('load-'.$my_admin_page, array(&$this,'admin_add_help_config'));
 			}
 			if (in_array('edit_position',$show_menu[$this->maintenance]) )  {
 				$file = $show_menu[$this->maintenance][0] == 'edit_position' ? $this->maintenance : 'salon_position';
-				add_submenu_page(  $this->maintenance, __('Position Information',SL_DOMAIN), __('Position Information',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_position' ) );
+				$my_admin_page = add_submenu_page(  $this->maintenance, __('Position Information',SL_DOMAIN), __('Position Information',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_position' ) );
+				add_action('load-'.$my_admin_page, array(&$this,'admin_add_help_position'));
 			}
 			if (in_array('edit_log',$show_menu[$this->maintenance]) )  {
 				$file = $show_menu[$this->maintenance][0] == 'edit_log' ? $this->maintenance : 'salon_log';
-				add_submenu_page(  $this->maintenance, __('View Log',SL_DOMAIN), __('View Log',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_log' ) );
+				$my_admin_page = add_submenu_page(  $this->maintenance, __('View Log',SL_DOMAIN), __('View Log',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_log' ) );
 			}
 
 
@@ -415,19 +426,23 @@ public function example_remove_dashboard_widgets() {
 			add_menu_page( __('Salon Management',SL_DOMAIN), __('Salon Management',SL_DOMAIN), 'level_1', $this->management, array( &$this,$show_menu[$this->management][0] ),WP_PLUGIN_URL.'/salon-booking/images/menu-icon.png');
 			if (in_array('edit_reservation',$show_menu[$this->management]) ) {
 				$file = $show_menu[$this->management][0] == 'edit_reservation' ? $this->management : 'salon_reservation';
-				add_submenu_page( $this->management, __('Reservation Regist',SL_DOMAIN), __('Reservation Regist',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_reservation' ) );
+				$my_admin_page = add_submenu_page( $this->management, __('Reservation Regist',SL_DOMAIN), __('Reservation Regist',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_reservation' ) );
+				add_action('load-'.$my_admin_page, array(&$this,'admin_add_help_reservation'));
 			}
 			if (in_array('edit_sales',$show_menu[$this->management]) ) {
 				$file = $show_menu[$this->management][0] == 'edit_sales' ? $this->management : 'salon_sales';
-				add_submenu_page( $this->management, __('Performance Regist',SL_DOMAIN), __('Performance Regist',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_sales' ) );
+				$my_admin_page = add_submenu_page( $this->management, __('Performance Regist',SL_DOMAIN), __('Performance Regist',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_sales' ) );
+				add_action('load-'.$my_admin_page, array(&$this,'admin_add_help_sales'));
 			}
 			if (in_array('edit_working',$show_menu[$this->management]) ) {
 				$file = $show_menu[$this->management][0] == 'edit_working' ? $this->management : 'salon_working';
-				add_submenu_page( $this->management, __('Time Card',SL_DOMAIN), __('Time Card',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_working' ) );
+				$my_admin_page = add_submenu_page( $this->management, __('Time Card',SL_DOMAIN), __('Time Card',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_working' ) );
+				add_action('load-'.$my_admin_page, array(&$this,'admin_add_help_timecard'));
 			}
 			if (in_array('edit_base',$show_menu[$this->management]) ) {
 				$file = $show_menu[$this->management][0] == 'edit_base' ? $this->management : 'salon_basic';
-				add_submenu_page( $this->management, __('Basic Information',SL_DOMAIN), __('Basic Information',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_base' ) );
+				$my_admin_page = add_submenu_page( $this->management, __('Basic Information',SL_DOMAIN), __('Basic Information',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_base' ) );
+				add_action('load-'.$my_admin_page, array(&$this,'admin_add_help_base'));
 			}
 		}
 
@@ -448,10 +463,225 @@ public function example_remove_dashboard_widgets() {
 			unset($menu[80]);//設定
 			unset($menu[90]);//メニューの線3		
 		}
-
+		
 
 	}
 	
+	public function display_favicon($hook_suffix){
+		global $plugin_page;
+		if ( ! isset( $plugin_page ) || ( substr($plugin_page,0,5)  !=	'salon' )) return;
+		echo "<!-- Favicon  From -->\r\n";
+		echo '<link rel="shortcut icon" href="'.SL_PLUGIN_URL.'/images/favicon.ico">';	
+		echo "<!-- Favicon  To   -->\r\n";
+	}
+
+	public function admin_add_help_customer() {
+		$screen = get_current_screen();
+		$help = '<br>'.__('You can register the existing client not yet a registered member or update the clinet. ',SL_DOMAIN);
+		$help .= '<ul ><li><strong>'.__('User Login',SL_DOMAIN).'</strong> - '.__('Supposing the Login Name is the same with Mail Address, any ID could be accepted so long as it is Sole and Unique within the site.',SL_DOMAIN ).'</li></ul>';
+		$this->_setTab($screen,'_content',__( 'Content'),$help);
+		$this->help_common($screen,array(true,true,true));
+		$this->help_side($screen);
+	}
+
+	public function admin_add_help_item() {
+		$screen = get_current_screen();
+		$help = '<ul>';
+		$help .= '<li><strong>'.__('Required Time(minutes)',SL_DOMAIN).'</strong> - '.__('When a customer has reserved, this plugin used to calculate the end time automatically.Please enter in minutes.',SL_DOMAIN ).'</li>';
+		$help .= '<li><strong>'.__('Price',SL_DOMAIN).'</strong> - '.__('When a customer has reserved, this plugin used to calculate the price automatically.',SL_DOMAIN ).'</li></ul>';
+		$help .= '</ul>';
+		$this->_setTab($screen,'_content',__( 'Content'),$help);
+		$this->help_common($screen,array(true,true,true));
+		$this->help_side($screen);
+	}
+
+	public function admin_add_help_staff() {
+		$screen = get_current_screen();
+		$help = '<br>'.__('If you register as a staff here, you will become also a user of "Word Press". If you are already registered to the Word Press with the authority of contributor or upper, you will be on the list of the staffs here.However, you are not still registered yet as a staff, you have to add the user information after the selection, and you can use the function as a staff just by the plug in. ',SL_DOMAIN);
+		$help .= '<ul>';
+		$help .= '<li><strong>'.__('The Maximum Number of the Redundant Reservations',SL_DOMAIN).'</strong> - '.__('Set the number of redundant reservations a staff can handle at the same timeframe.Normally the number should be zero, but could it be 1 if the staff should have an assistant and serve duplicate clients at the same time. Of course highly capable staff may also select 3, or 4.',SL_DOMAIN ).'</li>';
+		$help .= '<li><strong>'.__('Addition/Update of Photograph',SL_DOMAIN).'</strong> - '.
+				'<ol >'.
+				'<li style="list-style-type: lower-alpha">'.__('Drag & drop of  a photograph of the staff  into "Photos of staff member" area.',SL_DOMAIN).'</li>'.
+				'<li style="list-style-type: lower-alpha">'.__('Multiple photographs are allowed.When a customer clicks a photograph part of "the reservation screen",registered multiple photographs displayed sequentially. (only as for the PC)',SL_DOMAIN).'</li>'.
+				'<li style="list-style-type: lower-alpha">'.__('The first photograph is displayed in the "the reservation screen". Drag & drop the order of  photographs.',SL_DOMAIN).'</li>'.
+				'<li style="list-style-type: lower-alpha">'.__('When you change or add the photograph, do not forget to click the button "Update".',SL_DOMAIN).'</li>'.
+				'</ol>'.
+		'</li>';
+		$help .= '</ul>';
+		$this->_setTab($screen,'_content',__( 'Content'),$help);
+		$this->help_common($screen,array(true,true,true));
+		$this->help_side($screen);
+	}
+
+	public function admin_add_help_branch() {
+		$screen = get_current_screen();
+		$help = '<ul>';
+		$help .= '<li><strong>'.__('Please copy and paste this tag to insert to the page',SL_DOMAIN).'</strong> - '.__('This field should be inserted to the fixed page as it reads, then the reservation screen will be displayed.',SL_DOMAIN ).'</li>';
+		$help .= '<li><strong>'.__('The Maximum Number of the Redundant Reservations',SL_DOMAIN).'</strong> - '.__('By entering the number, you can set the maximum number of the reservations to coop cooperate with simultaneously by each shop. If the staff serves to only one client full time one on one, set the number as zero.',SL_DOMAIN ).'</li>';
+		$help .= '<li><strong>'.__('Unit of Time (minutes)',SL_DOMAIN).'</strong> - '.__('Time unit is selectable for the clients when making reservation. If unit 15 is designated, then the time is selectable from 10:00, 10:15 and so on. If 30 is selected, 10:00, 10:30, and so, for example.',SL_DOMAIN ).'</li>';
+		$help .= '<li><strong>'.__('Regular Closing Day',SL_DOMAIN).'</strong> - '.__('You can nominate a regular closing day of the week by the unit of week. If you open the shop on regular closing day or you close the shop on business day, you have to set it on the screen of "Basic Information" under "Salon Maintenance".',SL_DOMAIN ).'</li>';
+		$help .= '</ul>';
+		$this->_setTab($screen,'_content',__( 'Content'),$help);
+		$this->help_common($screen,array(true,true,true));
+		$this->help_side($screen);
+	}
+	
+	public function admin_add_help_config() {
+		$screen = get_current_screen();
+
+		$help = '<ol style="list-style-type:decimal">';
+		$help .= '<li><strong>'.__('Number of the Shops',SL_DOMAIN).'</strong> - '.__('Select "plural shops", if the Salon holds more than one shop and has the need to have an independent reservation page for each shop.',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('Approval of the Login by the Clients',SL_DOMAIN).'</strong> - '.__('If you want the columns for user ID and the password be displayed, on the screen of Reservation, check mark the column of  "approve the client’s login". This is the function not required if the same function is provided by other means like sidebars and so.',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('Opration Log Setting',SL_DOMAIN).'</strong> - '.__('Check the mark "Opration Log Setting" to recorded the opration of "Add","Update" or "Delete" to log file.',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('Automatic Deletion',SL_DOMAIN).'</strong> - '.__('Check the mark "automatic deletion"to mask the personal information like names and phone numbers after the designated month since the reservation date. This is daily updated automatically at midnight. ',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('Months when to delete ',SL_DOMAIN).'</strong> - '.__('Enter the designated months ahead of the reservation date by number in the column of  "months when to delete". This column is only valid when you check marked the column of  "automatic deletion".  ',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('Display Details at messages',SL_DOMAIN).'</strong> - '.__('By check marking the column of  "Display Details", the detailed information of the errors will be displayed. If you want the errors be analyzed, this should b e presented to the analyzer.  ',SL_DOMAIN ) . '</li>';
+		$help .= '</ol>';
+
+		$this->_setTab($screen,'_content1',__( 'Content').'(1-6)',$help);
+
+		$help = '<ol style="list-style-type:decimal"  start="7">';
+		$help .= '<li><strong>'.__('Staff Holiday Settings',SL_DOMAIN).'</strong> - '.__('If you select "unable to enter when holidays" , clients cannot make reservation on the holidays of the designated staff. If the staff select "unable to enter other than when attendant", clients can only reserve where the staff registers as attendant on the "timecard" screen under the "Salon Management". You may select "unable to enter other than when attendant""if you could register your attendance and the absence correctly in advance, however you are strongly recommended to choose "unable to enter when holidays" on daily operations.  　　　  ',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('Sequence of Sur Name and Given Name',SL_DOMAIN).'</strong> - '.__('This is the selection of the sequence of Sur Name and Given Name. Select "Sur Name first"  mainly for Japanese and Chinese. "Given Name first" is another choice. ',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('No Designation of Staff',SL_DOMAIN).'</strong> - '.__('If you allow the reservation without nomination of a certain staff, check the column. If you do not mark the column, it means the designation of any staffs becomes mandatory for any clients and may not recommend since the prospect clients may confuse.',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('Maintenance staff member include staff',SL_DOMAIN).'</strong> - '.__('If you allow Maintenance staff member include staff, check the column.',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('Mobile screen use',SL_DOMAIN).'</strong> - '.__('If you use the screen of mobiles and pc, check the column. If you do not mark the column, it means that on smart phone such as "iphone" pc screen displays. ',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('past X days',SL_DOMAIN).'</strong> - '.__('This column is used to select the range of the days extracted from the data base of the reservation and the actual performance to view as a list. The criteria of X day are the day you currently operate the system. If you choose a large numerical value for the X to enter, the response time of the system may slow down. So, please make the X according to the situation and the need of the shop. (E.g. the reservation is full for another 1 year, or one month is enough for it, or else) ',SL_DOMAIN ) . '</li>';
+		$help .= '</ol>';
+
+		$this->_setTab($screen,'_content2',__( 'Content').'(7-12)',$help);
+
+		$help = '<ol style="list-style-type:decimal" start="13">';
+		$help .= '<li><strong>'.__('X days ahead',SL_DOMAIN).'</strong> - '.__('<br>This column is used to select the range of the days extracted from the data base of the reservation and the actual performance to view as a list. The criteria of X day are the day you currently operate the system. If you choose a large numerical value for the X to enter, the response time of the system may slow down. So, please make the X according to the situation and the need of the shop. (E.g. the reservation is full for another 1 year, or one month is enough for it, or else) ',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('Mail from',SL_DOMAIN).'</strong> - '.__('	If you use original "from" of  Mail header fields, fill in this field using "Name<mail address>" formats.',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('Mail return path',SL_DOMAIN).'</strong> - '.__('	If you use original "return path" of  Mail header fields, fill in this field.',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('Number of the staffs displayed',SL_DOMAIN).'</strong> - '.__('This is the screen showing staffs for the reservation. Recommend the number you enter to be 3 to 6 around, for the better visual appealing.  ',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('The Content of the Mail to Confirming Notice to the Client',SL_DOMAIN).'</strong> - '.__('When responding to the clients of without registration as a member, if you put [X-TO_NAME] and [X-TO_SALON] into the contents of the confirmation mail, which will be displayed as the name of the client and the shop automatically and sent to the client.  ',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('The Content of the Mail to respond to the Client newly registered as a Member',SL_DOMAIN).'</strong> - '.__('This is the model contents of the mail to the client who checked "register as a member"on the screen of Reservation Confirmation. In this notice mail, the password for the client is also included. ',SL_DOMAIN ) . '</li>';
+		$help .= '</ol>';
+
+		$this->_setTab($screen,'_content3',__( 'Content').'(13-18)',$help);
+
+		$this->help_common($screen,array(true,false,false));
+		$this->help_side($screen);
+	}
+
+	public function admin_add_help_position() {
+		$screen = get_current_screen();
+		$help = '<br>'.__('You can select the functions according to the position of the staffs you selected. All the functions are set as default according to each position. Check with the screen what can be handled by each position from part time worker to the President. For example, part timers are set only capable of reservation registration as a default, and if you think a certain part timer be allowed to use the function of "TimeCard", then check here to activate the function. ',SL_DOMAIN);
+		$help .= '<ul>';
+		$help .= '<li><strong>'.__('Role',SL_DOMAIN).'</strong> - '.
+				'<ol >'.
+				'<li style="list-style-type: lower-alpha">'.__('If you check marking the "Authority of Management", then you can operate also information of other shops.',SL_DOMAIN).'</li>'.
+				'<li style="list-style-type: lower-alpha">'.__('If you check marking the "Time Card (full members)", you can access all the information on attendances and the absences of all the staffs in your shop, so take caution in operating the system.',SL_DOMAIN).'</li>'.
+				'</ol>'.
+		'</li>';
+		$help .= '</ul>';
+		$this->_setTab($screen,'_content',__( 'Content'),$help);
+		$this->help_common($screen,array(true,true,true));
+		$this->help_side($screen);
+	}
+
+	public function admin_add_help_reservation() {
+		$screen = get_current_screen();
+		$help = '<br>'.__('It displays all the reservation for "X days ahead" from an operation day.',SL_DOMAIN);
+		$help .= '<ul>';
+		$help .= '<li><strong>'.__('Existing Clients',SL_DOMAIN).'</strong> - '.__('If the client is a member, select either by "Mail"  or by "Phone" , and the name of the client, then click the "Search" button. If the client, for example, is Taro YAMAMOTO, input minimum letters like "YAMA" in the "Name" column, then all the clients whose name have "YAMA" letters within their names are all listed up on the screen. If you select from the list by whom the reservation was made, then the screen returns back to the screen of Reservation Register with the rest of the information related to the client is already filled in.',SL_DOMAIN).'</li>';
+		$help .= '<li><strong>'.__('Newly acquired Clients',SL_DOMAIN).'</strong> - '.__('As for new clients, the input of "Mail" or "Phone" is mandatory. Confirming the client of the will to join as a member, check the column of "Register as a Member" . The name for the login  could be either the Mail Address if the address is set in the column of "Mail", or the Phone No. of the "Phone" column with eliminating the symbol mark of " - " inserted among the phone number if the client has no email address. The Password initially assigned is the same with the login Name. Notice to the client the Login Name and tentative Password, and recommend change the password immediately to what the client created.',SL_DOMAIN).'</li>';
+		$help .= '</ul>';
+		$this->_setTab($screen,'_content',__( 'Content'),$help);
+		$this->help_common($screen,array(true,true,true));
+		$this->help_side($screen);
+	}
+
+	public function admin_add_help_sales() {
+		$screen = get_current_screen();
+		$help = '<br>'.sprintf(__('The Screen shows the list of all the reservation from "past X days" to an operation day.<br>Select the reservations as was actually performed, and register as required. Modify or update the columns where the letters are with blue colored since the data are transferred there from the reservation.<br><font color="green">Using this "performance" data, additional functions like accountings and statistics will be available in near future,probably.....</font><a href="%s" target="_blank">Please tell me if you have any good ideas about that.</a>',SL_DOMAIN),__('https://salon.mallory.jp/en/?page_id=16',SL_DOMAIN)); 
+		$help .= '<ul>';
+		$help .= '<li><strong>'.__('Register without Reservation',SL_DOMAIN).'</strong> - '.__('If you mark the column, the screen is displayed almost same with the "Reservation Register" under "Salon Management" automatically. Use this screen for the performance input without reservation.',SL_DOMAIN).'</li>';
+		$help .= '</ul>';
+		$this->_setTab($screen,'_content',__( 'Content'),$help);
+		$this->help_common($screen,array(true,true,true));
+		$this->help_side($screen);
+	}
+
+	public function admin_add_help_timecard() {
+		$screen = get_current_screen();
+		$help = '<br>'.__('Set the working schedule of staffs. With the role of "TimeCard(Full Members)", the system displays all the staffs belonging to the shop.',SL_DOMAIN);
+		$help .= '<ul>';
+		$help .= '<li><strong>'.__('New Registration',SL_DOMAIN).'</strong> - '.__('Double click the date column on when you want register, or display the detailed screen by dragging the attendant hour and dropping it onto the leaving hour. And check mark either the column of "Regular Duty", "Absent", "Delay", "Leave Early" or "Holiday Shift".',SL_DOMAIN).'</li>';
+		$help .= '<li><strong>'.__('Update/Delete',SL_DOMAIN).'</strong> - '.__('By double clicking the column of the already registered, display the detail list and update the data and/or delete.',SL_DOMAIN).'</li>';
+		$help .= '<li><strong>'.__('Copy and Paste',SL_DOMAIN).'</strong> - '.__('Click the column of already registered and select which data be copied and pasted.Push down the "CTRL" and the "C" keys of PC at the same time to copy, and after clicking the date where to be pasted, push again down the "CTRL" and the "V" keys simultaneously.',SL_DOMAIN).'</li>';
+		$help .= '</ul>';
+		$this->_setTab($screen,'_content',__( 'Content'),$help);
+		$this->help_common($screen,array(false,false,true));
+		$this->help_side($screen);
+	}
+
+	public function admin_add_help_base() {
+		$screen = get_current_screen();
+		$help = '<br>'.__('The mandatory input items are almost same with those of "Shop Information".<br>Those cases namely to open specially on the regular holidays or take special absence for the trainings should be input at the "Basic Information" under "Shop Management",which operations are only valid for staff of the shop who logged in.',SL_DOMAIN);
+		$help .= '<ul>';
+		$help .= '<li><strong>'.__('Irregular Open/Closing day',SL_DOMAIN).'</strong> - '.
+				'<ol >'.
+				'<li style="list-style-type: lower-alpha">'.__('After setting the date, select the reason either of "On Business" or "Special Absence", and click the button of "Add".',SL_DOMAIN).'</li>'.
+				'<li style="list-style-type: lower-alpha">'.__('It is possible to input data of the year other than that of currently operating, and if you want to confirm of the information on other year, click the button of "Display Again" after setting the designated year.',SL_DOMAIN).'</li>'.
+				'</ol>'.
+		'</li>';
+		$help .= '</ul>';
+		$this->_setTab($screen,'_content',__( 'Content'),$help);
+		$this->help_common($screen,array(true,false,true));
+		$this->help_side($screen);
+	}
+
+
+	private function _setTab($screen,$id,$title,$content) {
+		$screen->add_help_tab(array(
+			'id'	=> $id,
+			'title'	=> $title,
+			'content'	=> $content,
+		));
+	}
+	
+	public function help_common ($screen,$patern = null) {
+		$help = '<ol style="list-style-type:decimal;">';
+			if (isset($patern[0]) && $patern[0]) {
+				$help .= '<li>'.__('Button',SL_DOMAIN).
+					'<br><img class="alignnone size-thumbnail wp-image-250" width="150" height="25" src="'.__('http://salon.mallory.jp/en/wp-content/uploads/2013/06/12_BUTTON.png',SL_DOMAIN).'">'.
+					'<ol style="list-style-type:upper-alpha;">
+						<li>'.__('"Add" and "Update" signify the addition and Updating of the information related.',SL_DOMAIN).'</li>
+						<li>'.__('"Clear" does literally clear the detailed input columns.',SL_DOMAIN).'</li>
+						<li>'.__('"Show Details" and "Hide Details" execute display and hide the detailed information by each.',SL_DOMAIN).'</li>
+					</ol>
+				</li>';
+			}
+			if (isset($patern[1]) && $patern[1]) {
+				$help .= '<li>'.__('Part of Input Details',SL_DOMAIN).'<br>'.
+				__('It is not displayed at the initial status. To display, you have to click the button of "Display Details" or click the "Select" from the list.',SL_DOMAIN).'</li>';
+			}
+			if (isset($patern[2]) && $patern[2]) {
+				$help .= '<li>'.__('Listing',SL_DOMAIN).'<br><img width="150" height="87" src="'.__('http://salon.mallory.jp/en/wp-content/uploads/2013/06/13_OPRATION.png',SL_DOMAIN).'">
+<br>'.
+				
+				__('It displays the list of Information. By clicking the button of "Select" in the operation column, information designated is updated. If you want to delete, click the button of "Delete" in the operation column. The information is deleted accordingly<br>The button of "up" or "down" on the Seq column is showing the order of item like staff or menus on the screen of "Reservation Detail.',SL_DOMAIN).'</li>';
+			}
+			$help .= '</ol>';
+
+		$this->_setTab($screen,'_common', __( 'Common interface',SL_DOMAIN ),$help);
+
+	}
+
+
+	public function help_side ($screen) {
+		$screen->set_help_sidebar(
+			'<ul  style="margin-left:5px; list-style-type:disc">'.
+			'<li>' . __( '<a href="http://salon.mallory.jp/en/?page_id=80" target="_blank">Documentation</a>',SL_DOMAIN ) . '</li>'.
+			'<li>' . __( '<a href="https://salon.mallory.jp/en/?page_id=8" target="_blank">Sample</a>',SL_DOMAIN ) . '</li>'.
+			__('user id : demologin<br>password : demo001',SL_DOMAIN)
+		);
+
+	}
 
 	public function edit_config() {
 		require_once( SL_PLUGIN_SRC_DIR.'/control/config-control.php' );
@@ -577,8 +807,6 @@ public function example_remove_dashboard_widgets() {
 			wp_enqueue_style('colorbox', SL_PLUGIN_URL.'css/colorbox.css');
 			wp_enqueue_style('salon', SL_PLUGIN_URL.'css/salon.css');
 			wp_enqueue_style('colorbox', SL_PLUGIN_URL.'css/colorbox.css');
-//templateのIDがわからないので、ここではやはり無理
-//			wp_enqueue_style( 'dhtmlxscheduler', SL_PLUGIN_URL.SALON_CSS_DIR.'dhtmlxscheduler.css' );
 			wp_enqueue_script( 'dhtmlxscheduler', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler.js',array( 'jquery' ) );
 	
 			if (defined ( 'WPLANG' ) && file_exists(SL_PLUGIN_DIR.SALON_JS_DIR.'locale_'.WPLANG.'.js') ) 

@@ -1770,7 +1770,7 @@ EOT2;
 		$item_contents['minute'] =array('id'=>'minute'
 		 ,'class' => array('sl_short_width')
 		 ,'check' => array( 'chk_required','num')
-		 ,'label' => __('Required Time(min)',SL_DOMAIN)
+		 ,'label' => __('Required Time(minutes)',SL_DOMAIN)
 		 ,'tips' => __('select please',SL_DOMAIN));
 		 //{TODO]カンマを許す？
 		$item_contents['price'] =array('id'=>'price'
@@ -1807,37 +1807,37 @@ EOT2;
 		$item_contents['config_branch'] =array('id'=>'config_only_branch'
 		 ,'class'	=>array()
 		 ,'check' => array()
-		 ,'label' => __('Number of the Shops',SL_DOMAIN)
+		 ,'label' => '1.'.__('Number of the Shops',SL_DOMAIN)
 		 ,'tips' => __('plural shops ,check here',SL_DOMAIN));
 	
 		$item_contents['config_user_login'] =array('id'=>'config_is_user_login'
 		 ,'class'	=>array()
 		 ,'check' => array()
-		 ,'label' => __('Approval of the Login by the Clients',SL_DOMAIN)
+		 ,'label' => '2.'.__('Approval of the Login by the Clients',SL_DOMAIN)
 		 ,'tips' => __('if customer login possible ,check here',SL_DOMAIN));
 
 		$item_contents['config_log'] =array('id'=>'config_is_log_need'
 		 ,'class'	=>array()
 		 ,'check' => array()
-		 ,'label' => __('Opration Log Setting',SL_DOMAIN)
+		 ,'label' => '3.'.__('Opration Log Setting',SL_DOMAIN)
 		 ,'tips' => __('if write operation  to log ,check here',SL_DOMAIN));
 
 		$item_contents['config_delete_record'] =array('id'=>'config_is_delete_record'
 		 ,'class'	=>array()
 		 ,'check' => array()
-		 ,'label' => __('Automatic Deletion',SL_DOMAIN)
+		 ,'label' => '4.'.__('Automatic Deletion',SL_DOMAIN)
 		 ,'tips' => __('if mask the personal information ,check here',SL_DOMAIN));
 
 		$item_contents['config_delete_record_period'] =array('id'=>'delete_record_period'
 		 ,'class'	=>array('sl_short_width')
 		 ,'check' => array('num')
-		 ,'label' => __('Months when to delete ',SL_DOMAIN)
+		 ,'label' => '5.'.__('Months when to delete ',SL_DOMAIN)
 		 ,'tips' => __('enter the designated months ',SL_DOMAIN));
 
 		$item_contents['config_show_detail_msg'] =array('id'=>'config_is_show_detail_msg'
 		 ,'class'	=>array()
 		 ,'check' => array()
-		 ,'label' => __('Display Details at messages',SL_DOMAIN)
+		 ,'label' => '6.'.__('Display Details at messages',SL_DOMAIN)
 		 ,'tips' => __('when debgug, check here',SL_DOMAIN));
 
 		$item_contents['regist_customer'] =array('id'=>'regist_customer'
@@ -1849,37 +1849,37 @@ EOT2;
 		$item_contents['send_mail_text'] =array('id'=>'send_mail_text'
 		 ,'class' => array()
 		 ,'check' => array( 'lenmax200')
-		 ,'label' => __('The Content of the Mail to Confirming Notice to the Client',SL_DOMAIN)
+		 ,'label' => '17.'.__('The Content of the Mail to Confirming Notice to the Client',SL_DOMAIN)
 		 ,'tips' => __('within 200 charctors. {X-TO_NAME} in the content replace customer name',SL_DOMAIN));
 
 		$item_contents['regist_mail_text'] =array('id'=>'regist_mail_text'
 		 ,'class' => array()
 		 ,'check' => array( 'lenmax200')
-		 ,'label' => __('The Content of the Mail to respond to the Client newly registered as a Member',SL_DOMAIN)
+		 ,'label' => '18.'.__('The Content of the Mail to respond to the Client newly registered as a Member',SL_DOMAIN)
 		 ,'tips' => __('within 200 charctors.  {X-TO_NAME} in the content replace customer name',SL_DOMAIN));
 
 		$item_contents['config_staff_holiday_set'] =array('id'=>'config_staff_holiday_normal'
 		 ,'class'	=>array()
 		 ,'check' => array()
-		 ,'label' => __('Staff Holiday Settings',SL_DOMAIN)
+		 ,'label' => '7.'.__('Staff Holiday Settings',SL_DOMAIN)
 		 ,'tips' => __('you may select “unable to enter other than when attendant”if you could register your attendance and the absence correctly in advance',SL_DOMAIN));
 
 		$item_contents['config_name_order_set'] =array('id'=>'config_name_order_japan'
 		 ,'class'	=>array()
 		 ,'check' => array()
-		 ,'label' => __('Sequence of Sur Name and Given Name',SL_DOMAIN)
+		 ,'label' => '8.'.__('Sequence of Sur Name and Given Name',SL_DOMAIN)
 		 ,'tips' => __('please select Sur Name First or Given Name first',SL_DOMAIN));
 
 		$item_contents['config_no_prefernce'] =array('id'=>'config_is_no_preference'
 		 ,'class'	=>array()
 		 ,'check' => array()
-		 ,'label' => __('No Designation of Staff',SL_DOMAIN)
+		 ,'label' => '9.'.__('No Designation of Staff',SL_DOMAIN)
 		 ,'tips' => __('if allow the reservation without nomination of a certain staff ,check here',SL_DOMAIN));
 
 		$item_contents['maintenance_include_staff'] =array('id'=>'config_maintenance_include_staff'
 		 ,'class'	=>array()
 		 ,'check' => array()
-		 ,'label' => __('Maintenance staff member include staff',SL_DOMAIN)
+		 ,'label' => '10.'.__('Maintenance staff member include staff',SL_DOMAIN)
 		 ,'tips' => __('if maintenance staff member display front form  ,check here',SL_DOMAIN));
 
 
@@ -1959,21 +1959,21 @@ EOT2;
 		$item_contents['before_day'] =array('id'=>'before_day'
 		 ,'class' => array('sl_short_width')
 		 ,'check' => array( 'chk_required','num')
-		 ,'label' => __('past X days',SL_DOMAIN)
+		 ,'label' => '12.'.__('past X days',SL_DOMAIN)
 		 ,'tips' => __('the range of th days extarcted from the data base of the actual performance',SL_DOMAIN));
 
 		$item_contents['after_day'] =array('id'=>'after_day'
 		 ,'class' => array('sl_short_width')
 		 ,'check' => array( 'chk_required','num')
-		 ,'label' => __('X days ahead',SL_DOMAIN)
+		 ,'label' => '13.'.__('X days ahead',SL_DOMAIN)
 		 ,'tips' => __('the range of th days extarcted from the data base of the reservation',SL_DOMAIN));
 
 
 		$item_contents['timeline_y_cnt'] =array('id'=>'timeline_y_cnt'
 		 ,'class' => array('sl_short_width')
 		 ,'check' => array( 'chk_required','num')
-		 ,'label' => __('Number of the staffs displayed',SL_DOMAIN)
-		 ,'tips' => __('screen showing staffs for the reservation screen',SL_DOMAIN));
+		 ,'label' => '14.'.__('Number of the staff displayed',SL_DOMAIN)
+		 ,'tips' => __('screen showing staff for the reservation screen',SL_DOMAIN));
 
 		$item_contents['logged_day'] =array('id'=>'logged_day'
 		 ,'class' => array()
@@ -2035,17 +2035,17 @@ EOT2;
 		$item_contents['mail_from'] =array('id'=>'mail_from'
 		 ,'class' => array()
 		 ,'check' => array()
-		 ,'label' => __('Mail from',SL_DOMAIN)
+		 ,'label' => '15.'.__('Mail from',SL_DOMAIN)
 		 ,'tips' => 'Name<XXX@XXX.XXX>');
 
 		$item_contents['mail_returnPath'] =array('id'=>'mail_returnPath'
 		 ,'class' => array()
 		 ,'check' => array( 'chkMail')
-		 ,'label' => __('Mail return path',SL_DOMAIN)
+		 ,'label' => '16.'.__('Mail return path',SL_DOMAIN)
 		 ,'tips' => __('please XXX@XXX.XXX format',SL_DOMAIN));
 
 
-		//[20140416]Ver1.3.5
+		//[20140416]Ver1.3.7
 		$item_contents['mobile_search_day'] =array('id'=>'slm_searchdate'
 		 ,'class' => array()
 		 ,'check' => array( '')
@@ -2061,9 +2061,21 @@ EOT2;
 		$item_contents['mobile_use'] =array('id'=>'config_mobile_use'
 		 ,'class'	=>array()
 		 ,'check' => array()
-		 ,'label' => __('Mobile screen use',SL_DOMAIN)
+		 ,'label' => '11.'.__('Mobile screen use',SL_DOMAIN)
 		 ,'tips' => __('if use the screen of  mobiles and pc, check here',SL_DOMAIN));
-
+		
+		//[20140518]Ver1.3.8
+		$item_contents['rstatus'] =array('id'=>'rstatus'
+		 ,'class' => array()
+		 ,'check' => array()
+		 ,'label' => __('Status',SL_DOMAIN)
+		 ,'tips' => ''
+		 ,'table' => array(  'class'=>''
+							,'width'=>'80px'
+							,'sort'=>'true'
+							,'search'=>'true'
+							,'visible'=>'true' ));
+		
 
 
 		return $item_contents;	

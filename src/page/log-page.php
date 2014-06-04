@@ -130,9 +130,7 @@ class Log_Page extends Salon_Page {
 	</script>
 
 
-	<?php screen_icon(); ?>
-
-	<h2><?php _e('View Log',SL_DOMAIN); ?></h2>
+	<h2 id="sl_admin_title"F><?php _e('View Log',SL_DOMAIN); ?></h2>
 	
 	
 	<div id="salon_button_div" >

@@ -54,6 +54,9 @@ class Customer_Col_Edit extends Salon_Page {
 				break;
 			
 		}
+		if (empty($check_item)) {
+			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
+		}
 		if ($meta) {	
 			if ( stripslashes($_POST['value']) == htmlspecialchars_decode($_POST[$meta],ENT_QUOTES) ) {
 				$this->table_data['value'] = stripslashes($_POST['value']);

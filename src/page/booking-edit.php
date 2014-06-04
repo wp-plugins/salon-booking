@@ -58,7 +58,7 @@ class Booking_Edit extends Salon_Page {
 		if (is_user_logged_in()	) {
 			$edit_flg = Salon_Edit::OK;
 			$tid = $this->reservation_cd;
-			$msg = __('reservation is compledted',SL_DOMAIN);
+			$msg = __('reservation is completed',SL_DOMAIN);
 			$edit_name = '';
 			$p2  = '';
 			if ($_POST['type'] != 'deleted' ) {
@@ -73,7 +73,7 @@ class Booking_Edit extends Salon_Page {
 			$tid = $ID;
 //			$edit_name = __('tempolary reserved',SL_DOMAIN).'('.htmlspecialchars($this->table_data['non_regist_name'],ENT_QUOTES).')';
 			$edit_name = htmlspecialchars($this->table_data['non_regist_name'],ENT_QUOTES);
-			$msg = __('reservation is not compledted.Please confirm your reservation by [confirm form] in E-mail ',SL_DOMAIN);
+			$msg = __('reservation is not completed.Please confirm your reservation by [confirm form] in E-mail ',SL_DOMAIN);
 			$status = Salon_Reservation_Status::TEMPORARY;
 		}
 		header('Content-type: text/xml');

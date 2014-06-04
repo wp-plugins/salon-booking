@@ -603,6 +603,12 @@
 	margin:2px 100px 2px 10px;
 }
 
+.sl_admin_span {
+	margin:2px 2px 10px 10px;
+	padding:3px;
+}
+
+
 #data_detail input,
 #data_detail select,
 #data_detail textarea{
@@ -991,7 +997,12 @@ label#mail_lbl  {
 /* ここまで                     */
 /* _/_/_/_/_/_/_/_/_/_/_/_/_/_/ */
 
-
+#sl_admin_title:before {
+    content: url(../images/screen-icon.png);
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 0.3em;
+}
 
 /*
 .btns{font-size: 80px; width:150px; background:#111; height: 150px; line-height:150px; text-align:center; font-family: arial; color: #fff; float: left; margin:10px; cursor: pointer}

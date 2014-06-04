@@ -507,9 +507,7 @@ EOT;
 
 	</script>
 
-	<?php screen_icon(); ?>
-
-	<h2><?php _e('Time Card',SL_DOMAIN); ?>
+	<h2 id="sl_admin_title"><?php _e('Time Card',SL_DOMAIN); ?>
 	<?php  
 			if ( $this->is_multi_branch ) {	//for only_branch
 				if ($this->isSalonAdmin() ) {

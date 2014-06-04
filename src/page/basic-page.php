@@ -152,7 +152,11 @@ class Basic_Page extends Salon_Page {
 
 
 		function fnClickAddRow() {
-			if ( ! checkItem("multi_item_wrap") ) return false;
+			var sts = checkItem("_multi_item_wrap");
+<?php //ここはクローム対応 ?>
+			$j("#sp_date").attr("style","width:100px;margin-right:0px;" );
+
+			if ( ! sts  ) return false;
 			
 			$j.ajax({
 				 	type: "post",
@@ -242,12 +246,11 @@ class Basic_Page extends Salon_Page {
 		<?php parent::echoCheckClinet(array('chk_required','chkTime','lenmax','range','chkDate','num')); ?>
 
 	</script>
-	<?php screen_icon(); ?>
 
 	<?php	if ($this->is_multi_branch ) $header = '('.$this->branch_datas['name'].')';
 				else $header = '';
 				?>
-	<h2><?php echo __('Basic Information',SL_DOMAIN).$header; ?></h2>
+	<h2 id="sl_admin_title"><?php echo __('Basic Information',SL_DOMAIN).$header; ?></h2>
 	<div id="salon_button_div" >
 	<input id="button_update" type="button" value="<?php _e('Update',SL_DOMAIN); ?>" />
 	<input id="target_year" type="text" class="sl_short_width" />
@@ -260,6 +263,8 @@ class Basic_Page extends Salon_Page {
 		<input type="text" id="close_time"   />
 		<?php parent::echoClosedCheck($this->branch_datas['closed'],"closed_day"); ?>
 		<?php parent::echoTimeStepSelect('time_step'); ?>
+<?php /*?>
+		//戻すときは、check_itemのID部分も変更しているので注意
 		<div id="multi_item_wrap" >
 			<input type="text" id="sp_date"  />
 			<INPUT type="radio"  id="sp_date_radio_open"  name="sp_date_radio" class="sl_radio" value="<?php echo Salon_Status::OPEN; ?>">
@@ -267,6 +272,14 @@ class Basic_Page extends Salon_Page {
 			<INPUT type="radio" id="sp_date_radio_close"  name="sp_date_radio" class="sl_radio" value="<?php echo Salon_Status::CLOSE; ?>">
 			<label for="sp_date_radio_close"><?php _e('Special Absence',SL_DOMAIN); ?></label>
 			<input id="button_sp_date_insert" type="button" class="sl_button" value="<?php _e('Add',SL_DOMAIN); ?>"/>
+<?php */?>
+		<div id="_multi_item_wrap" >
+			<input type="text" id="sp_date" style="width:100px;margin-right:0px;"  />
+			<INPUT type="radio"  id="sp_date_radio_open"  name="sp_date_radio"  style="width:16px;margin:3px 5px 0px 10px;" value="<?php echo Salon_Status::OPEN; ?>">
+			<label for="sp_date_radio_open" style="margin:5px;text-align:left;width:50px;"><?php _e('On Business',SL_DOMAIN); ?></label>
+			<INPUT type="radio" id="sp_date_radio_close"  name="sp_date_radio"  style="width:16px;margin:3px 5px 0px 10px;" value="<?php echo Salon_Status::CLOSE; ?>">
+			<label for="sp_date_radio_close" style="margin:5px;text-align:left;width:50px;"><?php _e('Special Absence',SL_DOMAIN); ?></label>
+			<input id="button_sp_date_insert" type="button" class="sl_button" value="<?php _e('Add',SL_DOMAIN); ?>" style="width:50px;margin-right:0px;"/>
 		</div>
 		<div class="spacer"></div>
 	</div>

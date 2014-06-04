@@ -261,7 +261,7 @@ class Staff_Component {
 		$column = array();
 		$column[4]="branch_cd = %d ";
 		$column[5]="position_cd = %d ";
-		$column[6]="remark = %s ";
+		$column[7]="remark = %s ";
 		
 		
 		$set_data['column_name'] = $column[intval($_POST['column'])];

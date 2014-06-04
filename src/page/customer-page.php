@@ -229,8 +229,7 @@ class Customer_Page extends Salon_Page {
 
 	</script>
 
-	<?php screen_icon(); ?>
-	<h2><?php _e('Customer Information',SL_DOMAIN); ?></h2>
+	<h2 id="sl_admin_title"><?php _e('Customer Information',SL_DOMAIN); ?></h2>
 	<input id="upload_image" type="hidden"  value="" />
 	<div id="salon_button_div" >
 	<input id="button_insert" type="button" value="<?php _e('Add',SL_DOMAIN); ?>"/>

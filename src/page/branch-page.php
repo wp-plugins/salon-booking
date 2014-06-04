@@ -232,9 +232,7 @@ class Branch_Page extends Salon_Page {
 	
 	</script>
 
-	<?php screen_icon(); ?>
-
-	<h2><?php _e('Shop Information',SL_DOMAIN); ?></h2>
+	<h2 id="sl_admin_title"><?php _e('Shop Information',SL_DOMAIN); ?></h2>
 	
 	<div id="salon_button_div" >
 	<input id="button_insert" type="button" value="<?php _e('Add',SL_DOMAIN); ?>"/>

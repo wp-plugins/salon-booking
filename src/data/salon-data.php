@@ -284,7 +284,8 @@ abstract class Salon_Data {
 	*/
 						' sa.item_cds as item_cds_aft,'.
 						' sa.remark as remark,'.
-						' sa.price'.
+						' sa.price, '.
+						' rs.status as rstatus_cd'.
 						' FROM (SELECT * FROM '.$wpdb->prefix.'salon_reservation WHERE delete_flg <> %d ) rs '.
 	/*
 						' INNER JOIN '.$wpdb->prefix.'salon_staff st1'.
@@ -339,7 +340,8 @@ abstract class Salon_Data {
 	*/
 						' sa.item_cds as item_cds_aft,'.
 						' sa.remark as remark,'.
-						' sa.price'.
+						' sa.price,'.
+						' rs.status as rstatus_cd'.
 						' FROM '.$wpdb->prefix.'salon_reservation rs '.
 	/*
 						' INNER JOIN '.$wpdb->prefix.'salon_staff st1'.

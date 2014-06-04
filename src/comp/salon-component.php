@@ -114,9 +114,6 @@ class Salon_Component {
 			$staff_table[$d1['staff_cd']]  = array('name'=> $d1['name']);
 		}
 		$staff_table[Salon_Default::NO_PREFERENCE] = array('name' => __('Anyone',SL_DOMAIN));
-		//
-//		var_export($staff_table);
-//		var_export($result);
 		//個別データを編集する
 		foreach ($result as $k1 => $d1 ) {
 			$result[$k1]['staff_name_bef'] = @$staff_table[$result[$k1]['staff_cd_bef']]['name'];
@@ -135,11 +132,19 @@ class Salon_Component {
 			}
 			else {
 				$result[$k1]['staff_name_aft'] = "";
-				if (!empty($result[$k1]['staff_cd_aft'])) 
+				if (!empty($result[$k1]['staff_cd_aft'])&&!empty($result[$k1]['staff_cd_aft']['name'])) 
 					$result[$k1]['staff_name_aft'] = $staff_table[$result[$k1]['staff_cd_aft']]['name'];
 				$result[$k1]['status'] = Salon_Reservation_Status::SALES_REGISTERD;
 				$result[$k1]['status_name'] = __('result registerd',SL_DOMAIN);
 			}
+			//[20140518]
+			if($result[$k1]['rstatus_cd'] == Salon_Reservation_Status::TEMPORARY) {
+				$result[$k1]['rstatus'] = __('tentative',SL_DOMAIN);
+			}
+			else {
+				$result[$k1]['rstatus'] = __('completed',SL_DOMAIN);
+			}
+			
 			$items = explode( ',',$d1['item_cds_bef']);
 			$res = array();
 			$result[$k1]['item_cd_array_bef'] = array();

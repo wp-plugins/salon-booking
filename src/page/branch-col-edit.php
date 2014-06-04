@@ -31,6 +31,9 @@ class Branch_Col_Edit extends Salon_Page {
 				break;
 			
 		}
+		if (empty($check_item)) {
+			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
+		}
 		$msg = '';
 		if (Salon_Page::serverCheck(array(),$msg) == false) return;
 		if (Salon_Page::serverColumnCheck($_POST['value'],$check_item,$msg) == false ) {
