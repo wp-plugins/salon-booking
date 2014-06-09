@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Salon\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-06-04 09:27+0900\n"
-"PO-Revision-Date: 2014-06-04 09:27+0900\n"
+"POT-Creation-Date: 2014-06-07 08:54+0900\n"
+"PO-Revision-Date: 2014-06-07 08:54+0900\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -1148,7 +1148,7 @@ msgstr ""
 #: salon-booking/src/page/working-page.php:546
 #: salon-booking/src/page/booking-page.php:816
 #: salon-booking/src/page/basic-page.php:99
-#: salon-booking/src/page/booking_pc-page.php:740
+#: salon-booking/src/page/booking_pc-page.php:745
 #: salon-booking/src/page/salon-page.php:1727
 #: salon-booking/src/page/salon-page.php:1919
 #: salon-booking/src/page/salon-page.php:1981
@@ -1228,7 +1228,7 @@ msgstr ""
 #: salon-booking/src/page/position-page.php:179
 #: salon-booking/src/page/customer-page.php:235
 #: salon-booking/src/page/booking_pc-page.php:443
-#: salon-booking/src/page/booking_pc-page.php:774
+#: salon-booking/src/page/booking_pc-page.php:779
 #: salon-booking/src/page/item-page.php:192
 #: salon-booking/src/page/branch-page.php:238
 #: salon-booking/src/page/staff-page.php:428
@@ -1269,7 +1269,7 @@ msgstr ""
 
 #: salon-booking/src/page/working-page.php:557
 #: salon-booking/src/page/booking-page.php:848
-#: salon-booking/src/page/booking_pc-page.php:772
+#: salon-booking/src/page/booking_pc-page.php:777
 #: salon-booking/src/page/booking_mobile-page.php:596
 #: salon-booking/src/page/booking_mobile-page.php:706
 msgid "Close"
@@ -1277,7 +1277,7 @@ msgstr ""
 
 #: salon-booking/src/page/working-page.php:558
 #: salon-booking/src/page/booking-page.php:849
-#: salon-booking/src/page/booking_pc-page.php:773
+#: salon-booking/src/page/booking_pc-page.php:778
 #: salon-booking/src/page/booking_mobile-page.php:707
 #: salon-booking/src/page/staff-page.php:139
 msgid "Delete"
@@ -1385,7 +1385,7 @@ msgstr ""
 #: salon-booking/src/page/sales-page.php:457
 #: salon-booking/src/page/reservation-page.php:420
 #: salon-booking/src/page/booking-page.php:823
-#: salon-booking/src/page/booking_pc-page.php:747
+#: salon-booking/src/page/booking_pc-page.php:752
 msgid "Search"
 msgstr ""
 
@@ -1429,7 +1429,7 @@ msgstr ""
 #: salon-booking/src/page/booking-page.php:786
 #: salon-booking/src/page/booking_pc-page.php:192
 #: salon-booking/src/page/booking_pc-page.php:652
-#: salon-booking/src/page/booking_pc-page.php:710
+#: salon-booking/src/page/booking_pc-page.php:714
 #, php-format
 msgid "Mr/Ms %s"
 msgstr ""
@@ -1473,7 +1473,8 @@ msgid "this staff is reserved "
 msgstr ""
 
 #: salon-booking/src/page/booking-page.php:787
-#: salon-booking/src/page/booking_pc-page.php:711
+#: salon-booking/src/page/booking_pc-page.php:712
+#: salon-booking/src/page/booking_pc-page.php:715
 msgid "logout here"
 msgstr ""
 
@@ -1483,14 +1484,14 @@ msgid "Reservations are avalable without log in"
 msgstr ""
 
 #: salon-booking/src/page/booking-page.php:793
-#: salon-booking/src/page/booking_pc-page.php:717
+#: salon-booking/src/page/booking_pc-page.php:722
 #: salon-booking/src/page/booking_mobile-page.php:550
 #: salon-booking/src/page/booking_mobile-page.php:597
 msgid "Log in"
 msgstr ""
 
 #: salon-booking/src/page/booking-page.php:844
-#: salon-booking/src/page/booking_pc-page.php:768
+#: salon-booking/src/page/booking_pc-page.php:773
 #: salon-booking/src/page/booking_mobile-page.php:699
 msgid "price"
 msgstr ""
@@ -1584,7 +1585,11 @@ msgstr ""
 msgid "Mobile Version"
 msgstr ""
 
-#: salon-booking/src/page/booking_pc-page.php:713
+#: salon-booking/src/page/booking_pc-page.php:711
+msgid "admin here"
+msgstr ""
+
+#: salon-booking/src/page/booking_pc-page.php:718
 msgid "Reservations are available without log in"
 msgstr ""
 

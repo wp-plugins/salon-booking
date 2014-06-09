@@ -707,8 +707,13 @@ EOT3;
 	<?php if ($this->_is_userlogin() ) : ?>
 		<div id="booking_login_div" >
 		<?php if ( is_user_logged_in() ) : ?>
-			<?php echo sprintf( __('Mr/Ms %s',SL_DOMAIN),$this->user_inf['user_name']); ?>
+			<?php if ($this->_is_editBooking() ) : ?>
+				<a href="<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin" ><?php _e('admin here',SL_DOMAIN); ?></a><br>
 				<a href="<?php echo wp_logout_url(get_permalink() ); ?>" ><?php _e('logout here',SL_DOMAIN); ?></a>
+			<?php else : ?>
+				<?php echo sprintf( __('Mr/Ms %s',SL_DOMAIN),$this->user_inf['user_name']); ?>
+				<a href="<?php echo wp_logout_url(get_permalink() ); ?>" ><?php _e('logout here',SL_DOMAIN); ?></a>
+			<?php endif; ?>
 		<?php else : ?>
 				<p><?php _e('Reservations are available without log in',SL_DOMAIN); ?></p>
 				<input type="text" id="login_username" value="" />

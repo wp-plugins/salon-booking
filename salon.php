@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Salon booking 
-Plugin URI: http://salon.mallory.jp/en
+Plugin URI: http://salon.mallory.jp
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff. 
-Version: 1.3.8
+Version: 1.3.9
 Author: kuu
-Author URI: http://salon.mallory.jp/en
+Author URI: http://salon.mallory.jp
 */
 
 define( 'SL_DOMAIN', 'salon' );
