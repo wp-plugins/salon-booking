@@ -3,11 +3,11 @@ Contributors: kuu(Tanaka Hisao)
 Tags: hair salon,salon,appointment,booking,beauty apps,reservation,dental clinic,hospital,mutilingual,散髪予約,美容院予約,美容室予約,サロン予約,エステ予約,予約システム,予約管理
 Requires at least: 3.8
 Tested up to: 3.8.1
-Stable tag: 1.3.9
+Stable tag: 1.3.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-散髪屋さん・美容院向けの予約システムです。Salon Booking enables the reservation to one-on-one business between a client and a staff member.
+散髪屋さん向けの予約システムです。Salon Booking enables the reservation to one-on-one business between a client and a staff member.
 
 == Description ==
 
@@ -82,8 +82,9 @@ As for the security, all the measures are included in this system,
 namely against identity frauds, malicious requests to reserve, SQL injection attacks and so.
 
 以下の２点を、このプラグインでなくして欲しいっす。  
-* 電話予約での空いている時間のやり取り
-* 髪を切ってもらっている間に掛かってくる電話による中断
+
+1. 電話での空いている時間のやり取り  
+2. 髪を切ってもらっている間に掛かってくる電話による中断  
 
 == Installation ==
 
@@ -126,6 +127,9 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 5. 管理画面（出退勤）
 
 == Changelog ==
+= 1.3.10 =
+* Fixed: 
+
 = 1.3.9 =
 * Changed: When staff member,show admin menu button at the screen of "Reservation".
 
