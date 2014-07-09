@@ -28,13 +28,31 @@ class Item_Component {
 			}
 
 			$set_data['name'] = stripslashes($_POST['name']);
-			$set_data['short_name'] = $_POST['short_name'];
+			$set_data['short_name'] =  stripslashes($_POST['short_name']);
 			$set_data['branch_cd'] = intval($_POST['branch_cd']);
 			$set_data['minute'] = intval($_POST['minute']);
 			$set_data['price'] = intval($_POST['price']);
 			$set_data['remark'] = stripslashes($_POST['remark']);
 			$set_data['memo'] = '';
 			$set_data['notes'] = '';
+			
+//[2014/06/22]
+			$set_data['exp_from'] =  stripslashes($_POST['exp_from']);
+			if( empty($set_data['exp_from']) ) {
+				$set_data['exp_from'] = '0000-00-00 00:00:00';
+			}
+			else {
+				$set_data['exp_from'] = Salon_Component::editRequestYmdForDb($_POST['exp_from']);
+			}
+			$set_data['exp_to'] =  stripslashes($_POST['exp_to']);
+			if( empty($set_data['exp_to']) ) {
+				$set_data['exp_to'] = '2099-12-29 00:00:00';
+			}
+			else {
+				$set_data['exp_to'] = Salon_Component::editRequestYmdForDb($_POST['exp_to']);
+			}
+			$set_data['all_flg'] = empty($_POST['all_flg']) ? Salon_Config::ALL_ITEMS_NO : Salon_Config::ALL_ITEMS_YES;
+			
 
 			$tmp = stripslashes($_POST['photo']);
 			if ( strpos($tmp, 'class=\'lightbox\'') === false)	{

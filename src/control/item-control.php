@@ -36,6 +36,7 @@ class Item_Control extends Salon_Control  {
 		$this->do_require($this->action_class ,'page',$this->permits);
 		$this->pages = new $this->action_class($this->is_multi_branch);
 		if ($this->action_class == 'Item_Page' ) {
+			$this->pages->set_check_staff_data($this->datas->getTargetStaffData());
 			$this->pages->set_branch_datas($this->datas->getAllBranchData());
 		}
 		elseif ($this->action_class == 'Item_Init' ) {
@@ -56,6 +57,9 @@ class Item_Control extends Salon_Control  {
 			if ($_POST['type'] == 'deleted' ) {
 				$this->datas->deleteTable( $res);
 			}
+			$reRead = $this->datas->getAllItemData("WHERE it.item_cd = ".$this->pages->get_item_cd() );
+			$this->pages->set_table_data($reRead[0]);
+			
 		}
 		elseif ($this->action_class == 'Item_Col_Edit' ) {
 			$this->set_response_type($this->pages->getResponseType());

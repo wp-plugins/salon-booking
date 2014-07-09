@@ -52,10 +52,10 @@ class Customer_Component {
 		//		$result_after[$index]['name'] = trim($d1['first_name'].' '.$d1['last_name']);
 				$result_after[$index]['first_name'] = $d1['first_name'];
 				$result_after[$index]['last_name'] = $d1['last_name'];
-				$result_after[$index]['zip'] = $d1['zip'];
-				$result_after[$index]['address'] = $d1['address'];
-				$result_after[$index]['tel'] = $d1['tel'];
-				$result_after[$index]['mobile'] = $d1['mobile'];
+				$result_after[$index]['zip'] = @$d1['zip'];
+				$result_after[$index]['address'] = @$d1['address'];
+				$result_after[$index]['tel'] = @$d1['tel'];
+				$result_after[$index]['mobile'] = @$d1['mobile'];
 				$index++;
 			}
 		}

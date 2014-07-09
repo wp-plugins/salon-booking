@@ -39,6 +39,7 @@ class Staff_Control extends Salon_Control  {
 			$this->pages->set_branch_datas($this->datas->getAllBranchData());
 			$this->pages->set_position_datas($this->datas->getAllPositionData(true));
 			$this->pages->set_config_datas($this->datas->getConfigData());
+			$this->pages->set_item_datas($this->datas->getAllItemDataForSet());
 		}
 		elseif ($this->action_class == 'Staff_Init' ) {
 			$this->pages->set_init_datas($this->comp->editInitData($this->datas->getInitDatas()));
@@ -56,17 +57,10 @@ class Staff_Control extends Salon_Control  {
 			if ($_POST['type'] == 'inserted' ) {
 				$this->datas->fixedPhoto($_POST['type'],$res['photo']);
 				$res['staff_cd'] = $this->datas->insertTable( $res);
-//				$this->pages->set_staff_cd($this->datas->insertTable( $res));
-//				$branch_name = $this->datas->getBranchData($this->pages->get_branch_cd(),'name');
-//				$this->pages->set_branch_name($branch_name['name']);
-//				$this->pages->set_position_name( $this->datas->getPositionData($res['position_cd']));
 			}
 			elseif ($_POST['type'] == 'updated' ) {
 				$this->datas->updateStaffPhotoData($res['staff_cd'],$res['photo']);
 				$this->datas->updateTable( $res);
-//				$branch_name = $this->datas->getBranchData($this->pages->get_branch_cd(),'name');
-//				$this->pages->set_branch_name($branch_name['name']);
-//				$this->pages->set_position_name( $this->datas->getPositionData($res['position_cd']));
 			}
 			elseif ($_POST['type'] == 'deleted' ) {
 				$this->datas->deleteStaffPhotoData($res['staff_cd']);

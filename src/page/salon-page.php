@@ -229,15 +229,16 @@ EOT;
 			"bProcessing": true,
 			"sScrollX": "100%",
 			"bScrollCollapse": true,
-			
+			"bLengthChange": false,
+			"bPaginate": true,
 			//"bServerSide": true,
+			iDisplayLength : 100,
 			"oLanguage": {
 			        "sLengthMenu": "{$sLengthMenu}"
 			        ,"oPaginate": {
 			            "sNext": "{$sNext}"
 			            ,"sPrevious": "{$sPrevious}"
 				    }
-					,"bPaginate": false
 		        	,"sInfo": "{$sInfo}"
 			        ,"sSearch": "{$sSearch}："
 					,"sEmptyTable":"{$sEmptyTable}"
@@ -314,7 +315,7 @@ EOT;
 	}
 	
 
-	public function echoEditableCommon($target_name,$add_col = "") {
+	public function echoEditableCommon($target_name,$add_col = "",$add_check_process = "") {
 		$target_src = get_bloginfo( 'wpurl' ).'/wp-admin/admin-ajax.php?action='.$target_name;
 		$submit = __('change',SL_DOMAIN);
 		$cancel = __('cancel',SL_DOMAIN);
@@ -354,9 +355,11 @@ EOT;
 							target.fnUpdate(jdata.set_data,position[0],position[2],false);
 						}
 						alert(jdata.message);
+						fnDetailInit();
 					},
 					
 					onsubmit:function(settings,td) {
+						{$add_check_process	}
 						if ( !checkColumnItem( td ) )return false;
 					},
 			
@@ -481,7 +484,7 @@ EOT;
 EOT2;
 		
 	}
-	public function echoDataTableEditColumn($target_name,$add_col = "") {	
+	public function echoDataTableEditColumn($target_name,$add_col = "",$add_callback_process="",$add_check_process = "") {	
 		
 		$target_src = get_bloginfo( 'wpurl' ).'/wp-admin/admin-ajax.php?action='.$target_name;
 		$add_char1 = '';
@@ -503,7 +506,8 @@ EOT2;
 				}
 				var position = target.fnGetPosition( target_col );
 				var setData = target.fnSettings();
-				var target_cd = setData['aoData'][position[0]]['_aData']['{$target_name}_cd']; 				
+				var target_cd = setData['aoData'][position[0]]['_aData']['{$target_name}_cd']; 
+				{$add_check_process	}
 				\$j.ajax({
 						type: "post",
 						url:  "{$target_src}",
@@ -524,6 +528,8 @@ EOT2;
 							else {
 								alert(data.message);
 								setData['aoData'][position[0]]['_aData'][column_name] = set_value;
+								{$add_callback_process}
+								fnDetailInit();
 							}
 						},
 						onerror:  function(XMLHttpRequest, textStatus){
@@ -535,20 +541,19 @@ EOT;
 		
 	}
 
-	public function echoDataTableDeleteRow($target_name,$target_key_name = '',$is_delete_row = true,$add_parm = '') {
+	public function echoDataTableDeleteRow($target_name,$target_key_name = '',$is_delete_row = true,$add_parm = '',$add_check = '') {
 		$target_src = get_bloginfo( 'wpurl' ).'/wp-admin/admin-ajax.php?action='.$target_name;
 		if (empty($target_key_name) ) $target_key_name = $target_name;
 		$menu_func = ucwords($target_name);
 		if ($is_delete_row) $delete_string = 'var rest = target.fnDeleteRow( position[0] );	fnDetailInit();';
 		else $delete_string  = 'target.fnUpdate( data.set_data ,position[0] );	fnDetailInit();';
 
-
-		
 		echo <<<EOT
 			function fnClickDeleteRow(target_col) {
 				var position = target.fnGetPosition( target_col );
 				var setData = target.fnSettings();
 				var target_cd = setData['aoData'][position[0]]['_aData']['{$target_key_name}_cd']; 				
+				{$add_check}
 				 \$j.ajax({
 						type: "post",
 						url:  "{$target_src}", 
@@ -603,7 +608,7 @@ EOT;
 					var diff = \$j("#"+id+"_lbl").outerHeight(true) - \$j("#"+id).outerHeight(true);
 					if (diff > 0 ) {
 						diff += {$default_margin}+5;
-						\$j("#"+id).attr("style","margin-bottom: "+diff+"px;");
+						\$j("#"+id).attr("style"," margin-bottom: "+diff+"px;");
 						\$j("#"+id+"_lbl").children(".samll").attr("style","text-align:left;");
 					}
 				}
@@ -611,27 +616,6 @@ EOT;
 	
 	}
 
-	static function echoItemInputCheck($item_datas,$is_noEcho = false){
-		$echo_data  = '<div id="item_cds" class="sl_checkbox" >';
-		if ($item_datas) {
-			foreach ( $item_datas  as $k1 => $d1) {
-				$edit_price = number_format($d1['price']);
-				$edit_name = htmlspecialchars($d1['name'],ENT_QUOTES);
-				//inputの中で価格と時間の順番は変更しない
-				//[TODO]空白はいくつにする？
-				$echo_data .= <<<EOT
-					<input type="checkbox" id="check_{$d1['item_cd']}" value="{$d1['item_cd']}" />
-					<input type="hidden" id="check_price_{$d1['item_cd']}" value="{$d1['price']}" />
-					<input type="hidden" id="check_minute_{$d1['item_cd']}" value="{$d1['minute']}" />
-					<label for="check_{$d1['item_cd']}">&nbsp;{$edit_name}({$edit_price})&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
-EOT;
-			}
-		}
-		$echo_data .= '</div>';
-		if ($is_noEcho) return str_replace(array("\r\n","\r","\n"), '', $echo_data);
-		else echo $echo_data;
-		
-	}
 	static function echoItemInputCheckTable($item_datas,$is_noEcho = false){
 		$echo_data  = '<div id="item_cds" class="sl_checkbox" >';
 		if ($item_datas) {
@@ -643,14 +627,15 @@ EOT;
 					if ( $loop_max > ($i+$j) ) {
 						$d1 = $item_datas[$i+$j];
 						$edit_price = number_format($d1['price']);
-						$edit_name = htmlspecialchars($d1['short_name'],ENT_QUOTES);
+//						$edit_name = htmlspecialchars($d1['short_name'],ENT_QUOTES);
+						$edit_name = htmlspecialchars($d1['name'],ENT_QUOTES);
 						$echo_data .= <<<EOT
 							<td>
 							<input type="checkbox" id="check_{$d1['item_cd']}" value="{$d1['item_cd']}" />
 							<input type="hidden" id="check_price_{$d1['item_cd']}" value="{$d1['price']}" />
 							<input type="hidden" id="check_minute_{$d1['item_cd']}" value="{$d1['minute']}" />
 							</td><td>
-							<label for="check_{$d1['item_cd']}">{$edit_name}({$edit_price})</label>
+							<label for="check_{$d1['item_cd']}" >{$edit_name}({$edit_price})</label>
 							</td>
 EOT;
 					}
@@ -664,6 +649,57 @@ EOT;
 		else echo $echo_data;
 		
 	}
+
+	//echoItemInputCheckTableとはキーにbranch_cdがあるので受取るデータの形式がことなる
+	static function echoItemInputCheckTableForSet($item_datas,$is_multi_branch){
+		$echo_data  = '<div id="item_cds" class="sl_checkbox" >';
+		if ($item_datas) {
+			//単一店舗の場合は、branch_cdを無視
+			$echo_data .= '<table id="sl_front_items" >';
+			if (! $is_multi_branch) {
+				$echo_data .= '<tbody>';
+			}
+			
+			foreach ($item_datas as $k1 => $d1 ) {
+				if ($is_multi_branch) {
+					$echo_data .= '<tbody id="sl_tb_items_'.$k1.'">';
+				}
+				$loop_max = count($d1);
+				for($i = 0 ; $i < $loop_max ; $i += 2 ){
+					$echo_data .= '<tr>';
+					for($j= 0 ; $j < 2 ; $j++ ) {
+						if ( $loop_max > ($i+$j) ) {
+							$d2 = $d1[$i+$j];
+							$edit_name = htmlspecialchars($d2['name'],ENT_QUOTES);
+							$echo_data .= <<<EOT
+								<td>
+								<input type="checkbox" id="check_{$d2['item_cd']}" value="{$d2['item_cd']}" class="sl_items_set" />
+								<input type="hidden" id="check_all_flg_{$d2['item_cd']}" value="{$d2['all_flg']}" />
+								</td><td>
+								<label for="check_{$d2['item_cd']}">{$edit_name}</label>
+								</td>
+EOT;
+						}
+					}
+					$echo_data .= '</tr>';
+				}
+				if ($is_multi_branch) {
+					$echo_data .= "</tbody>";
+				}
+			
+			}
+			//単一店舗の場合は、branch_cdを無視
+			if (! $is_multi_branch) {
+				$echo_data .= "</tbody>";
+			}
+			$echo_data .= "</table>";
+			
+		}
+		$echo_data .= '</div>';
+		echo $echo_data;
+		
+	}
+
 
 	static function echoStaffSelect($target_name,$staff_datas,$is_noname_select = true,$is_noEcho = false){
 		$echo_data = '<select id="'.$target_name.'">';
@@ -705,7 +741,8 @@ EOT;
 	static function echoDisplayErrorLable() {
 		echo <<<EOT
 			function fnDisplayErrorLabel(target,msg) {
-			var label = \$j("#"+target).find("span");
+//			var label = \$j("#"+target).find("span");
+			var label = \$j("#"+target).children(".small")
 			var set_msg = msg;
 			if (label.hasClass("error") ) {
 				set_msg = label.text()+" "+set_msg;
@@ -1024,6 +1061,15 @@ EOT;
 		';
 		
 	}
+	
+	//[2014/06/22]
+	static function echoItemFromto ($item_datas) {	
+		echo 'var item_fromto = Array();';
+		foreach($item_datas as $k1 => $d1 ) {
+			echo 'item_fromto['.$d1['item_cd'].'] = {"f":'.intval($d1['exp_from']).',"t":'.intval($d1['exp_to']).'};';
+		}
+	}
+	
 	static function set_datepickerDefault($is_maxToday = false){
 		$range = 'minDate: new Date()';
 		if ($is_maxToday) $range = 'maxDate: new Date()';
@@ -1232,7 +1278,7 @@ EOT;
 			unset($check_patern[$key]);
 		}
 		if ( count($check_patern) > 0 ) {
-			echo 'if (( item_errors.length == 0 ) && (val != "" ) ){';
+			echo 'if (( item_errors.length == 0 ) && (val != "" ) && (val != null) ){';
 			foreach ($check_patern as $d1) {
 				echo $check_contents[$d1];
 			}
@@ -1802,6 +1848,10 @@ EOT2;
 		 ,'check' => array( 'reqCheckbox')
 		 ,'label' => __('Menu',SL_DOMAIN)
 		 ,'tips' => __('please select',SL_DOMAIN));
+
+		$item_contents['item_cds_set'] =$item_contents['item_cds'];
+		$item_contents['item_cds_set']['tips'] = __('Check the menu which this staff member can treat',SL_DOMAIN); 
+		
 	
 
 		$item_contents['config_branch'] =array('id'=>'config_only_branch'
@@ -2078,6 +2128,28 @@ EOT2;
 		
 
 
+		//[20140622]Ver1.4.1
+		$item_contents['exp_from'] =array('id'=>'exp_from'
+		 ,'class' => array()
+		 ,'check' => array( 'chkDate')
+		 ,'label' => __('Expiry date(from)',SL_DOMAIN)
+		 ,'tips' => __('Please input Expiry date.If Expiry date(from) is not input,this menu is always valid.',SL_DOMAIN));
+
+		$item_contents['exp_to'] =array('id'=>'exp_to'
+		 ,'class' => array()
+		 ,'check' => array( 'chkDate')
+		 ,'label' => __('Expiry date(to)',SL_DOMAIN)
+		 ,'tips' => __('Please input Expiry date.If Expiry date(to) is not input,this menu is always valid.',SL_DOMAIN));
+
+		$item_contents['all_flg'] =array('id'=>'all_flg'
+		 ,'class' => array()
+		 ,'check' => array( )
+		 ,'label' => __('All staff member can treat',SL_DOMAIN)
+		 ,'tips' => __('If all staff member can treat this menu,check here.',SL_DOMAIN));
+
+
+
+
 		return $item_contents;	
 	
 		
@@ -2281,7 +2353,7 @@ EOT2;
 	
 		$check_contens['chk_required'] = '
 						if ($j('.$target.').hasClass("chk_required") ) {
-							if(val == ""){
+							if(val == "" || val === null){
 								item_errors.push( "'.__('please enter',SL_DOMAIN).'");
 							}
 						}';
@@ -2614,6 +2686,7 @@ EOT;
 						,'mail'=>$d1['email']
 						,'remark'=>$d1['remark']
 						,'p2'=>$d1['non_regist_activate_key']
+						,'user_login'=>$d1['user_login']
 						);
 			}
 			else {
@@ -2678,6 +2751,7 @@ EOT;
 																			,$d5['name']
 																			,$d5['tel']
 																			,$d5['mail']
+																			,$d5['user_login']
 																			)
 																)
 													);						

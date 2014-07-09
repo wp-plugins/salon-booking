@@ -64,20 +64,29 @@
 		var save_id = "";
 		var is_holiday= false;
 		
+		var save_user_login = "";
+		
 		
 		var isTouch = ('ontouchstart' in window);
 		var tap_interval = <?php echo Salon_Config::TAP_INTERVAL; ?>;
 
+		var staff_items = new Array();
 
 		slmSchedule.config={
 					day_full:[<?php _e('"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"',SL_DOMAIN); ?>],
 					day_short:[<?php _e('"Sun","Mon","Tue","Wed","Thu","Fri","Sat"',SL_DOMAIN); ?>]
 		};
 		
+		<?php parent::echoItemFromto($this->item_datas); ?>
+
 		$j(document).ready(function() {
 
 			var timer;
-			
+			<?php //[2014/06/22] 	
+			foreach ($this->staff_datas as $k1 => $d1 ) {
+				echo 'staff_items['.$d1['staff_cd'].'] = "'.$d1['in_items'].'";';
+			}
+			?>	
 			<?php if ($this->_is_staffSetNormal() )  : ?>			
 			$j(".slm_time_li").bind({
 				'touchstart': function(e) {
@@ -86,7 +95,7 @@
 					timer = setTimeout( function()
 					{
 						_fnAddReservation(tmp_time);
-						$j("#staff_cd").val(tmp_staff_cd);
+						$j("#staff_cd").val(tmp_staff_cd).change();
 					}, tap_interval );
 				},
 				'touchmove': function(e) {
@@ -131,7 +140,7 @@
 			$j("#slm_regist_button").click(function(){
 				var now = new Date();
 				_fnAddReservation(now.getHours()+1);
-				$j('#staff_cd').prop('selectedIndex', 0);
+				$j('#staff_cd').prop('selectedIndex', 0).change();
 			});
 			$j("#slm_search").click(function(){
 				var setDate = fnDayFormat(new Date($j("#slm_searchdate").val()),"%Y%m%d");
@@ -176,6 +185,45 @@
 					fnUpdateEndTime();
 				}
 			});
+			
+			<?php //[2014/06/22]スタッフコードにより選択を変更 ?>
+			$j("#staff_cd").change(function(){
+				var checkday = +fnDayFormat(target_day_from,"%Y%m%d");
+				if ($j(this).val() == <?php echo Salon_Default::NO_PREFERENCE; ?> ) {
+					$j("#item_cds input").parent().show();
+					$j("#item_cds input").attr("disabled",false);
+					$j("#item_cds :checkbox").each(function(){
+						if (checkday < item_fromto[+$j(this).val()].f ||  checkday > item_fromto[+$j(this).val()].t)  {
+							$j("#item_cds #slm_chk_"+$j(this).val()).attr("disabled",true);
+							$j("#item_cds #slm_chk_"+$j(this).val()).parent().hide();
+						}
+					})
+				}
+				else {
+					var staff_cd = $j(this).val();
+					$j("#item_cds input").attr("disabled",true);
+					$j("#item_cds input").parent().hide();
+					var item_array = staff_items[staff_cd].split(",");
+					var max_loop = item_array.length;
+					for	 (var i = 0 ; i < max_loop; i++) {
+						<?php //メニューの有効期間を判定する　?>
+						if (item_fromto[+item_array[i]].f <= checkday && checkday <= item_fromto[+item_array[i]].t) {
+							$j("#item_cds #slm_chk_"+item_array[i]).attr("disabled",false);
+							$j("#item_cds #slm_chk_"+item_array[i]).parent().show();
+						}
+					}
+					$j("#item_cds :checkbox").each(function(){
+						if($j(this).attr("disabled") ){
+							$j(this).attr("checked",false);
+						}
+					})
+					<?php //値段を再計算する ?>
+					fnUpdateEndTime();
+					
+				}
+			});
+			<?php //[2014/06/22]スタッフコードにより選択を変更 ?>
+			
 			$j("#item_cds input[type=checkbox]").click(function(){
 				fnUpdateEndTime();
 			});
@@ -183,7 +231,7 @@
 			$j(document).on('click','.slm_on_business',function(){
 				var tmp_val = $j(this.children).text();
 				_fnAddReservation(+tmp_val.split(":")[1]);
-				$j("#staff_cd").val(tmp_val.split(":")[0]);
+				$j("#staff_cd").val(tmp_val.split(":")[0]).change();
 			});
 				
 			<?php parent::echoSetItemLabelMobile(); ?>
@@ -240,6 +288,9 @@
 			save_item_cds = "";
 			operate = "inserted";
 			save_id = "";
+			save_user_login = "";
+			<?php if ( is_user_logged_in() && ! $this->isSalonAdmin()) echo 'save_user_login = "'.$this->user_inf['user_login'].'"'; ?>
+				
 			
 			$j("#start_time").val(toHHMM(target_day_from));
 			$j("#item_cds input[type=checkbox]").attr("checked",false);
@@ -330,7 +381,7 @@
 			for(var seq0 in slmSchedule._daysStaff[yyyymmdd]["d"]){
 				for(var staff_cd in slmSchedule._daysStaff[yyyymmdd]["d"][seq0]){
 					var base=+slmSchedule._daysStaff[yyyymmdd]["d"][seq0][staff_cd]["s"];
-					var height = Math.floor($j("#slm_st_" + staff_cd).outerHeight()/base);
+					var height = Math.floor($j("#slm_st_" + staff_cd).outerHeight()/base)-2;	//微調整
 									
 					for(var seq1 in slmSchedule._daysStaff[yyyymmdd]["d"][seq0][staff_cd]["d"]) {
 						for(var level in slmSchedule._daysStaff[yyyymmdd]["d"][seq0][staff_cd]["d"][seq1]) {
@@ -373,7 +424,7 @@
 									for	 (var i = 0 ,max_loop = item_array.length; i < max_loop; i++) {
 										$j("#slm_chk_"+item_array[i]).attr("checked",true);
 									}
-									$j("#staff_cd").val(ev_tmp["staff_cd"]);
+									$j("#staff_cd").val(ev_tmp["staff_cd"]).change();
 
 									$j("#name").val(htmlspecialchars_decode(ev_tmp["name"]));
 									$j("#tel").val(ev_tmp["tel"]);
@@ -381,7 +432,9 @@
 									$j("#remark").val(htmlspecialchars_decode(ev_tmp["remark"]));
 									$j("#slm_target_day").text($j("#slm_searchdate").val()); 
 									operate = "updated";
+									save_user_login = ev_tmp["user_login"];
 									$j("#start_time").trigger("change");
+									
 								});
 							}
 
@@ -482,6 +535,7 @@
 						,"branch_cd":<?php echo $this->branch_datas['branch_cd']; ?>						
 						,"item_cds": save_item_cds
 						,"tel": tel
+						,"user_login":save_user_login
 						,"p2":temp_p2
 						,"nonce":"<?php echo $this->nonce; ?>"
 						,"menu_func":"Booking_Mobile_Edit"
@@ -671,6 +725,7 @@ EOT;
 <?php
 		if ($this->item_datas) {
 			$echo_data = "";
+/*[2014/06/22]
 			for($i = 0,$loop_max = count($this->item_datas); $i < $loop_max ; $i += 2 ){
 				$echo_data .= '<ul class="slm_chk">';
 				for($j= 0 ; $j < 2 ; $j++ ) {
@@ -690,6 +745,24 @@ EOT;
 				}
 				$echo_data .= "</ul>";
 			}
+*/			
+			$echo_data .= '<ul class="slm_chk">';
+			for($i = 0,$loop_max = count($this->item_datas); $i < $loop_max ; $i ++ ){
+				$d1 = $this->item_datas[$i];
+				$edit_price = number_format($d1['price']);
+          		//$edit_name = htmlspecialchars($d1['short_name'],ENT_QUOTES);
+          		$edit_name = htmlspecialchars($d1['name'],ENT_QUOTES);
+				$echo_data .= <<<EOT
+					<li>
+					<input type="checkbox" id="slm_chk_{$d1['item_cd']}" value="{$d1['item_cd']}" />
+					<input type="hidden" id="check_price_{$d1['item_cd']}" value="{$d1['price']}" />
+					<input type="hidden" id="check_minute_{$d1['item_cd']}" value="{$d1['minute']}" />
+					<label for="slm_chk_{$d1['item_cd']}">{$edit_name}<br>({$edit_price})</label>
+					</li>
+EOT;
+			}
+			$echo_data .= "</ul>";
+
 			echo $echo_data;
 		}
 ?>        

@@ -59,6 +59,11 @@ class Salon_Config {
 	const TAP_INTERVAL = 500;
 	const MOBILE_USE_YES = 1;
 	const MOBILE_USE_NO = 2;
+	//mobile
+	const ALL_ITEMS_YES = 1;
+	const ALL_ITEMS_NO = 2;
+	const ALL_ITEMS_CHANGE_YES = 1;
+	const ALL_ITEMS_CHANGE_NO = 2;
 	
 }
 

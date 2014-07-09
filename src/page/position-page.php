@@ -68,6 +68,7 @@ class Position_Page extends Salon_Page {
 		});
 
 		function fnSelectRow(target_col) {
+			fnDetailInit();
 			
 			$j(target.fnSettings().aoData).each(function (){
 				$j(this.nTr).removeClass("row_selected");
@@ -187,7 +188,7 @@ class Position_Page extends Salon_Page {
 		<input type="text" id="name" value="" />
 		<?php parent::echoRoleSelect("wp_role"); ?>
 		<textarea id="remark"  ></textarea>
-		<div id="role" class="sl_role_table">
+		<div id="role" class="sl_role_table ">
 			<table>
 			<tbody>
 				<?php 

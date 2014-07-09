@@ -80,18 +80,13 @@ class Booking_Component {
 			else {
 				$set_data['status'] = Salon_Reservation_Status::COMPLETE;
 				if ( $this->datas->isSalonAdmin($user_login) ) {
-					if (Salon_Component::isMobile() ) {
-						$set_data['user_login'] =$user_login;
+					if (empty($_POST['user_login']) ) {
+						if (empty($_POST['regist_customer'] ) ) $regist_customer = false;
+						else $regist_customer = true;
+						$set_data['user_login'] = $this->datas->registCustomer($set_data['branch_cd'],$set_data['non_regist_email'], $set_data['non_regist_tel'] ,$set_data['non_regist_name'],__('registerd by reservation process(booking)',SL_DOMAIN),'','','',$regist_customer,false);
 					}
 					else {
-						if (empty($_POST['user_login']) ) {
-							if (empty($_POST['regist_customer'] ) ) $regist_customer = false;
-							else $regist_customer = true;
-							$set_data['user_login'] = $this->datas->registCustomer($set_data['branch_cd'],$set_data['non_regist_email'], $set_data['non_regist_tel'] ,$set_data['non_regist_name'],__('registerd by reservation process(booking)',SL_DOMAIN),'','','',$regist_customer,false);
-						}
-						else {
-							$set_data['user_login'] = $_POST['user_login'];
-						}
+						$set_data['user_login'] = $_POST['user_login'];
 					}
 					
 				}

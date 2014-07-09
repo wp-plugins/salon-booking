@@ -12,16 +12,16 @@ class Item_Page extends Salon_Page {
 	
 	private $branch_datas = null;
 	private $position_datas = null;
-	
+	private $staff_datas = null;
 	
 
 	function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch);
 		if ($is_multi_branch ) {
-			$this->set_items = array('item_name','short_name','branch_cd','minute','price','remark');
+			$this->set_items = array('item_name','short_name','branch_cd','minute','price','remark','exp_from','exp_to','all_flg');
 		}
 		else {
-			$this->set_items = array('item_name','short_name','minute','price','remark');
+			$this->set_items = array('item_name','short_name','minute','price','remark','exp_from','exp_to','all_flg');
 		}
 
 	}
@@ -30,6 +30,9 @@ class Item_Page extends Salon_Page {
 		$this->branch_datas = $branch_datas;
 	}
 
+	public function set_check_staff_data ($datas) {
+		$this->staff_datas = $datas;
+	}
 
 
 	public function show_page() {
@@ -41,11 +44,34 @@ class Item_Page extends Salon_Page {
 		
 		var target;
 		var save_k1 = "";
+		var save_all_flg = false;
+		
+		var staff_items = Array();
+		<?php  //[2014/06/22]ひとつしかないin_itemsのスタッフの情報を設定する。
+				//メニュのALLFLGをはずしたときにチェックする。何もできないスタッフができないように
+			if ($this->staff_datas) {
+				$res = array();
+				$edit_res = array();
+				foreach($this->staff_datas as $k1 => $d1 ) {
+					$item_array = explode(',',$d1['in_items']);
+					if (count($item_array) == 1 ) {
+						$res[] = array($item_array[0],$d1['name']);
+						$edit_res[$item_array[0]] = "";
+					}
+				}
+				foreach ($res as $k1 => $d1 ) {
+					$edit_res[$d1[0]][] = $d1[1];
+				}
+				foreach ($edit_res as $k1 => $d1 ) {
+					$set = implode(',',$d1);
+					echo "staff_items[$k1]= \"$set\";";
+				}
+			}
+		?>
 		
 		<?php parent::echoClientItem($this->set_items); //for only_branch?>	
 
 		$j(document).ready(function() {
-			
 			<?php parent::echoSetItemLabel(); ?>	
 			<?php parent::echoCommonButton();			//共通ボタン	?>
 			target = $j("#lists").dataTable({
@@ -81,6 +107,9 @@ class Item_Page extends Salon_Page {
 		<?php parent::echoDataTableSeqUpdateRow("item","item_cd",$this->is_multi_branch); ?>	//[20131110]ver 1.3.1 
 
 		function fnSelectRow(target_col) {
+			fnDetailInit();
+			
+			
 			
 			$j(target.fnSettings().aoData).each(function (){
 				$j(this.nTr).removeClass("row_selected");
@@ -97,6 +126,20 @@ class Item_Page extends Salon_Page {
 			$j("#minute").val(setData['aoData'][position[0]]['_aData']['minute']);	
 			$j("#price").val(setData['aoData'][position[0]]['_aData']['price']);	
 			$j("#remark").val( htmlspecialchars_decode(setData['aoData'][position[0]]['_aData']['remark']));	
+			<?php //[2014/06/22] ?>
+			var exp_from = setData['aoData'][position[0]]['_aData']['exp_from'];
+			if (exp_from.indexOf("0000") != -1 ) exp_from = "";
+			$j("#exp_from").val(exp_from);
+			var exp_to = setData['aoData'][position[0]]['_aData']['exp_to'];
+			if (exp_to.indexOf("2099") != -1 ) exp_to = "";
+			$j("#exp_to").val(exp_to);	
+			save_all_flg = false;
+			if (setData['aoData'][position[0]]['_aData']['all_flg'] == "<?php echo Salon_Config::ALL_ITEMS_YES; ?>" ) {
+				$j("#all_flg").attr("checked",true);
+				save_all_flg = true;
+			}
+			else $j("#all_flg").attr("checked",false);
+			<?php //[2014/06/22] ?>
 			$j("#button_update").removeAttr("disabled");
 			$j("#button_clear").show();
 
@@ -107,21 +150,32 @@ class Item_Page extends Salon_Page {
 
 		}
 		<?php parent::echoDataTableEditColumn("item"); ?>
-		<?php parent::echoDataTableDeleteRow("item"); ?>
+		
+		<?php
+			$chk_string = "if(staff_items[target_cd]){alert(\"".__('This menu checked as the following staff member.\nIf you will remove this menu,\nplease update the menu of the following staff member.\n',SL_DOMAIN)."\\n\"+staff_items[target_cd]);return false;}"; 
+			parent::echoDataTableDeleteRow("item",'',true,'',$chk_string); ?>
 
 		function fnClickAddRow(operate) {
 			if ( ! checkItem("data_detail") ) return false;
 			var item_cd = "";
 			var display_sequence = 0;
+			var setData = target.fnSettings();
 			if ( save_k1 !== ""  ) {
-				var setData = target.fnSettings();
 				item_cd = setData['aoData'][save_k1]['_aData']['item_cd']; 				
 				display_sequence = setData['aoData'][save_k1]['_aData']['display_sequence']; 
+			}
+			var is_change_all_flg = save_all_flg != $j('#all_flg').is(':checked') ? <?php echo Salon_Config::ALL_ITEMS_CHANGE_YES; ?> : <?php echo Salon_Config::ALL_ITEMS_CHANGE_NO; ?>;
+			<?php //チェックをはずされたときは、該当メニューのみのスタッフがいないかチェック ?>
+			if (operate  !="inserted" && is_change_all_flg == <?php echo Salon_Config::ALL_ITEMS_CHANGE_YES; ?> && !$j('#all_flg').is(':checked') ){
+				if (staff_items[item_cd] ) {
+					alert("<?php _e('This menu checked as the following staff member.\nIf you will uncheck \"All staff member can treat\",\nplease update the menu of the following staff member.\n',SL_DOMAIN); ?>\n"+staff_items[item_cd]);
+					return false;
+				}
 			}
 		<?php if ($this->is_multi_branch == false ) : //for only_branch ?>
 			if (operate  =="inserted") $j("#branch_cd").val("<?php echo $this->get_default_brandh_cd();?>");
 		<?php endif; ?>
-			 $j.ajax({
+			$j.ajax({
 				 	type: "post",
 					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=item",
 					dataType : "json",
@@ -138,6 +192,10 @@ class Item_Page extends Salon_Page {
 						"remark":$j("#remark").val(),
 						"display_sequence":display_sequence,
 						"photo":'',
+						"exp_from":$j("#exp_from").val(),
+						"exp_to":$j("#exp_to").val(),
+						"all_flg":$j("#all_flg").attr("checked"),
+						"is_change_all_flg":is_change_all_flg,
 						"nonce":"<?php echo $this->nonce; ?>",
 						"menu_func":"Item_Edit"
 
@@ -172,6 +230,8 @@ class Item_Page extends Salon_Page {
 			$j("#data_detail input[type=\"text\"]").val("");
 			$j("#data_detail select").val("");
 			$j("#data_detail textarea").val("");
+			$j("#all_flg").attr("checked",true);
+
 			$j("#button_update").attr("disabled", "disabled");
 
 			
@@ -180,7 +240,7 @@ class Item_Page extends Salon_Page {
 
 		}
 
-	<?php parent::echoCheckClinet(array('chk_required','zenkaku','lenmax','num')); ?>		
+	<?php parent::echoCheckClinet(array('chk_required','zenkaku','lenmax','num','chkDate')); ?>		
 	<?php parent::echoColumnCheck(array('chk_required','lenmax','num')); ?>		
 
 
@@ -213,6 +273,25 @@ class Item_Page extends Salon_Page {
 <?php endif; ?>
 		<?php parent::echoMinuteSelect('minute'); ?>
 		<input type="text" id="price" value="" />
+<?php //Ver 1.4.1 ?>
+
+<?php /*?>		<div id="_multi_item_wrap" >
+			<input type="text" id="sp_date" style="width:100px;margin-right:0px;"  />
+			<INPUT type="radio"  id="sp_date_radio_open"  name="sp_date_radio"  style="width:16px;margin:3px 5px 0px 10px;" value="<?php echo Salon_Status::OPEN; ?>">
+			<label for="sp_date_radio_open" style="margin:5px;text-align:left;width:50px;"><?php _e('On Business',SL_DOMAIN); ?></label>
+			<INPUT type="radio" id="sp_date_radio_close"  name="sp_date_radio"  style="width:16px;margin:3px 5px 0px 10px;" value="<?php echo Salon_Status::CLOSE; ?>">
+			<label for="sp_date_radio_close" style="margin:5px;text-align:left;width:50px;"><?php _e('Special Absence',SL_DOMAIN); ?></label>
+			<input id="button_sp_date_insert" type="button" class="sl_button" value="<?php _e('Add',SL_DOMAIN); ?>" style="width:50px;margin-right:0px;"/>
+		</div>
+<?php */?>
+
+        <input type="text" id="exp_from"/>
+        <input type="text" id="exp_to" />
+        <div id="all_flg_wrap" class="config_item_wrap" > 
+			<input id="all_flg" type="checkbox"  value="<?php echo Salon_Config::ALL_ITEMS_YES; ?>"/>
+		</div>
+        
+        
 		<textarea id="remark"  ></textarea>
 		<div class="spacer"></div>
 

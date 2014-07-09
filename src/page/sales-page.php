@@ -264,7 +264,7 @@ EOT;
 			var is_normal = true;
 			if ( ! checkItem("data_detail",check_array) ) is_normal = false;
 			var start = 0;
-			if ($j("#time_from_aft").val()  == -1) {
+			if (! $j("#time_from_aft").val()) {
 				fnDisplayErrorLabel("target_day_lbl","<?php _e("please input start time",SL_DOMAIN); ?>");
 				is_normal = false;
 			}
@@ -272,7 +272,7 @@ EOT;
 				start = +$j("#time_from_aft").val().replace(":","");
 			}
 				
-			if ($j("#time_to_aft").val()  == -1) {
+			if (! $j("#time_to_aft").val()  ) {
 				fnDisplayErrorLabel("target_day_lbl","<?php _e("please input end time",SL_DOMAIN); ?>");
 				is_normal = false;
 			}

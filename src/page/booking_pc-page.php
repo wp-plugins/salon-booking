@@ -10,14 +10,15 @@
 		var save_item_cds = "";
 		var all_duplicate_cnt;
 		var staff_duplicates = new Array();
-
+		var staff_items = new Array();
 		var save_user_login = "";
 		var save_mail = "";
 		var save_tel = "";
 		
 		var is_collision_err = false;
 
-
+		<?php parent::echoItemFromto($this->item_datas); ?>
+		
 		$j(document).ready(function() {
 			<?php parent::echoSearchCustomer($this->url); //検索画面 ?>	
 
@@ -59,7 +60,6 @@
 			$reserve_possible_cnt = 0;
 			
 			//
-			
 			foreach ($this->staff_datas as $k1 => $d1 ) {
 				if ($this->config_datas['SALON_CONFIG_MAINTENANCE_INCLUDE_STAFF'] != Salon_Config::MAINTENANCE_NOT_INCLUDE_STAFF
 					|| $d1['position_cd'] != Salon_Position::MAINTENANCE ) {
@@ -86,8 +86,11 @@
 			$reserve_possible_cnt = 0;
 			foreach ($this->staff_datas as $k1 => $d1 ) {
 				echo 'staff_duplicates['.$d1['staff_cd'].'] = '.$d1['duplicate_cnt'].';';
+				echo 'staff_items['.$d1['staff_cd'].'] = "'.$d1['in_items'].'";';
 				$reserve_possible_cnt += 1+$d1['duplicate_cnt'];
+				
 			}
+	
 	
 			$timeline_array = array();
 			foreach ($this->working_datas as $k1 => $d1 ) {
@@ -271,6 +274,7 @@ EOT3;
 					ev.remark = '';
 					ev.item_cds = '';
 					ev.type = 'new';
+					
 				});
 				
 			scheduler.attachEvent("onBeforeEventChanged", function(ev, native_event, is_new){
@@ -394,6 +398,39 @@ EOT3;
 			});
 
 
+			<?php //[2014/06/22]スタッフコードにより選択を変更 ?>
+			$j("#staff_cd").change(function(){
+				var checkday = +fnDayFormat(target_day_from,"%Y%m%d");
+				if (!$j(this).val()  ) {
+					$j("#item_cds input").attr("disabled",true);
+				}
+				else if ( $j(this).val() == <?php echo Salon_Default::NO_PREFERENCE; ?>) {
+					$j("#item_cds input").attr("disabled",false);
+					$j("#item_cds :checkbox").each(function(){
+						if (checkday < item_fromto[+$j(this).val()].f ||  checkday > item_fromto[+$j(this).val()].t) 
+							$j("#item_cds #check_"+$j(this).val()).attr("disabled",true);
+					})
+				}
+				else {
+					var staff_cd = $j(this).val();
+					$j("#item_cds input").attr("disabled",true);
+					var item_array = staff_items[staff_cd].split(",");
+					var max_loop = item_array.length;
+					for	 (var i = 0 ; i < max_loop; i++) {
+						<?php //メニューの有効期間を判定する　?>
+						if (item_fromto[+item_array[i]].f <= checkday && checkday <= item_fromto[+item_array[i]].t) 
+							$j("#item_cds #check_"+item_array[i]).attr("disabled",false);
+					}
+					$j("#item_cds :checkbox").each(function(){
+						if($j(this).attr("disabled") ){
+							$j(this).attr("checked",false);
+						}
+					})
+					<?php //値段を再計算する ?>
+					fnUpdateEndTime();
+				}
+			});
+			<?php //[2014/06/22]ここまで ?>
 			<?php parent::echoSetItemLabel(false); ?>	
 			<?php parent::echo_clear_error(); ?>
 
@@ -438,6 +475,7 @@ EOT3;
 		function fnDetailInit( ev ) {
 			if (ev) {
 				$j("#target_day").text(fnDayFormat(ev.start_date,"<?php echo __('%m/%d/%Y',SL_DOMAIN); ?>"));
+				target_day_from = ev.start_date;
 				$j("#item_cds input").attr("checked",false);
 				if (ev.type) {
 					$j("#button_insert").val("<?php _e('Add',SL_DOMAIN); ?>");
@@ -450,24 +488,22 @@ EOT3;
 					<?php	if ($this->isSalonAdmin() ) echo '$j("#button_search").hide();'; ?>
 				}
 				save_user_login = ev.user_login;
-	
+				
 				var item_array = ev.item_cds.split(",");
 				var max_loop = item_array.length;
 				for	 (var i = 0 ; i < max_loop; i++) {
-					if (i < max_loop )
 					$j("#item_cds #check_"+item_array[i]).attr("checked",true);
 				}
 				$j("#name").val( htmlspecialchars_decode(ev.name) );
 				$j("#mail").val( ev.mail );
 				$j("#tel").val( ev.tel );
 				$j("#remark").val( htmlspecialchars_decode(ev.remark) );
-				$j("#staff_cd").val( ev.staff_cd );
+				$j("#staff_cd").val( ev.staff_cd ).change();
 				<?php if ( !is_user_logged_in() ||  $this->isSalonAdmin() ) : ?>
 					$j("#name").focus();			
 				<?php else : ?>
 					$j("#staff_cd").focus();			
 				<?php endif; ?>
-				target_day_from = ev.start_date;
 				$j("#start_time").val(ev.start_date.getHours()+":"+(ev.start_date.getMinutes()<10?'0':'')+ev.start_date.getMinutes());
 				save_target_event = scheduler._lame_clone(ev);
 				fnUpdateEndTime();
@@ -628,7 +664,7 @@ EOT3;
 			var is_error = false;
 			
 			if (staff_cd  != <?php echo Salon_Default::NO_PREFERENCE; ?> ) {
-				if (staff_array[staff_cd] >= staff_duplicates[staff_cd] ) is_error = true;
+				if (staff_array[staff_cd] > staff_duplicates[staff_cd] ) is_error = true;
 			}
 			if ( ev_cnt >= all_duplicate_cnt ) is_error = true;
 			

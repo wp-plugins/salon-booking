@@ -49,7 +49,7 @@ class Staff_Edit extends Salon_Page {
 		}
 		$msg = null;
 		if ($_POST['type'] != 'deleted' ) {
-			if (Salon_Page::serverCheck(array('first_name','last_name','branch_cd','position_cd','zip','address','tel','mobile','mail','user_login','remark','employed_day','leaved_day'),$msg) == false) {
+			if (Salon_Page::serverCheck(array('first_name','last_name','branch_cd','position_cd','zip','address','tel','mobile','mail','user_login','remark','employed_day','leaved_day','item_cds_set'),$msg) == false) {
 				throw new Exception($msg );
 			}
 		}
@@ -88,6 +88,7 @@ class Staff_Edit extends Salon_Page {
 		$res['duplicate_cnt'] = $this->table_data['duplicate_cnt'];
 		$res['user_login'] = $this->table_data['user_login'];
 		$res['display_sequence'] = $this->table_data['display_sequence'];
+		$res['in_items'] = $this->table_data['in_items'];
 
 		echo '{	"status":"Ok","message":"'.Salon_Component::getMsg('N001').'",
 				"set_data":'.json_encode($res).' }';

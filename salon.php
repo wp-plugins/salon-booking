@@ -2,8 +2,8 @@
 /*
 Plugin Name: Salon booking 
 Plugin URI: http://salon.mallory.jp
-Description: Salon Booking enables the reservation to one-on-one business between a client and a staff. 
-Version: 1.3.10
+Description: Salon Booking enables the reservation to one-on-one business between a client and a staff member. 
+Version: 1.4.1
 Author: kuu
 Author URI: http://salon.mallory.jp
 */
@@ -287,11 +287,13 @@ public function example_remove_dashboard_widgets() {
 			error_log('sql error:'.$wpdb->last_error.$wpdb->last_query.' '.date_i18n('Y-m-d H:i:s')."\n", 3, ABSPATH.'/'.date('Y').'.txt');
 			return;
 		}
-		$sql = 'DELETE FROM '.$wpdb->prefix.'salon_log  WHERE insert_time < %s ';
-		$edit_sql = $wpdb->prepare($sql,$from);
-		if ($wpdb->query($edit_sql) === false ) {
-			error_log('sql error:'.$wpdb->last_error.$wpdb->last_query.' '.date_i18n('Y-m-d H:i:s')."\n", 3, ABSPATH.'/'.date('Y').'.txt');
-			return;
+		if ( !SALON_DEMO ) {
+			$sql = 'DELETE FROM '.$wpdb->prefix.'salon_log  WHERE insert_time < %s ';
+			$edit_sql = $wpdb->prepare($sql,$from);
+			if ($wpdb->query($edit_sql) === false ) {
+				error_log('sql error:'.$wpdb->last_error.$wpdb->last_query.' '.date_i18n('Y-m-d H:i:s')."\n", 3, ABSPATH.'/'.date('Y').'.txt');
+				return;
+			}
 		}
 		$current_time = date_i18n('Y-m-d H:i:s');
 		$sql = 'INSERT INTO '.$wpdb->prefix.'salon_log  (`sql`,remark,insert_time ) VALUES  (%s,%s,%s) ';
@@ -871,7 +873,20 @@ public function example_remove_dashboard_widgets() {
 		}
 		
 		global $wpdb;
+
+
+		$charset_collate = '';
+	
+		if ( ! empty($wpdb->charset) )
+			$charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
+		if ( ! empty($wpdb->collate) )
+			$charset_collate .= " COLLATE $wpdb->collate";
+
+
 		$current = date_i18n('Y-m-d H:i:s');
+		
+		
+		
 
 		//ver 1.2.1 From
 		$wpdb->query("	CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."salon_photo (
@@ -885,7 +900,7 @@ public function example_remove_dashboard_widgets() {
 			`insert_time` DATETIME,
 			`update_time` DATETIME,
 			UNIQUE  (`photo_id`)
-		 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+		 ) ".$charset_collate);
 
 
 		//ver 1.2.1 To
@@ -926,6 +941,23 @@ public function example_remove_dashboard_widgets() {
 				$wpdb->query("UPDATE ".$wpdb->prefix."salon_staff SET  display_sequence = staff_cd ");
 				
 			}
+			//ver 1.4.1
+			//途中でカラムをつくれない場合を考慮して項目毎にチェックする
+			if (! $this->_isExixtColumn("salon_item","exp_from") ) {
+				$wpdb->query("ALTER TABLE ".$wpdb->prefix."salon_item ADD `exp_from` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `display_sequence` ");
+			}
+			if (! $this->_isExixtColumn("salon_item","exp_to") ) {
+				$wpdb->query("ALTER TABLE ".$wpdb->prefix."salon_item ADD `exp_to` datetime NOT NULL DEFAULT '2099-12-31 00:00:00' AFTER `exp_from` ");
+			}
+			if (! $this->_isExixtColumn("salon_item","all_flg") ) {
+				$wpdb->query("ALTER TABLE ".$wpdb->prefix."salon_item ADD `all_flg` int NOT NULL DEFAULT 1 AFTER `exp_to` ");
+			}
+			if (! $this->_isExixtColumn("salon_staff","in_items") ) {
+				$wpdb->query("ALTER TABLE ".$wpdb->prefix."salon_staff ADD `in_items` text AFTER `display_sequence` ");
+				//有効なメニューを設定しとく
+				$this->_set_items();
+				
+			}
 			
 			
 		}
@@ -954,7 +986,7 @@ public function example_remove_dashboard_widgets() {
 								`insert_time`	DATETIME,
 								`update_time`	DATETIME,
 							  PRIMARY KEY  (`reservation_cd`)
-							) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+							) ".$charset_collate);
 	
 			$wpdb->query("	CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."salon_sales (
 								`reservation_cd`	INT not null ,
@@ -973,7 +1005,7 @@ public function example_remove_dashboard_widgets() {
 								`insert_time`	DATETIME,
 								`update_time`	DATETIME,
 							  PRIMARY KEY  (`reservation_cd`)
-							) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+							) ".$charset_collate);
 	
 			$wpdb->query("	CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."salon_customer (
 								`customer_cd`	INT not null AUTO_INCREMENT,
@@ -989,7 +1021,7 @@ public function example_remove_dashboard_widgets() {
 								`insert_time`	DATETIME,
 								`update_time`	DATETIME,
 							  PRIMARY KEY  (`customer_cd`)
-							) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+							) ".$charset_collate);
 	
 	
 			$wpdb->query("	CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."salon_branch (
@@ -1013,7 +1045,7 @@ public function example_remove_dashboard_widgets() {
 								`insert_time`	DATETIME,
 								`update_time`	DATETIME,
 							  PRIMARY KEY  (`branch_cd`)
-							) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+							) ".$charset_collate);
 	
 			$wpdb->query("	CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."salon_staff (
 								`staff_cd`		INT not null AUTO_INCREMENT,
@@ -1029,11 +1061,12 @@ public function example_remove_dashboard_widgets() {
 								`photo`			TEXT default null,
 								`duplicate_cnt`	INT default 0,
 								`display_sequence`		INT default 0,
+								`in_items`			TEXT,
 								`delete_flg`	INT default 0,
 								`insert_time`	DATETIME,
 								`update_time`	DATETIME,
 							  PRIMARY KEY  (`staff_cd`)
-							) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+							) ".$charset_collate);
 	
 	
 			$wpdb->query("	CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."salon_working (
@@ -1047,7 +1080,7 @@ public function example_remove_dashboard_widgets() {
 								`insert_time`	DATETIME,
 								`update_time`	DATETIME,
 							  PRIMARY KEY  (`staff_cd`,`in_time`)
-							) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+							) ".$charset_collate);
 	
 	
 			$wpdb->query("	CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."salon_position (
@@ -1060,7 +1093,7 @@ public function example_remove_dashboard_widgets() {
 								`insert_time`	DATETIME,
 								`update_time`	DATETIME,
 							  PRIMARY KEY  (`position_cd`)
-							) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+							) ".$charset_collate);
 	
 			$wpdb->query("	CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."salon_item (
 								`item_cd`		INT not null AUTO_INCREMENT,
@@ -1074,11 +1107,14 @@ public function example_remove_dashboard_widgets() {
 								`memo`			TEXT,
 								`notes`			TEXT,
 								`display_sequence`		INT default 0,
+								`exp_from`	DATETIME default '0000-00-00 00:00:00' ,
+								`exp_to`	DATETIME default '2099-12-30 00:00:00' ,
+								`all_flg`		INT default 1,
 								`delete_flg`	INT default 0,
 								`insert_time`	DATETIME,
 								`update_time`	DATETIME,
 								PRIMARY KEY (`item_cd`)
-							) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+							) ".$charset_collate);
 	
 			$wpdb->query("	CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."salon_log (
 								`no`		INT not null AUTO_INCREMENT,
@@ -1086,13 +1122,13 @@ public function example_remove_dashboard_widgets() {
 								`remark`		TEXT,
 								`insert_time`	DATETIME,
 							  PRIMARY KEY  (`no`)
-							) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+							) ".$charset_collate);
 	
 
 			
 			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_branch VALUES (".Salon_Default::BRANCH_CD.",'".__('SAMPLE SHOP NAME',SL_DOMAIN)."','100-0001','".__('SAMPLE SHOOP ADDRESS',SL_DOMAIN)."','223456789','mail@1.com','REMARK','MEMO','NOTES','1000','1900','2','',30,1,0,%s,%s);",$current,$current));
-			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_item VALUES (1,'".__('SAMPLE MENU CUT',SL_DOMAIN)."',".Salon_Default::BRANCH_CD.",'".__('SAMPLE MENU CUT',SL_DOMAIN)."',".__('30,50',SL_DOMAIN).",null,null,null,null,1,0,%s,%s);",$current,$current));
-			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_item VALUES (2,'".__('SAMPLE MENU PERM',SL_DOMAIN)."',".Salon_Default::BRANCH_CD.",'".__('SAMPLE MENU PERM',SL_DOMAIN)."',".__('90,100',SL_DOMAIN).",null,null,null,null,2,0,%s,%s);",$current,$current));
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_item VALUES (1,'".__('SAMPLE MENU CUT',SL_DOMAIN)."',".Salon_Default::BRANCH_CD.",'".__('SAMPLE MENU CUT',SL_DOMAIN)."',".__('30,50',SL_DOMAIN).",null,null,null,null,1,'0000-00-00 00:00:00','2099-12-30 00:00:00',1,0,%s,%s);",$current,$current));
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_item VALUES (2,'".__('SAMPLE MENU PERM',SL_DOMAIN)."',".Salon_Default::BRANCH_CD.",'".__('SAMPLE MENU PERM',SL_DOMAIN)."',".__('90,100',SL_DOMAIN).",null,null,null,null,2,'0000-00-00 00:00:00','2099-12-30 00:00:00',1,0,%s,%s);",$current,$current));
 			//インストールしたユーザを割り当てる
 			$current_user = wp_get_current_user();
 			
@@ -1106,8 +1142,10 @@ public function example_remove_dashboard_widgets() {
 			if (empty($mobile)) update_user_meta( $current_user->ID, 'mobile',__('999-999-999',SL_DOMAIN));
 	
 			
-			$staff_cd = $wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_staff (user_login,branch_cd,position_cd,remark,memo,notes,insert_time,update_time) VALUES ('".$current_user->user_login."',".Salon_Default::BRANCH_CD.",7,'remark','memo','notes',%s,%s);",$current,$current));  
-					
+			$staff_cd = $wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_staff (user_login,branch_cd,position_cd,remark,memo,notes,in_items,insert_time,update_time) VALUES ('".$current_user->user_login."',".Salon_Default::BRANCH_CD.",7,'remark','memo','notes','1,2',%s,%s);",$current,$current));  
+			//ver 1.4.1					
+			$this->_set_items();
+			//
 			update_option('salon_initial_user', $staff_cd);
 			if (defined ( 'SALON_DEMO' ) && SALON_DEMO   ) {
 				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (1,'".__('PRESIDENT',SL_DOMAIN)."','contributor','edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all','',0,%s,%s);",$current,$current));
@@ -1127,7 +1165,6 @@ public function example_remove_dashboard_widgets() {
 				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (6,'".__('TEMPORARY',SL_DOMAIN)."','contributor','edit_reservation,edit_sales','',0,%s,%s);",$current,$current));
 				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (".Salon_Position::MAINTENANCE.",'".__('MAINTENANCE',SL_DOMAIN)."','administrator','edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all,edit_log','".__('this data can not delete or update',SL_DOMAIN)."',0,%s,%s);",$current,$current));
 			}
-					
 			
 			$holiday = '';
 			if (defined ( 'WPLANG' ) && file_exists(SL_PLUGIN_DIR.'/lang/holiday-'.WPLANG.'.php') )require_once(SL_PLUGIN_DIR.'/lang/holiday-'.WPLANG.'.php');
@@ -1141,6 +1178,42 @@ public function example_remove_dashboard_widgets() {
 		
 	}
 
+	//ver 1.4.1					
+	private function _set_items (){
+		global $wpdb;
+		$sql = 'SELECT branch_cd,item_cd FROM '.$wpdb->prefix.'salon_item WHERE delete_flg <> '.Salon_Reservation_Status::DELETED.' ORDER BY branch_cd,item_cd ';
+		if ($wpdb->query($sql) === false ) {
+			error_log('sql error:'.$wpdb->last_error.$wpdb->last_query.' '.date_i18n('Y-m-d H:i:s')."\n", 3, ABSPATH.'/'.date('Y').'.txt');
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+		if (count($result) > 0 ) {
+			$save_branch_cd = $result[0]['branch_cd'];
+			$tmp_item_cds = array();
+			$set_possible_item = array();
+			foreach ($result as $k1 => $d1 ) {
+				if ($save_branch_cd != $d1['branch_cd'] ) {
+					$set_possible_item[$save_branch_cd] = implode(',', $tmp_item_cds);
+					$tmp_item_cds = array();
+				}
+				$tmp_item_cds[] = $d1['item_cd'];
+				$save_branch_cd = $d1['branch_cd'];
+			}
+			$set_possible_item[$save_branch_cd] = implode(',', $tmp_item_cds);
+
+			$sql = "UPDATE ".$wpdb->prefix."salon_staff SET  in_items = %s WHERE branch_cd = %d ";
+			
+			foreach($set_possible_item as $k1 => $d1) {
+				$result = $wpdb->query($wpdb->prepare($sql,$d1,$k1));
+				if ($result === false ) {
+					error_log('sql error:'.$wpdb->last_error.$wpdb->last_query.' '.date_i18n('Y-m-d H:i:s')."\n", 3, ABSPATH.'/'.date('Y').'.txt');
+				}
+			}
+
+		}
+	}
+	//ver 1.4.1					
 
 	public function salon_deactivation() {
 		wp_clear_scheduled_hook('salon_daily_event');

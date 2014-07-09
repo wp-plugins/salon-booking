@@ -76,7 +76,9 @@ class Staff_Col_Edit extends Salon_Page {
 	}
 
 	public function show_page() {
+		
 		echo '{	"status":"Ok","message":"'.Salon_Component::getMsg('N001').'",
+				"in_items":"'.@$this->table_data['in_items'].'",
 				"set_data":'.json_encode(htmlspecialchars($this->table_data['value'],ENT_QUOTES)).' }';
 	}
 

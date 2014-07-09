@@ -666,7 +666,7 @@
 
 
 #data_detail .sl_checkbox label{
-	font-weight:bold;
+	font-weight:normal; 
 	text-align:left;
 	width:20px;
 }
@@ -844,6 +844,7 @@ label#mail_lbl  {
 	float:left;
 }
 
+
 .config_item_inline_input {
 	display:inline !important;
 	float:none !important;
@@ -1002,6 +1003,10 @@ label#mail_lbl  {
     display: inline-block;
     vertical-align: middle;
     margin-right: 0.3em;
+}
+
+#all_flg {
+	width:15px !important;
 }
 
 /*

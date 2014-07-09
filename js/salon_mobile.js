@@ -23,6 +23,7 @@ slmSchedule.setEventDetail = function(ev,detail) {
 	this._events[ev]["name"] = detail[3];
 	this._events[ev]["tel"] = detail[4];
 	this._events[ev]["mail"] = detail[5];
+	this._events[ev]["user_login"] = detail[6];
 }
 
 slmSchedule.chkHoliday = function(yyyymmdd) {

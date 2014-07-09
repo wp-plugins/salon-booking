@@ -23,6 +23,10 @@ class Item_Edit extends Salon_Page {
 		 $this->table_data['item_cd'] = $item_cd;
 	}
 
+	public function get_item_cd() {
+		return $this->table_data['item_cd'];
+	}
+
 	public function get_branch_cd() {
 		return $this->table_data['branch_cd'];
 	}
@@ -37,7 +41,7 @@ class Item_Edit extends Salon_Page {
 		}
 		$msg = null;
 		if ($_POST['type'] != 'deleted' ) {
-			if (Salon_Page::serverCheck(array('item_name','short_name','branch_cd','minute','price','remark'),$msg) == false) {
+			if (Salon_Page::serverCheck(array('item_name','short_name','branch_cd','minute','price','remark','exp_from','exp_to'),$msg) == false) {
 				throw new Exception($msg );
 			}
 		}
@@ -66,6 +70,9 @@ class Item_Edit extends Salon_Page {
 			$res['remark'] = htmlspecialchars($this->table_data['remark'],ENT_QUOTES);
 			$res['photo'] = $this->table_data['photo'];
 			$res['display_sequence'] = $this->table_data['display_sequence'];
+			$res['exp_from'] = $this->table_data['exp_from'];
+			$res['exp_to'] = $this->table_data['exp_to'];
+			$res['all_flg'] = $this->table_data['all_flg'];
 		}
 		
 		

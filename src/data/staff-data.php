@@ -13,7 +13,7 @@ class Staff_Data extends Salon_Data {
 	
 
 	public function insertTable ($table_data){
-		$staff_cd = $this->insertSql(self::TABLE_NAME,$table_data,'%d,%d,%d,%s,%s,%s,%s,%s,%s,%s,%s');
+		$staff_cd = $this->insertSql(self::TABLE_NAME,$table_data,'%d,%d,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s');
 		if ($staff_cd === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
@@ -31,6 +31,7 @@ class Staff_Data extends Salon_Data {
 						' user_login =  %s , '.
 						' employed_day =  %s , '.
 						' leaved_day =  %s , '.
+						' in_items = %s , '.
 						' update_time = %s ';
 												
 		$set_data_temp = array(
@@ -43,6 +44,7 @@ class Staff_Data extends Salon_Data {
 						$table_data['user_login'],
 						$table_data['employed_day'],
 						$table_data['leaved_day'],
+						$table_data['in_items'],
 						date_i18n('Y-m-d H:i:s'),
 						$table_data['staff_cd']);
 		$where_string = ' staff_cd = %d ';
@@ -52,12 +54,22 @@ class Staff_Data extends Salon_Data {
 		return true;
 	}
 	
-	public function updateColumn($table_data){
+	public function updateColumn(&$table_data){
+		//[2014/06/22]店舗を変更した場合は、メニュー内容を該当店舗のデフォルトに変更する
+		$set_string = "";
+		$set_data_temp = array();
+		if ($_POST['column'] == 4 ) {
+			$set_string  =  'in_items = %s ,';
+			$set_data_temp[] = parent::getItemCdByBranch($table_data['value']);
+			$table_data['in_items'] = $set_data_temp[0];
+		}
+
+
 		
-		$set_string = 	$table_data['column_name'].' , '.
+		$set_string .= 	$table_data['column_name'].' , '.
 								' update_time = %s ';
 														
-		$set_data_temp = array($table_data['value'],
+		array_push($set_data_temp,$table_data['value'],
 						date_i18n('Y-m-d H:i:s'),
 						$table_data['staff_cd']);
 		$where_string = ' staff_cd = %d ';
@@ -70,6 +82,9 @@ class Staff_Data extends Salon_Data {
 			$role = $this->_getRoleByPosition($table_data['value']);
 			update_user_meta( $table_data['ID'], $wpdb->prefix.'capabilities',array($role=>"1") );
 		}
+
+		
+		
 		
 		
 	}
@@ -106,7 +121,8 @@ class Staff_Data extends Salon_Data {
 		$sql = 'SELECT us.ID,us.user_login,um.* ,us.user_email,'.
 				'        st.staff_cd,st.branch_cd,st.position_cd,st.remark,st.memo,st.notes,st.photo, st.duplicate_cnt, '.
 				'        DATE_FORMAT(st.employed_day, "'.__("%m/%d/%Y",SL_DOMAIN).'")  as employed_day,'.
-				'        DATE_FORMAT(st.leaved_day, "'.__("%m/%d/%Y",SL_DOMAIN).'")  as leaved_day ,display_sequence'.
+				'        DATE_FORMAT(st.leaved_day, "'.__("%m/%d/%Y",SL_DOMAIN).'")  as leaved_day ,display_sequence,'.
+				'        in_items '.
 				' FROM '.$wpdb->prefix.'users us  '.
 				' INNER JOIN '.$wpdb->prefix.'usermeta um  '.
 				'       ON    us.ID = um.user_id '.

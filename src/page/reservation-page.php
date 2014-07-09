@@ -262,7 +262,7 @@ EOT;
 			var check_array ;
 			var is_normal = true;
 			if ( ! checkItem("data_detail","time_from_aft,time_to_aft") ) is_normal = false;
-			if ($j("#time_from_aft").val()  == -1) {
+			if (!$j("#time_from_aft").val() ) {
 				fnDisplayErrorLabel("target_day_lbl","<?php _e("please input start time",SL_DOMAIN); ?>");
 				return false;
 			}

@@ -106,7 +106,11 @@ abstract class Salon_Data {
 		}
 		
 		$add_where .= ' AND it.branch_cd = br.branch_cd ';
-		$sql = ' SELECT it.*,br.name as branch_name FROM '.$wpdb->prefix.'salon_item it , '.$wpdb->prefix.'salon_branch br '.$add_where.' ORDER BY branch_cd,display_sequence,item_cd ';
+		$sql = ' SELECT it.*'.
+			//[2014/06/22]Ver1.4.1
+					',DATE_FORMAT(exp_from,"'.__("%m/%d/%Y",SL_DOMAIN).'") as exp_from '.
+					',DATE_FORMAT(exp_to,"'.__("%m/%d/%Y",SL_DOMAIN).'") as exp_to '.
+					',br.name as branch_name FROM '.$wpdb->prefix.'salon_item it , '.$wpdb->prefix.'salon_branch br '.$add_where.' ORDER BY branch_cd,display_sequence,item_cd ';
 		$result = $wpdb->get_results($sql,ARRAY_A);
 		if ($result === false ) {
 			$this->_dbAccessAbnormalEnd();
@@ -124,13 +128,76 @@ abstract class Salon_Data {
 		}
 		return $result;
 	}
+
+	public function getAllItemDataForSet(){
+		global $wpdb;
+		//過去データは不要
+		$sql = $wpdb->prepare(' SELECT branch_cd, item_cd , name,short_name,all_flg '.
+			   ' FROM '.$wpdb->prefix.'salon_item  '.
+			   ' WHERE delete_flg <> '.Salon_Reservation_Status::DELETED.
+			   ' AND exp_to > %s '.
+			   ' ORDER BY branch_cd,display_sequence,item_cd ',date_i18n('Ymd'));
+		if ($wpdb->query($sql) === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+		//支店単位にまとめる
+		$edit_result = array();
+		if (count($result) > 0 ) {
+			$save_branch_cd = $result[0]['branch_cd'];
+			$temp_array = array();
+			foreach($result as $k1 => $d1) {
+				if ($save_branch_cd <> $d1['branch_cd']) {
+					$edit_result[$save_branch_cd] = $temp_array;
+					$temp_array = array();
+				}
+				$temp_array[] = $d1;
+				$save_branch_cd = $d1['branch_cd'];
+			}
+			$edit_result[$save_branch_cd] = $temp_array;
+		}
+		return $edit_result;
+	}
+
+	public function getItemCdByBranch($branch_cd) {
+		global $wpdb;
+		
+		//過去データは不要
+		$sql = $wpdb->prepare(' SELECT item_cd '.
+			   ' FROM '.$wpdb->prefix.'salon_item  '.
+			   ' WHERE delete_flg <> '.Salon_Reservation_Status::DELETED.
+			   ' AND exp_to > %s '.
+			   ' AND branch_cd = %d '.
+			   ' ORDER BY branch_cd,display_sequence,item_cd ',date_i18n('Ymd'),$branch_cd);
+		if ($wpdb->query($sql) === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+		//一つの項目にまとめる
+		$edit_result = array();
+		if (count($result) > 0 ) {
+			foreach($result as $k1 => $d1) {
+				$edit_result[] = $d1['item_cd'];
+			}
+		}
+		return implode(',',$edit_result);
+	}
 	
 	public function getTargetItemData($branch_cd,$except_delete = true){
 		global $wpdb;
 		$delete_str = ' delete_flg <> '.Salon_Reservation_Status::DELETED;
 		if (! $except_delete ) $delete_str = '1=1';
-		$sql = ' SELECT item_cd,name,short_name,minute,price FROM '.$wpdb->prefix.'salon_item where '.$delete_str.' and branch_cd = %d  ORDER BY branch_cd,display_sequence,item_cd ';
-		$result = $wpdb->get_results($wpdb->prepare($sql,$branch_cd),ARRAY_A);
+		$sql = ' SELECT item_cd,name,short_name,minute,price ,DATE_FORMAT(exp_from,"%%Y%%m%%d") as exp_from,DATE_FORMAT(exp_to,"%%Y%%m%%d") as exp_to'.
+			   ' FROM '.$wpdb->prefix.'salon_item '.
+			   ' WHERE '.$delete_str.
+			   ' AND exp_to > %s '.
+			   ' AND branch_cd = %d  '.
+			   ' ORDER BY branch_cd,display_sequence,item_cd ';
+		$result = $wpdb->get_results($wpdb->prepare($sql,date_i18n('Ymd'),$branch_cd),ARRAY_A);
 		if ($result === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
@@ -152,6 +219,7 @@ abstract class Salon_Data {
 		}
 		
 		$sql = 	' SELECT staff_cd,concat('.$name_order.') as name , photo , remark , duplicate_cnt,position_cd,display_sequence'.
+				' ,in_items '.
 				' FROM '.$wpdb->prefix.'salon_staff st  '.
 				' INNER JOIN '.$wpdb->prefix.'users us  '.
 				'       ON    us.user_login = st.user_login '.
@@ -965,8 +1033,12 @@ abstract class Salon_Data {
 		foreach ($result as  $d1) {
 			$files = array($d1['photo_path'],$d1['photo_resize_path']);
 			foreach ($files as $d2) {
-				if ( ! unlink(SALON_UPLOAD_DIR.basename($d2)) ) {
-					throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__),__('PHOTO DATA CAN\'T DELETE',SL_DOMAIN));
+				if ( ! @unlink(SALON_UPLOAD_DIR.basename($d2)) ) {
+					//エラーを返しても消えたのがどうなるわけでもないのでログに書き留めておく
+					//throw new Exception(Salon_Component::getMsg('E901',__('PHOTO DATA CAN\'T DELETE',SL_DOMAIN).' -> '.SALON_UPLOAD_DIR.basename($d2).' '.basename(__FILE__).':'.__LINE__));
+					error_log(Salon_Component::getMsg('E901',__('PHOTO DATA CAN\'T DELETE',SL_DOMAIN).' -> '.SALON_UPLOAD_DIR.basename($d2).' '.basename(__FILE__).':'.__LINE__).' '.date_i18n('Y-m-d H:i:s')."\n", 3, ABSPATH.'/'.date('Y').'.txt');
+
+					
 				}
 			}
 		}

@@ -13,18 +13,20 @@ class Staff_Page extends Salon_Page {
 	private $position_datas = null;
 	
 	private $config_datas = null;
+	
+	private $item_datas = null;
 
 	function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch);
 		if ($is_multi_branch ) {
 			$this->branch_column = 4;
 			$this->position_column = 5;
-			$this->set_items = array('first_name','last_name','branch_cd','position_cd','zip','address','tel','mobile','mail','user_login','remark','employed_day','leaved_day','duplicate_cnt_staff');
+			$this->set_items = array('first_name','last_name','branch_cd','position_cd','zip','address','tel','mobile','mail','user_login','remark','employed_day','leaved_day','duplicate_cnt_staff','item_cds_set');
 		}
 		else {
 			$this->branch_column = 3;
 			$this->position_column = 4;
-			$this->set_items = array('first_name','last_name','position_cd','zip','address','tel','mobile','mail','user_login','remark','employed_day','leaved_day','duplicate_cnt_staff');
+			$this->set_items = array('first_name','last_name','position_cd','zip','address','tel','mobile','mail','user_login','remark','employed_day','leaved_day','duplicate_cnt_staff','item_cds_set');
 		}
 
 	}
@@ -43,6 +45,10 @@ class Staff_Page extends Salon_Page {
 
 	public function set_config_datas($config_datas) {
 		$this->config_datas = $config_datas;
+	}
+	
+	public function set_item_datas($item_datas) {
+		$this->item_datas = $item_datas;
 	}
 
 
@@ -161,6 +167,16 @@ class Staff_Page extends Salon_Page {
 				}
 
 			});
+			
+			
+			
+			<?php if ($this->is_multi_branch ): //複数店舗の場合は、該当支店のみ有効にする?>
+				$j("#branch_cd").change(function() {
+					_checkEnableItems();
+				});
+			<?php endif ?>
+			
+			
 
 			<?php parent::echoCommonButton();			//共通ボタン	?>
 						
@@ -180,7 +196,9 @@ class Staff_Page extends Salon_Page {
 				  aoData.push( { "name": "menu_func","value":"Staff_Init" } )
 				},
 				"fnDrawCallback": function () {
-					<?php parent::echoEditableCommon("staff",array("ID","first_name","last_name")); ?>
+					<?php
+						parent::echoEditableCommon("staff",array("ID","first_name","last_name"),'var setData = target.fnSettings();var position = target.fnGetPosition( td );if (!setData["aoData"][position[0]]["_aData"]["staff_cd"]) { alert("'.__('this user not registerd',SL_DOMAIN).'"); return false; }'); 
+					?>
 				},
 				fnRowCallback: function( nRow, aData, iDisplayIndex, iDataIndex ) {	
 					<?php parent::echoDataTableSelecter("first_name",false); ?>
@@ -208,6 +226,8 @@ class Staff_Page extends Salon_Page {
 
 
 		});
+
+
 		<?php parent::echoDataTableSeqUpdateRow("staff","staff_cd",$this->is_multi_branch); ?>	//[20131110]ver 1.3.1 
 <?php //taregt_colはtdが前提 ?>		
 		function fnSelectRow(target_col) {
@@ -237,7 +257,7 @@ class Staff_Page extends Salon_Page {
 			save_k1 = position[0];
 			$j("#last_name").val(htmlspecialchars_decode(setData['aoData'][position[0]]['_aData']['last_name']));	
 			$j("#first_name").val(htmlspecialchars_decode(setData['aoData'][position[0]]['_aData']['first_name']));	
-			$j("#branch_cd").val(setData["aoData"][position[0]]["_aData"]["branch_cd"]);
+			$j("#branch_cd").val(setData["aoData"][position[0]]["_aData"]["branch_cd"]).change();
 			$j("#position_cd").val(setData['aoData'][position[0]]['_aData']['position_cd']);	
 			$j("#address").val(htmlspecialchars_decode(setData['aoData'][position[0]]['_aData']['address']));	
 			$j("#user_login").val(setData['aoData'][position[0]]['_aData']['user_login']);	
@@ -277,10 +297,29 @@ class Staff_Page extends Salon_Page {
 				
 			}
 			$j(".lightbox").colorbox({rel:"staffs",width:"<?php echo SALON_COLORBOX_SIZE; ?>", height:"<?php echo SALON_COLORBOX_SIZE; ?>"});
+			
+			//[2014/06/22]
+			var items_array = Array();
+			if (setData['aoData'][position[0]]['_aData']['in_items'])
+				items_array = setData['aoData'][position[0]]['_aData']['in_items'].split(",");
+			
+			$j("#sl_tb_items_"+$j("#branch_cd").val()+" .sl_items_set").attr("checked",false);
+			
+			for (var i = 0; i < items_array.length; i++) {
+				$j("#check_"+items_array[i]).attr("checked",true);	
+			}
+
+				
+			
 
 		}
 
-		<?php parent::echoDataTableEditColumn("staff","ID"); ?>
+		<?php
+		$add_callback_process = ""; 
+		if ($this->is_multi_branch ) $add_callback_process = " if (position[2] == ".$this->branch_column." ) setData['aoData'][position[0]]['_aData']['in_items'] = data.in_items;";
+		?>
+
+		<?php parent::echoDataTableEditColumn("staff","ID",$add_callback_process,'if (!target_cd) { alert("'.__('this user not registerd',SL_DOMAIN).'"); return false; }'); ?>
 		<?php parent::echoDataTableDeleteRow("staff","staff",false); ?>
 
 		function _getFileName(file_path) {  
@@ -330,7 +369,14 @@ class Staff_Page extends Salon_Page {
 			}
 			var used_photo = used_photo_id_array.join(",");
 
-
+			<?php //items ?>
+			var tmp_items = Array();
+			$j(".sl_items_set").each(function() {
+				if ( $j(this).is(":checked") ) {
+					tmp_items.push( $j(this).val() );
+				}
+			});
+			
 
 		<?php if ($this->is_multi_branch == false ) : //for only_branch ?>
 			if (operate  =="inserted") $j("#branch_cd").val("<?php echo $this->get_default_brandh_cd();?>");
@@ -359,6 +405,7 @@ class Staff_Page extends Salon_Page {
 						"mail":$j("#mail").val(),	
 						"employed_day":$j("#employed_day").val(),
 						"leaved_day":$j("#leaved_day").val(),
+						"item_cds":tmp_items.join(","),
 						"menu_func":"Staff_Edit",
 						"nonce":"<?php echo $this->nonce; ?>",
 						"display_sequence":display_sequence,
@@ -404,6 +451,10 @@ class Staff_Page extends Salon_Page {
 			
 			$j("#duplicate_cnt").val("0");
 			
+			<?php if ($this->is_multi_branch ): ?>
+				_checkEnableItems();
+			<?php endif ?>
+			
 			fnPhotoClear();
 			save_k1 = "";
 			save_user_login_old = "";
@@ -412,13 +463,29 @@ class Staff_Page extends Salon_Page {
 
 		}
 		
+		function _checkEnableItems() {
+			$j(".sl_items_set").attr("disabled",true);
+			$j(".sl_items_set").attr("checked",false);
+			//クリアしたときのみ、デフォルト状態を設定する。
+			if ($j("#branch_cd").val()) {
+				$j("#sl_tb_items_"+$j("#branch_cd").val()+" .sl_items_set").each(function() {
+					$j(this).attr("checked",false);
+					if( $j(this).next().val() == <?php echo Salon_Config::ALL_ITEMS_YES; ?> ){
+						$j(this).attr("checked",true);
+					}
+					
+				});
+				$j("#sl_tb_items_"+$j("#branch_cd").val()+" .sl_items_set").attr("disabled",false);
+			}
+		}
+		
 		function fnPhotoClear (){
 			$j("#image_drop_area").empty();
 			$j("#image_drop_area").append("<div class=\"drag-drop-info\"><?php _e('Photos of staff member.<br> Drop files here or click here and select files',SL_DOMAIN);?></div>");
 		}
 
 
-	<?php parent::echoCheckClinet(array('chk_required','zenkaku','chkZip','chkTel','chkMail','chkTime','chkDate','lenmax','reqOther','num')); ?>		
+	<?php parent::echoCheckClinet(array('chk_required','zenkaku','chkZip','chkTel','chkMail','chkTime','chkDate','lenmax','reqOther','num','reqCheck')); ?>		
 	<?php parent::echoColumnCheck(array('chk_required','lenmax')); ?>		
 
 	</script>
@@ -460,6 +527,7 @@ class Staff_Page extends Salon_Page {
 		?>
 		</select>
 		<input type="text" id="duplicate_cnt" />
+		<?php parent::echoItemInputCheckTableForSet($this->item_datas,$this->is_multi_branch); ?>
 		<input type="text" id="zip"/>
 		<textarea id="address" ></textarea>
 		<input type="text" id="tel"/>

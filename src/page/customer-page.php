@@ -71,7 +71,7 @@ class Customer_Page extends Salon_Page {
 				  aoData.push( { "name": "menu_func","value":"Customer_Init" } )
 				},
 				"fnDrawCallback": function () {
-					<?php parent::echoEditableCommon("customer",array("ID","first_name","last_name")); ?>
+					<?php parent::echoEditableCommon("customer",array("ID","first_name","last_name"),'var setData = target.fnSettings();var position = target.fnGetPosition( td );if (!setData["aoData"][position[0]]["_aData"]["customer_cd"]) { alert("'.__('this user not registerd',SL_DOMAIN).'"); return false; }'); ?>
 				},
 <?php	//iDisplayIndexFullがデータ上のindexでidisplayIndexがページ上のindexとなる　?>
 		//aDataが実際のデータで、nRowがTrオブジェクト
@@ -137,7 +137,8 @@ class Customer_Page extends Salon_Page {
 
 		}
 
-		<?php parent::echoDataTableEditColumn("customer","ID"); ?>
+	
+		<?php parent::echoDataTableEditColumn("customer","ID","",'if (!target_cd) { alert("'.__('this user not registerd',SL_DOMAIN).'"); return false; }'); ?>
 		<?php parent::echoDataTableDeleteRow("customer","customer",false); ?>
 
 		function fnClickAddRow(operate) {

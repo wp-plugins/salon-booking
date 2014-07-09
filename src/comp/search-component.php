@@ -33,8 +33,8 @@ class Search_Component {
 				else {
 					if ( $this->_setSearchCustomerDataEditTr($keys['name'],$d1['first_name'].' '.$d1['last_name'],$tr) ) $is_exist = true;
 				}
-				if ( $this->_setSearchCustomerDataEditTr($keys['tel'],$d1['tel'],$tr) ) $is_exist = true;
-				if ( $this->_setSearchCustomerDataEditTr($keys['tel'],$d1['mobile'],$tr) ) $is_exist = true;
+				if ( isset($d1['tel']) && $this->_setSearchCustomerDataEditTr($keys['tel'],$d1['tel'],$tr) ) $is_exist = true;
+				if ( isset($d1['mobile']) && $this->_setSearchCustomerDataEditTr($keys['tel'],$d1['mobile'],$tr) ) $is_exist = true;
 				if ( $this->_setSearchCustomerDataEditTr($keys['mail'],$d1['mail'],$tr) ) $is_exist = true;
 				if ($is_exist) {
 					$cnt++;

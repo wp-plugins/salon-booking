@@ -59,6 +59,7 @@ class Staff_Component {
 			$edit[$index]['employed_day'] = $result[$i]['employed_day'];
 			$edit[$index]['leaved_day'] = $result[$i]['leaved_day'];
 			$edit[$index]['display_sequence'] = $result[$i]['display_sequence'];
+			$edit[$index]['in_items'] = $result[$i]['in_items'];
 			
 			$save_key = $result[$i]['ID'];
 		}
@@ -82,16 +83,18 @@ class Staff_Component {
 				$result_after[$index]['notes'] = $d1['notes'];
 				$result_after[$index]['first_name'] = $d1['first_name'];
 				$result_after[$index]['last_name'] = $d1['last_name'];
-				$result_after[$index]['zip'] = $d1['zip'];
-				$result_after[$index]['address'] = $d1['address'];
-				$result_after[$index]['tel'] = $d1['tel'];
-				$result_after[$index]['mobile'] = $d1['mobile'];
+				$result_after[$index]['zip'] = @$d1['zip'];
+				$result_after[$index]['address'] = @$d1['address'];
+				$result_after[$index]['tel'] = @$d1['tel'];
+				$result_after[$index]['mobile'] = @$d1['mobile'];
 				$result_after[$index]['position_cd'] = $d1['position_cd'];
 				$result_after[$index]['photo'] = $d1['photo'];
 				$result_after[$index]['duplicate_cnt'] = $d1['duplicate_cnt'];
 				$result_after[$index]['employed_day'] = $d1['employed_day'];
 				$result_after[$index]['leaved_day'] = $d1['leaved_day'];
 				$result_after[$index]['display_sequence'] = $d1['display_sequence'];
+				$result_after[$index]['in_items'] = $d1['in_items'];
+				
 				$index++;
 			}
 		}
@@ -109,6 +112,7 @@ class Staff_Component {
 			if (empty($d1['address'] ) ) $result_after[$k1]['address'] = __('address',SL_DOMAIN).__('not registered',SL_DOMAIN);
 //			if (empty($d1['tel'] ) ) $result_after[$k1]['tel'] = __('tel',SL_DOMAIN).__('not registered',SL_DOMAIN);
 //			if (empty($d1['mobile'] ) ) $result_after[$k1]['mobile'] = __('mobile',SL_DOMAIN).__('not registered',SL_DOMAIN);
+			if (SALON_DEMO) $result_after[$k1]['user_login'] = 'SALON DEMO';
 			if (empty($d1['branch_cd'] ) ) {
 				$result_after[$k1]['branch_name'] = __('not registered',SL_DOMAIN);
 			}
@@ -212,6 +216,8 @@ class Staff_Component {
 			if (!empty($_POST['employed_day'])) $set_data['employed_day'] = Salon_Component::editRequestYmdForDb($_POST['employed_day']);
 			$set_data['leaved_day'] = '';
 			if (!empty($_POST['leaved_day'])) $set_data['leaved_day'] = Salon_Component::editRequestYmdForDb($_POST['leaved_day']);
+			//[2014/06/22]
+			$set_data['in_items'] = stripslashes($_POST['item_cds']);
 		}
 		return $set_data;
 		
@@ -276,7 +282,8 @@ class Staff_Component {
 				$set_data['is_need_update_role']=true;
 			}
 		}
-		$set_data['ID'] = intval($_POST['ID']);		
+		$set_data['ID'] = intval($_POST['ID']);
+				
 		return $set_data;
 	}
 	
