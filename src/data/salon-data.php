@@ -35,6 +35,7 @@ abstract class Salon_Data {
 		
 		if (empty($result['SALON_CONFIG_MOBILE_USE']) ) $result['SALON_CONFIG_MOBILE_USE']  = Salon_Config::MOBILE_USE_YES;
 		if (empty($result['SALON_CONFIG_MOBILE_NO_PHOTO']) ) $result['SALON_CONFIG_MOBILE_NO_PHOTO']  = "";
+		if (empty($result['SALON_CONFIG_LOAD_TAB']) ) $result['SALON_CONFIG_LOAD_TAB']  = Salon_Config::LOAD_STAFF;
 		
 		$this->config = $result;
 	}
@@ -620,18 +621,48 @@ abstract class Salon_Data {
 	
 
 	public function setUserId ($user_datas) {
+		global $wpdb;
 		
 		if (empty($user_datas['ID']) ) {
+
+			$user_login  = $user_datas['user_login'];
+			
+			$sql = $wpdb->prepare('SELECT count(*) as cnt'.
+					' FROM '.$wpdb->prefix.'users '.
+					' WHERE user_login = %s ',$user_login);
+
+			if ($wpdb->query($sql) === false ) {
+				$this->_dbAccessAbnormalEnd();
+			}
+			else {
+				$result = $wpdb->get_results($sql,ARRAY_A);
+			}
+			if ($result[0]['cnt'] <> 0 ) {
+				throw new Exception(Salon_Component::getMsg('W003',""),1);
+			}
+			if (empty($user_datas['mail']) ){
+				if (!empty($user_datas['tel']) ) {
+					$user_datas['mail'] = str_replace('-','',$user_datas['tel']).self::SALON_DUMMY_DOMAIN;
+				}
+				else {
+					if (!empty($user_datas['mobile']) ) {
+						$user_datas['mail'] = str_replace('-','',$user_datas['mobile']).self::SALON_DUMMY_DOMAIN;
+					}
+					else {
+						throw new Exception((Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__)));				
+					}
+				}
+			}
+			
 			$user_id = wp_create_user( $user_datas['user_login'], $user_datas['user_login'], $user_datas['mail'] );
 			if ( ! empty($user_id->errors) ) {
-				$edit_msg = '';
-				foreach ($user_id->errors as $k1 => $d1 ) {
-					$edit_msg = $d1[0].'('.$k1.')';
-				}
-				throw new Exception((Salon_Component::getMsg('E903',$edit_msg)));				
+				throw new Exception(Salon_Component::getMsg('W004',""),1);
 			}
 		}
 		else {
+			if (empty($user_datas['mail']) || empty($user_datas['user_login']) ) {
+				throw new Exception((Salon_Component::getMsg('E901',$edit_msg)));				
+			}
 			$user_id = intval($user_datas['ID']);
 			$set_data_user['ID'] = $user_id;
 			$set_data_user['user_email'] =  $user_datas['mail'];

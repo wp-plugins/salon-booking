@@ -43,7 +43,7 @@ class Customer_Page extends Salon_Page {
 
 		var target;
 		var save_k1 = "";
-		var save_user_login_old = "";
+<?php //		var save_user_login_old = ""; ?>
 		
 		<?php parent::echoClientItem($this->set_items); //for only_branch?>	
 		<?php Salon_Country::echoZipTable(); //for only_branch?>	
@@ -91,9 +91,6 @@ class Customer_Page extends Salon_Page {
 
 			});
 
-
-
-
 		});
 <?php //taregt_colはtdが前提 ?>		
 		function fnSelectRow(target_col) {
@@ -127,11 +124,14 @@ class Customer_Page extends Salon_Page {
 				$j("#button_update").attr("disabled","disabled");
 			}
 			$j("#button_clear").show();
-			save_user_login_old = setData['aoData'][position[0]]['_aData']['user_login'];
+<?php //	save_user_login_old = setData['aoData'][position[0]]['_aData']['user_login']; ?>
 			$j("#user_login").val(setData['aoData'][position[0]]['_aData']['user_login']);	
 
 			$j("#data_detail").show();
 			$j("#button_detail").val("<?php _e('Hide Details',SL_DOMAIN); ?>");
+
+			$j("#mail").attr("readonly", true);
+			$j("#user_login").attr("readonly", true);
 
 
 
@@ -148,9 +148,12 @@ class Customer_Page extends Salon_Page {
 			if ( save_k1 !== "" ) {
 				var setData = target.fnSettings();
 				customer_cd = setData['aoData'][save_k1]['_aData']['customer_cd'];
+<?php /*?>
 				if ( save_user_login_old == $j("#user_login").val()  ) {
 					ID = setData['aoData'][save_k1]['_aData']['ID']; 
 				}
+<?php */?>			
+				ID = setData['aoData'][save_k1]['_aData']['ID']; 
 			}
 		<?php if ($this->is_multi_branch == false ) : //for only_branch ?>
 			if (operate  =="inserted") $j("#branch_cd").val("<?php echo $this->get_default_brandh_cd();?>");
@@ -186,7 +189,8 @@ class Customer_Page extends Salon_Page {
 						else {
 
 <?php //[TODO]salonのみの追加＝WPで登録のみの追加の時に、行を増えないように ?>
-							if ( (operate =="inserted")  && (save_user_login_old != $j("#user_login").val())) {
+<?php //							if ( (operate =="inserted")  && (save_user_login_old != $j("#user_login").val())) { ?>
+							if ( (operate =="inserted")  ) {
 								target.fnAddData( data.set_data );
 							}
 							else {
@@ -218,7 +222,10 @@ class Customer_Page extends Salon_Page {
 			$j("#uploadedImageView").html("");
 
 			save_k1 = "";
-			save_user_login_old = "";
+<?php //			save_user_login_old = ""; ?>
+
+			$j("#mail").attr("readonly", false);
+			$j("#user_login").attr("readonly", false);
 
 			<?php parent::echo_clear_error(); ?>
 

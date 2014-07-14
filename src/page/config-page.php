@@ -13,9 +13,9 @@ class Config_Page extends Salon_Page {
 
 	public function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch);
-		$this->set_items = array('config_branch','config_user_login','send_mail_text','config_staff_holiday_set','config_no_prefernce','before_day','after_day','timeline_y_cnt','config_show_detail_msg','config_name_order_set','config_log','config_delete_record','config_delete_record_period','regist_mail_text','maintenance_include_staff','mail_from','mail_returnPath','mobile_use');
+		$this->set_items = array('config_branch','config_user_login','send_mail_text','config_staff_holiday_set','config_no_prefernce','before_day','after_day','timeline_y_cnt','config_show_detail_msg','config_name_order_set','config_log','config_delete_record','config_delete_record_period','regist_mail_text','maintenance_include_staff','mail_from','mail_returnPath','mobile_use','load_tab');
 	}
-	
+	  
 	public function set_config_datas($config) {
 		$this->config = $config;
 	}
@@ -96,6 +96,8 @@ class Config_Page extends Salon_Page {
 			$j("#mail_from").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_FROM']; ?>");
 			$j("#mail_returnPath").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_RETURN_PATH']; ?>");
 			
+			
+			$j("input[name=\"config_load_tab\"]").val([<?php echo $this->config['SALON_CONFIG_LOAD_TAB']; ?>]);
 							
 
 		});
@@ -132,6 +134,7 @@ class Config_Page extends Salon_Page {
 						,"config_mobile_use":$j("#config_mobile_use").attr("checked")
 						,"config_mail_from":$j("#mail_from").val()	
 						,"config_mail_returnPath":$j("#mail_returnPath").val()	
+						,"config_load_tab":$j("input[name=\"config_load_tab\"]:checked").val()
 						,"nonce":"<?php echo $this->nonce; ?>"
 						,"menu_func":"Config_Edit"
 
@@ -250,6 +253,16 @@ class Config_Page extends Salon_Page {
 		<textarea id="send_mail_text"  ></textarea>
 		<textarea id="regist_mail_text"  ></textarea>
 
+		<div id="config_load_tab_wrap" class="config_item_wrap" >
+			<input id="config_load_staff" name="config_load_tab" type="radio" style="width:16px;margin:3px 5px 0px 10px;" value="<?php echo Salon_Config::LOAD_STAFF; ?>" />
+			<label for="config_load_staff"  style="width:auto;margin:5px;text-align:left;"><?php _e('Staff',SL_DOMAIN); ?></label>
+			<input id="config_load_month" name="config_load_tab" type="radio" style="width:16px;margin:3px 5px 0px 10px;" value="<?php echo Salon_Config::LOAD_MONTH; ?>" />
+			<label for="config_load_month"  style="width:auto;margin:5px;text-align:left;"><?php _e('Month',SL_DOMAIN); ?></label>
+			<input id="config_load_week" name="config_load_tab" type="radio" style="width:16px;margin:3px 5px 0px 10px;" value="<?php echo Salon_Config::LOAD_WEEK; ?>" />
+			<label for="config_load_week"  style="width:auto;margin:5px;text-align:left;"><?php _e('Week',SL_DOMAIN); ?></label>
+			<input id="config_load_day" name="config_load_tab" type="radio" style="width:16px;margin:3px 5px 0px 10px;" value="<?php echo Salon_Config::LOAD_DAY; ?>" />
+			<label for="config_load_day"  style="width:auto;margin:5px;text-align:left;"><?php _e('Day',SL_DOMAIN); ?></label>
+		</div>
 		
 		<div class="spacer"></div>
 	</div>

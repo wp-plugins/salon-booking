@@ -164,7 +164,7 @@ EOT3;
 
 
 	<?php //担当者画面のタブ ?>
-			scheduler.locale.labels.timeline_tab = "<?php _e('rep',SL_DOMAIN); ?>";
+			scheduler.locale.labels.timeline_tab = "<?php _e('Staff',SL_DOMAIN); ?>";
 	<?php //section_autoheightはスタッフの人数が多い場合はfalseにする 
 		  //height/dx(10人)より小さい場合はsection_autoheightをtrueにする
 		  //calculate_dayはminuteだと日単位で移動しないのでカスタマイズ ?>
@@ -188,7 +188,7 @@ EOT3;
 				
 
 	
-			scheduler.init('scheduler_here',new Date("<?php echo date_i18n('Y/m/d'); ?>"),"timeline");
+			scheduler.init('scheduler_here',new Date("<?php echo date_i18n('Y/m/d'); ?>"),"<?php $this->_echoLoadTab(); ?>");
 			scheduler.templates.event_text=function(start,end,event){
 				var title_name = htmlspecialchars(event.name);
 				if ((event.edit_flg == <?php echo Salon_Edit::OK; ?> ) && (title_name != '')) {

@@ -44,7 +44,6 @@ class Config_Control extends Salon_Control  {
 		elseif ($this->action_class == 'Config_Edit' ) {
 			$this->pages->check_request();
 			$res = $this->comp->editTableData();
-			$this->pages->set_table_data($res);
 			$this->datas->update( $res);
 		}
 

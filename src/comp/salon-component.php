@@ -64,6 +64,11 @@ class Salon_Config {
 	const ALL_ITEMS_NO = 2;
 	const ALL_ITEMS_CHANGE_YES = 1;
 	const ALL_ITEMS_CHANGE_NO = 2;
+	//load tab
+	const LOAD_STAFF = 1;
+	const LOAD_MONTH = 2;
+	const LOAD_WEEK = 3;
+	const LOAD_DAY = 4;
 	
 }
 
@@ -432,6 +437,12 @@ class Salon_Component {
 				break;	
 			case 'W002':
 				$err_msg = sprintf(__("already reservation existed .this %s can reserve %s reservations at same time range,please update datas ",SL_DOMAIN),$add_char[0],$add_char[1]);	
+				break;	
+			case 'W003':
+				$err_msg = sprintf(__("already [User Login] existed.",SL_DOMAIN),$add_char);	
+				break;	
+			case 'W004':
+				$err_msg = sprintf(__("already user data existed.Please change the value of [mail] or [tel] or [mobile] ",SL_DOMAIN),$add_char);	
 				break;	
 			case 'I001':
 				$err_msg = sprintf(__("when demo site ,can't insert,update and delete.",SL_DOMAIN),$add_char);

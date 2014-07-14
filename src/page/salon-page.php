@@ -2147,6 +2147,12 @@ EOT2;
 		 ,'label' => __('All staff member can treat',SL_DOMAIN)
 		 ,'tips' => __('If all staff member can treat this menu,check here.',SL_DOMAIN));
 
+		//[20140714]Ver1.4.2
+		$item_contents['load_tab'] =array('id'=>'config_load_staff'
+		 ,'class'	=>array()
+		 ,'check' => array()
+		 ,'label' => '19.'.__('Default load tab',SL_DOMAIN)
+		 ,'tips' => __('Please select default load tab at the Reservation Screen.',SL_DOMAIN));
 
 
 

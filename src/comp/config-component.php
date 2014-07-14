@@ -38,6 +38,9 @@ class Config_Component {
 		if ($set_data['SALON_CONFIG_STAFF_HOLIDAY_SET'] == Salon_Config::SET_STAFF_REVERSE ) {
 			$set_data['SALON_CONFIG_NO_PREFERENCE'] = Salon_Config::NO_PREFERNCE_NG ;
 		}
+
+		$set_data['SALON_CONFIG_LOAD_TAB'] = empty($_POST['config_load_tab']) ? Salon_Config::LOAD_STAFF : $_POST['config_load_tab'];
+
 		return $set_data;
 		
 	}

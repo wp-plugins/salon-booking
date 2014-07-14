@@ -120,5 +120,13 @@ class BookingFront_Page extends Salon_Page {
 		return substr($yyyymmdd,11,2). substr($yyyymmdd,14,2);
 	}
 	
+	private function _echoLoadTab() {
+		if (empty($this->config_datas['SALON_CONFIG_LOAD_TAB'])) echo "timeline";
+		else {
+			$setData = array("timeline","timeline","month","week","day");
+			echo $setData[$this->config_datas['SALON_CONFIG_LOAD_TAB']];
+		}
+	}
+	
 }		//class
 

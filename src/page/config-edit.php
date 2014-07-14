@@ -19,13 +19,7 @@ class Config_Edit extends Salon_Page {
 	}
 	
 	
-	public function set_table_data($table_data) {
-		return $this->table_data;
-	}
-
 	public function show_page() {
-		$this->table_data['SALON_CONFIG_SEND_MAIL_TEXT'] = htmlspecialchars($this->table_data['SALON_CONFIG_SEND_MAIL_TEXT'],ENT_QUOTES);
-
 		echo '{	"status":"Ok","message":"'.Salon_Component::getMsg('N001').'",
 				"set_data":'.json_encode($this->table_data).' }';
 	}
