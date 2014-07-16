@@ -14,6 +14,7 @@
 		var save_user_login = "";
 		var save_mail = "";
 		var save_tel = "";
+		var item_name = new Array();
 		
 		var is_collision_err = false;
 
@@ -102,6 +103,11 @@
 					$timeline_array[] = $tmp_timeline;
 				}
 			}
+			foreach ($this->item_datas as $k1 => $d1 ) {
+				echo 'item_name['.$d1['item_cd'].']= "'.$d1['name'].'";';
+			}
+
+
 			if ($this->_is_staffSetNormal() ) {
 				$tmp_css = 'holiday';
 				$tmp_type = 'dhx_time_block';
@@ -276,9 +282,10 @@ EOT3;
 					ev.type = 'new';
 					
 				});
-				
+			<?php //ここがドラッグドロップ部分でのイベント ?>
 			scheduler.attachEvent("onBeforeEventChanged", function(ev, native_event, is_new){
 				if (!is_collision_err ) return;
+				if (!is_new && ev.status == <?php echo Salon_Reservation_Status::TEMPORARY; ?> ) return;
 				var is_check = true;
 				if (ev.staff_cd) {
 					is_check = checkStaffHolidayLogic(ev.staff_cd,ev.start_date,ev.end_date);
@@ -291,7 +298,20 @@ EOT3;
 					is_check = false;
 					alert("<?php echo sprintf(__('The future times can not reserved. please less than %s days ',SL_DOMAIN),$this->config_datas['SALON_CONFIG_AFTER_DAY']); ?>");
 				}
-
+				
+				if (scheduler._drag_event.staff_cd  && ev.staff_cd != <?php echo Salon_Default::NO_PREFERENCE; ?> && ev.staff_cd != scheduler._drag_event.staff_cd ) {
+					var item_array = staff_items[ev.staff_cd].split(",");
+					var set_item_array = ev.item_cds.split(",");
+					var max_loop = set_item_array.length;
+					for	 (var i = 0 ; i < max_loop; i++) {
+						if (item_array.indexOf(set_item_array[i]) ) {
+							is_check = false;
+							alert("<?php echo _e('This staff member can not treat this menu ',SL_DOMAIN); ?>["+ item_name[set_item_array[i]] + "]");
+							break;
+						}
+					}
+				}
+				
 				if (this._drag_mode){
 					save_target_event = scheduler._lame_clone(scheduler._drag_event);
 				}
@@ -309,10 +329,14 @@ EOT3;
 					is_check = false;
 					alert("<?php _e('past data can not edit',SL_DOMAIN); ?>");
 				}
+				
+				<?php if ( ! $this->isSalonAdmin() ) : ?>
 				else if (ev.status == <?php echo Salon_Reservation_Status::TEMPORARY; ?> ) {
 						is_check = false;
 						alert("<?php _e('tempolary data can not update',SL_DOMAIN); ?>");
 				}
+				<?php endif; ?>
+				
 				else if ( ev.edit_flg == <?php  echo Salon_Edit::NG; ?> ) {
 						is_check = false;
 						alert("<?php _e('this data can not edit',SL_DOMAIN); ?>");
@@ -373,11 +397,16 @@ EOT3;
 			});
 
 			$j("#button_delete").click(function(){
-				if (confirm("<?php _e("This reservation delete ?",SL_DOMAIN); ?>") ) {
-					$j("#sl_search_result").html("");
-					$j("#sl_search").hide();
-					delete_booking_data();
+				var msg = "<?php _e("This reservation delete ?",SL_DOMAIN); ?>";
+				var ev = scheduler.getEvent(scheduler.getState().lightbox_id);
+				if (ev.status == <?php echo Salon_Reservation_Status::TEMPORARY; ?> ) {
+					msg ="<?php _e('This is temporary reservation.\nContinue?',SL_DOMAIN); ?>";
 				}
+				if (confirm(msg) ) {			
+						$j("#sl_search_result").html("");
+						$j("#sl_search").hide();
+						delete_booking_data();
+					}
 			});
 
 
@@ -507,6 +536,15 @@ EOT3;
 				$j("#start_time").val(ev.start_date.getHours()+":"+(ev.start_date.getMinutes()<10?'0':'')+ev.start_date.getMinutes());
 				save_target_event = scheduler._lame_clone(ev);
 				fnUpdateEndTime();
+				
+				$j("#rstatus").text("");
+				if (ev.status == <?php echo Salon_Reservation_Status::TEMPORARY; ?> ) {
+					$j("#rstatus").text("<?php _e('tentative',SL_DOMAIN); ?>");
+				}
+				else if (ev.status == <?php echo Salon_Reservation_Status::COMPLETE; ?> ) {
+					$j("#rstatus").text("<?php _e('completed',SL_DOMAIN); ?>");
+				}
+				
 		
 				<?php parent::echo_clear_error(); ?>
 			}
@@ -692,6 +730,11 @@ EOT3;
 		function save_form() {
 			if ( ! checkItem("data_detail") ) return false;
 			var ev = scheduler.getEvent(scheduler.getState().lightbox_id);
+			<?php if ( $this->isSalonAdmin() ) : ?>
+				if (ev.status == <?php echo Salon_Reservation_Status::TEMPORARY; ?> ) {
+					if (!confirm("<?php _e('This is temporary reservation.\nIf you will update,this reservation is completed.\nContinue?',SL_DOMAIN); ?>") ) return false;
+				}
+			<?php endif; ?>
 			if ( ! checkStaffHoliday(ev,target_day_from,target_day_to) ) return false;
 			if ( ! checkDuplicate(ev,target_day_from,target_day_to) ) return false;
 			ev.name = $j("#name").val();
@@ -780,7 +823,9 @@ EOT3;
 		<div id="detail_out">
 			<label  ><?php _e('Date',SL_DOMAIN); ?>:</label>
 			<span id="target_day" ></span>
-			<label  >&nbsp;</label>	<span>&nbsp;</span>
+			<label  ><?php _e('Status',SL_DOMAIN); ?>:</label>
+		    <span id="rstatus"  ></span>
+            
 		</div>
 <?php if ($this->_is_editBooking() ) : ?>
 		<div id="multi_item_wrap" >

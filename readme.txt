@@ -3,7 +3,7 @@ Contributors: kuu(Tanaka Hisao)
 Tags: hair salon,salon,appointment,booking,beauty apps,reservation,dental clinic,hospital,mutilingual,散髪予約,美容院予約,美容室予約,サロン予約,エステ予約,予約システム,予約管理
 Requires at least: 3.8
 Tested up to: 3.8.1
-Stable tag: 1.4.2
+Stable tag: 1.4.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -112,6 +112,10 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 5. 管理画面（出退勤）
 
 == Changelog ==
+= 1.4.3 =
+* Added: Check of staff and menu at the server side of the application.
+* Changed: Staff member can update or delete temporary reservation.
+
 = 1.4.2 =
 * Fixed: UserId evised an updated bug.
 + Added: At the screen of "Reservation",select default load tab.

@@ -260,23 +260,34 @@ class Salon_Component {
 					}
 				}
 
-				$result = $wpdb->get_results(
-							$wpdb->prepare(
+				$sql = 	$wpdb->prepare(
 								' SELECT  '.
-								' duplicate_cnt '.
+								' duplicate_cnt,in_items '.
 								' FROM '.$wpdb->prefix.'salon_staff '.
 								'   WHERE staff_cd = %d  ',
 								$set_data['staff_cd']
-							),ARRAY_A
-						);
-				if ($result === false ) {
+							);
+				
+				if ($wpdb->query($sql) === false ) {
 					$datas->_dbAccessAbnormalEnd();
+				}
+				else {
+					$result = $wpdb->get_results($sql,ARRAY_A);
 				}
 				//スタッフの重複可能数のチェック
 				$cnt = $datas->countReservation($set_data['staff_cd'],$set_data['time_from'],$set_data['time_to'],$reservation_cd);
 				if ($cnt > $result[0]['duplicate_cnt'] ) {
 					throw new Exception(self::getMsg('W002',array(__('staff',SL_DOMAIN), $result[0]['duplicate_cnt']+1)),1);
 				}
+//[2014/07/15]Ver 1.4.3　スタッフとメニューの相関チェック
+				$treated_item_array = explode(',',$result[0]['in_items']);
+				$item_array = explode(',',$set_data['item_cds']);
+				foreach($item_array as $k1 => $d1 ) {
+					if(! in_array($d1,$treated_item_array) )
+						throw new Exception(self::getMsg('E901',basename(__FILE__).':'.__LINE__));
+				}
+//[2014/07/15]Ver 1.4.3
+
 	
 			}
 //			$result_branch = $wpdb->get_results(

@@ -474,7 +474,7 @@ abstract class Salon_Data {
 		$sql = 'INSERT INTO '.$wpdb->prefix.'salon_log'.
 				' (`sql`,remark,insert_time ) '.
 				' VALUES  (%s,%s,%s) ';
-		$result = $wpdb->query($wpdb->prepare($sql,$setdata,$_SERVER['REMOTE_ADDR'].':'.$_SERVER['HTTP_REFERER'].':'.$this->getUserLogin( ) ,$current_time));
+		$result = $wpdb->query($wpdb->prepare($sql,$setdata,$_SERVER['REMOTE_ADDR'].':'.$_SERVER['HTTP_REFERER'].':'.$this->getUserLogin( ).':'.$_SERVER['HTTP_USER_AGENT'] ,$current_time));
 		if ($result === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
