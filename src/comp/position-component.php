@@ -24,6 +24,11 @@ class Position_Component {
 			$set_data['name'] = stripslashes($_POST['name']);
 			$set_data['wp_role'] = stripslashes($_POST['wp_role']);
 			$set_data['role'] = stripslashes($_POST['role']);
+			//working allがある場合は、workingも有効にする
+			$role_array = explode(',',$set_data['role']);
+			if (in_array('edit_working_all',$role_array) && ! in_array('edit_working',$role_array) ) {
+				$set_data['role'] = $set_data['role'].',edit_working';
+			}
 			$set_data['remark'] = stripslashes($_POST['remark']);
 		}
 		return $set_data;

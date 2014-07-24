@@ -211,6 +211,13 @@ EOT3;
 				if (response.getAttribute('sid') )	{
 					var id = response.getAttribute('sid') ;
 					if (response.getAttribute('func') == "inserted" ) 	scheduler.deleteEvent(id);
+					else {
+						if (save_target_event ) {
+							save_target_event._dhx_changed = false;
+							scheduler._lame_copy(scheduler._events[id],save_target_event);
+							scheduler.updateEvent(id); 
+						}
+					}
 				}
 				alert(response.getAttribute("message"));
 				return false;
@@ -225,6 +232,7 @@ EOT3;
 			dp.attachEvent("onAfterUpdate",function(sid,action,tid,xml_node){
 				if (action == "invalid" ) {
 					if (save_target_event ) {
+						save_target_event._dhx_changed = false;
 						scheduler._lame_copy(scheduler._events[sid],save_target_event);
 						scheduler.updateEvent(save_target_event.id); 
 					}
@@ -504,7 +512,7 @@ EOT3;
 		function fnDetailInit( ev ) {
 			if (ev) {
 				$j("#target_day").text(fnDayFormat(ev.start_date,"<?php echo __('%m/%d/%Y',SL_DOMAIN); ?>"));
-				target_day_from = ev.start_date;
+				target_day_from = new Date(ev.start_date.getTime());
 				$j("#item_cds input").attr("checked",false);
 				if (ev.type) {
 					$j("#button_insert").val("<?php _e('Add',SL_DOMAIN); ?>");
@@ -531,6 +539,9 @@ EOT3;
 				<?php if ( !is_user_logged_in() ||  $this->isSalonAdmin() ) : ?>
 					$j("#name").focus();			
 				<?php else : ?>
+					$j("#name").attr("readonly", true);
+					$j("#mail").attr("readonly", true);
+					$j("#tel").attr("readonly", true);
 					$j("#staff_cd").focus();			
 				<?php endif; ?>
 				$j("#start_time").val(ev.start_date.getHours()+":"+(ev.start_date.getMinutes()<10?'0':'')+ev.start_date.getMinutes());
@@ -680,6 +691,7 @@ EOT3;
 		function checkDuplicate(ev,from,to) {
 			var staff_cd;
 			var is_do_form = true;
+			<?php //ドラッグでの起動の場合、fromはなし ?>
 			if (! from) {
 				from = ev.start_date;
 				to = ev.end_date;
@@ -689,6 +701,7 @@ EOT3;
 			else {
 				staff_cd = $j("#staff_cd").val();
 			}
+			<?php //登録しようとしている予約の範囲の予約を全部取得する ?>
 			var evs = scheduler.getEvents(from, to);
 			var ev_cnt = 0;
 			var staff_array = new Array();
@@ -697,6 +710,14 @@ EOT3;
 					ev_cnt++;
 					if (staff_array[evs[i].staff_cd]) staff_array[evs[i].staff_cd] += 1;
 					else staff_array[evs[i].staff_cd] = 1;
+					if (evs[i].user_login == ev.user_login) {
+						if ( is_do_form) {
+							var label = $j("#start_time").prev().children(".small" );
+							label.text("<?php _e('your reservation is duplicated',SL_DOMAIN); ?>")
+							label.addClass("error small");
+						}
+						return false;
+					}
 				}
 			}
 			var is_error = false;

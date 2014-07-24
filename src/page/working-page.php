@@ -447,13 +447,15 @@ EOT;
 
 			
 			ev.staff_cd = staff_cd;
-			ev.key_in_time = new Date(key_in_time);scheduler.endLightbox(true, $j("#data_detail").get(0));
+			ev.key_in_time = new Date(key_in_time);
+			scheduler.endLightbox(true, $j("#data_detail").get(0));
 			$j("#working_input_form").hide();
 		}
 
 		function delete_working_data() {
 			var ev = scheduler.getEvent(scheduler.getState().lightbox_id);
 			ev.nonce = "<?php echo $this->nonce; ?>";
+			ev.key_in_time = new Date(key_in_time);
 			scheduler.deleteEvent(ev.id);
 			scheduler.endLightbox(false, $j("#data_detail").get(0));
 			$j("#working_input_form").hide();

@@ -497,9 +497,9 @@ abstract class Salon_Data {
 		if ((defined ( 'SALON_DEMO' ) && SALON_DEMO   ) || ($this->config['SALON_CONFIG_LOG'] == Salon_Config::LOG_NEED )) {
 			$this->_writeLog($exec_sql);
 		}
-		if (!$result) {
-			throw new Exception(Salon_Component::getMsg('E901',$wpdb->last_query));
-		}
+//		if (!$result) {
+//			throw new Exception(Salon_Component::getMsg('E901',$wpdb->last_query));
+//		}
 		return true;
 	}
 
@@ -519,9 +519,9 @@ abstract class Salon_Data {
 		if ((defined ( 'SALON_DEMO' ) && SALON_DEMO   ) || ($this->config['SALON_CONFIG_LOG'] == Salon_Config::LOG_NEED )) {
 			$this->_writeLog($exec_sql);
 		}
-		if (!$result) {
-			throw new Exception(Salon_Component::getMsg('E901',$wpdb->last_query));
-		}
+//		if (!$result) {
+//			throw new Exception(Salon_Component::getMsg('E901',$wpdb->last_query));
+//		}
 		return true;
 	}
 
@@ -597,16 +597,18 @@ abstract class Salon_Data {
 		}
 		
 		global $wpdb;
-		$sql = ' SELECT st.position_cd as position_cd,role FROM '.
+		$sql = $wpdb->prepare(' SELECT st.position_cd as position_cd,role FROM '.
 				$wpdb->prefix.'salon_staff st '.
 				' INNER JOIN '.$wpdb->prefix.'salon_position po '.
 				' ON st.position_cd = po.position_cd '.
-				' WHERE user_login = %s ';
-		$result = $wpdb->get_results($wpdb->prepare($sql,$user_login),ARRAY_A);
-		if ($result === false ) {
+				' WHERE user_login = %s '.
+				'   AND st.delete_flg  <> %d ',$user_login,Salon_Reservation_Status::DELETED);
+		if ($wpdb->query($sql) === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
-
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
 		if ($result) {
 			$show_menu =  explode(",",$result[0]['role']);
 			if (! $role ) $role = $show_menu;

@@ -3,7 +3,7 @@
 Plugin Name: Salon booking 
 Plugin URI: http://salon.mallory.jp
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff member. 
-Version: 1.4.3
+Version: 1.4.4
 Author: kuu
 Author URI: http://salon.mallory.jp
 */
@@ -385,7 +385,7 @@ public function example_remove_dashboard_widgets() {
 	public function admin_menu() {
 //		$user_role = '';
 		$show_menu = $this->_get_userdata($this->user_role);
-		if ($show_menu[$this->maintenance] && count($show_menu[$this->maintenance]) > 0 ) {
+		if (isset($show_menu[$this->maintenance]) && $show_menu[$this->maintenance] && count($show_menu[$this->maintenance]) > 0 ) {
 			add_menu_page( __('Salon Maintenance',SL_DOMAIN), __('Salon Maintenance',SL_DOMAIN), 'level_1', $this->maintenance, array( &$this,$show_menu[$this->maintenance][0]),WP_PLUGIN_URL.'/salon-booking/images/menu-icon.png' );
 			if (in_array('edit_customer',$show_menu[$this->maintenance]) ) {
 				$file = $show_menu[$this->maintenance][0] == 'edit_customer' ? $this->maintenance : 'salon_customer';
@@ -424,7 +424,7 @@ public function example_remove_dashboard_widgets() {
 
 
 		}
-		if ($show_menu[$this->management] && count($show_menu[$this->management]) > 0 ) {
+		if (isset($show_menu[$this->management]) && $show_menu[$this->management] && count($show_menu[$this->management]) > 0 ) {
 			add_menu_page( __('Salon Management',SL_DOMAIN), __('Salon Management',SL_DOMAIN), 'level_1', $this->management, array( &$this,$show_menu[$this->management][0] ),WP_PLUGIN_URL.'/salon-booking/images/menu-icon.png');
 			if (in_array('edit_reservation',$show_menu[$this->management]) ) {
 				$file = $show_menu[$this->management][0] == 'edit_reservation' ? $this->management : 'salon_reservation';
@@ -753,8 +753,7 @@ public function example_remove_dashboard_widgets() {
 		wp_enqueue_style('flexigrid', SL_PLUGIN_URL.'css/flexigrid.css');
 		wp_enqueue_style('dataTables', SL_PLUGIN_URL.'css/dataTables.css');
 		wp_enqueue_style('salon', SL_PLUGIN_URL.'css/salon.css');
-		
-		if ($plugin_page == 'salon_working' ) {
+		if ($plugin_page == 'salon_working' || $plugin_page == 'salon-management') {	//出退勤しかない場合の対処
 			wp_enqueue_script( 'dhtmlxscheduler', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler.js',array( 'jquery' ) );
 			if (defined ( 'WPLANG' ) && file_exists(SL_PLUGIN_DIR.SALON_JS_DIR.'locale_'.WPLANG.'.js') ) 
 				wp_enqueue_script( 'dhtmlxscheduler_locale', SL_PLUGIN_URL.SALON_JS_DIR.'locale_'.WPLANG.'.js',array( 'dhtmlxscheduler' ) );

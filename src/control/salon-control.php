@@ -32,6 +32,7 @@ abstract class Salon_Control  {
 	
 	public function exec() {
 		try {
+			$this->_checkRole();
 			$this->do_action();
 		} 
 		catch (Exception $e) {
@@ -88,6 +89,10 @@ abstract class Salon_Control  {
 			echo "<data><action type='error' sid='".$_POST['id']."' tid='".$_POST['id']."' name='error' message='".$msg."' func='".$_POST['type']."' ></action><userdata name='result'>error</userdata><userdata name='message'>".$msg."</userdata></data>";
 		}
 		exit();
+	}
+	
+	private function _checkRole() {
+		Salon_Component::checkRole(get_class($this));
 	}
 
 

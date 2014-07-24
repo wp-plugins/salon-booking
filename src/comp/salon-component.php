@@ -198,6 +198,28 @@ class Salon_Component {
 		$reservation_cd = '';
 		if ( $_POST['type'] == 'updated'    ) $reservation_cd = $set_data['reservation_cd'];
 		if ( ($_POST['type'] != 'deleted') ) {
+			//[2014/07/23]同一時間帯に同じユーザはだめ。ログインしている場合のみのチェック
+			//ログインしていない場合は電話・メール等のチェックも可能だが今後？
+			if (!empty($set_data['user_login']) ) {
+
+				$sql =	' SELECT count(*) as cnt  '.
+						' FROM '.$wpdb->prefix.'salon_reservation '.
+						'   WHERE %s > time_from '.
+						'      AND time_to > %s   '.
+						'      AND user_login = %s '.
+						'      AND delete_flg <> %d ';
+				$sql  = $wpdb->prepare($sql,$set_data['time_to'],$set_data['time_from'],$set_data['user_login'],Salon_Reservation_Status::DELETED);
+				if ( $_POST['type'] == 'updated'    ) $sql .= ' AND reservation_cd <> '. $set_data['reservation_cd'];
+				if ($wpdb->query($sql) === false ) {
+					$datas->_dbAccessAbnormalEnd();
+				}
+				else {
+					$result = $wpdb->get_results($sql,ARRAY_A);					
+				}
+				if ($result[0]['cnt'] > 0 ) {
+					throw new Exception(self::getMsg('E212'),1);
+				}
+			}
 			$result_branch = $wpdb->get_results(
 						$wpdb->prepare(
 							' SELECT  '.
@@ -419,6 +441,9 @@ class Salon_Component {
 			case 'E211':
 				$err_msg = sprintf(__("%s within %d characters[%s]",SL_DOMAIN),$err_cd,$add_char[0],$add_char[1]);
 				break;	
+			case 'E212':
+				$err_msg = $err_cd.' '.__("your reservation is duplicated",SL_DOMAIN);
+				break;	
 			case 'E401':
 				$err_msg = __('an unexpected error has occurred',SL_DOMAIN);
 				break;	
@@ -441,8 +466,12 @@ class Salon_Component {
 				$err_msg = sprintf(__("target data not found",SL_DOMAIN));
 				break;	
 			case 'E907':
-				$err_msg = sprintf(__("e-mail could not be sent %s",SL_DOMAIN),$add_char);	
+				$err_msg = sprintf(__("e-mail could not be sent %s",SL_DOMAIN),$add_char);
 				break;	
+			case 'E908':
+				//ここは英字のみ
+				$err_msg = sprintf("This access is out of the authority[%s]",$add_char);
+				break;
 			case 'W001':
 				$err_msg = sprintf(__("already reservation existed, so you can't day off",SL_DOMAIN),$add_char);	
 				break;	
@@ -575,6 +604,43 @@ class Salon_Component {
 		return floor($diff/60);
 	}
 
+	static function checkRole($class_name) {
+		$class_name_array = explode('_',$class_name);
+		if (empty($class_name_array[0]) ) {
+				throw new Exception(self::getMsg('E908',basename(__FILE__).':'.__LINE__),1);
+		}
+		$target_name = strtolower ($class_name_array[0]);
+		if ( $target_name == 'booking' || $target_name == 'confirm' ) return;
+		global $current_user;
+		get_currentuserinfo();
+		$user_roles = $current_user->roles;
+		$user_role = array_shift($user_roles);
+		//このプラグインでは寄稿者は管理させない
+		if (empty($user_role) || $user_role == 'subscriber' ) {
+				throw new Exception(self::getMsg('E908',basename(__FILE__).':'.__LINE__),1);
+		}
+		global $wpdb;
+		$sql =  $wpdb->prepare('SELECT role FROM '.$wpdb->prefix.'salon_position po ,'.
+								$wpdb->prefix.'salon_staff st '.
+						' WHERE st.user_login = %s '.
+						'   AND st.position_cd = po.position_cd '.
+						'   AND st.delete_flg <> '.Salon_Reservation_Status::DELETED,$current_user->user_login);
 
+		if ($wpdb->query($sql) === false ) {
+				throw new Exception(self::getMsg('E908',basename(__FILE__).':'.__LINE__),1);
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+		if (count($result) == 0 ) {
+				throw new Exception(self::getMsg('E908',basename(__FILE__).':'.__LINE__),1);
+		}
+		$show_menu =  explode(",",$result[0]['role']);
+		if ($target_name == 'basic') $target_name = 'base';
+		if ($target_name == 'search') $target_name = 'booking';
+		if (!in_array('edit_'.$target_name,$show_menu) ) {
+				throw new Exception(self::getMsg('E908',$class_name),1);
+		}
+	}
 	
 }
