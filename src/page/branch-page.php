@@ -81,7 +81,7 @@ class Branch_Page extends Salon_Page {
 			});
 
 			target = $j("#lists").dataTable({
-				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=branch",
+				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slbranch",
 				<?php parent::echoDataTableLang(); ?>
 				<?php parent::echoTableItem(array('branch_name','remark'),false,true); //for only_branch?>
 	
@@ -162,7 +162,7 @@ class Branch_Page extends Salon_Page {
 <?php //グローバル変数 target はどうにかならん？ ?>
 			 $j.ajax({
 				 	type: "post",
-					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=branch", 
+					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slbranch", 
 					dataType : "json",
 
 					data: {

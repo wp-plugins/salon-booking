@@ -220,7 +220,7 @@ abstract class Salon_Data {
 		}
 		
 		$sql = 	' SELECT staff_cd,concat('.$name_order.') as name , photo , remark , duplicate_cnt,position_cd,display_sequence'.
-				' ,in_items '.
+				' ,in_items ,memo'.
 				' FROM '.$wpdb->prefix.'salon_staff st  '.
 				' INNER JOIN '.$wpdb->prefix.'users us  '.
 				'       ON    us.user_login = st.user_login '.

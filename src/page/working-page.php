@@ -130,7 +130,7 @@ EOT;
 		//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 ?>
 			target = $j("#lists").dataTable({
-				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=working",
+				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slworking",
 				<?php parent::echoDataTableLang(); ?>
 				<?php parent::echoTableItem(array('staff_name','remark'),false,$this->is_multi_branch); ?>
 
@@ -159,7 +159,7 @@ EOT;
 				return "<b>"+event.text+"</b>";
 			}
 
-			var dp = new dataProcessor("<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=working&menu_func=Working_Edit");
+			var dp = new dataProcessor("<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slworking&menu_func=Working_Edit");
 			dp.init(scheduler);
 			dp.defineAction("error",function(response){	
 				if (response.getAttribute('sid') )		scheduler.deleteEvent(response.getAttribute('sid'));
@@ -485,7 +485,7 @@ EOT;
 			staff_cd = setData['aoData'][position[0]]['_aData']['staff_cd']; 
 			staff_name = htmlspecialchars_decode(setData['aoData'][position[0]]['_aData']['name']); 
 
-			scheduler.load("<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=working&menu_func=Working_Get_Data&branch_cd=<?php echo $this->branch_datas['branch_cd']; ?>&staff_cd="+staff_cd,fnLoadResult);
+			scheduler.load("<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slworking&menu_func=Working_Get_Data&branch_cd=<?php echo $this->branch_datas['branch_cd']; ?>&staff_cd="+staff_cd,fnLoadResult);
 			
 			$j("#scheduler_here").show();
 

@@ -112,7 +112,7 @@ class Config_Page extends Salon_Page {
 			}
 			$j.ajax({
 				 	type: "post",
-					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=config", 
+					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slconfig", 
 					dataType : "json",
 					data: {
 						"config_branch":$j("input[name=\"config_branch\"]:checked").val()

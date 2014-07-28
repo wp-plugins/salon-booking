@@ -41,7 +41,7 @@ class Position_Page extends Salon_Page {
 			<?php parent::echoSetItemLabel(); ?>	
 			<?php parent::echoCommonButton();			//共通ボタン	?>
 			target = $j("#lists").dataTable({
-				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=position",
+				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slposition",
 				<?php parent::echoDataTableLang(); ?>
 				<?php parent::echoTableItem(array('position_name','no_edit_remark')); ?>
 	
@@ -118,7 +118,7 @@ class Position_Page extends Salon_Page {
 			}
 			 $j.ajax({
 				 	type: "post",
-					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=position",
+					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slposition",
 					dataType : "json",
 
 					data: {

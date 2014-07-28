@@ -75,7 +75,7 @@ class Item_Page extends Salon_Page {
 			<?php parent::echoSetItemLabel(); ?>	
 			<?php parent::echoCommonButton();			//共通ボタン	?>
 			target = $j("#lists").dataTable({
-				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=item",
+				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slitem",
 				<?php parent::echoDataTableLang(); ?>
 				<?php //[20131110]ver 1.3.1 ソートモードにしない ↓のbSortをfalseに
  					parent::echoTableItem(array('item_name','branch_cd','display_sequence','price','remark','branch_name_table'),false,$this->is_multi_branch,"120px",true); 
@@ -177,7 +177,7 @@ class Item_Page extends Salon_Page {
 		<?php endif; ?>
 			$j.ajax({
 				 	type: "post",
-					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=item",
+					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slitem",
 					dataType : "json",
 
 					data: {

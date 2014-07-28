@@ -29,7 +29,7 @@ class Staff_Init extends Salon_Page {
 			$this->init_datas[$k1]['address'] = htmlspecialchars($d1['address'],ENT_QUOTES);
 			$this->init_datas[$k1]['branch_name'] = htmlspecialchars($d1['branch_name'],ENT_QUOTES);
 			$this->init_datas[$k1]['position_name'] = htmlspecialchars($d1['position_name'],ENT_QUOTES);
-			unset($this->init_datas[$k1]['memo']);
+			$this->init_datas[$k1]['memo'] = htmlspecialchars($d1['memo'],ENT_QUOTES);
 			unset($this->init_datas[$k1]['notes']);
 		}
 		$this->echoInitData($this->init_datas);

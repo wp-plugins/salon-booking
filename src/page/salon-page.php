@@ -316,7 +316,7 @@ EOT;
 	
 
 	public function echoEditableCommon($target_name,$add_col = "",$add_check_process = "") {
-		$target_src = get_bloginfo( 'wpurl' ).'/wp-admin/admin-ajax.php?action='.$target_name;
+		$target_src = get_bloginfo( 'wpurl' ).'/wp-admin/admin-ajax.php?action=sl'.$target_name;
 		$submit = __('change',SL_DOMAIN);
 		$cancel = __('cancel',SL_DOMAIN);
 		$placeholder = __('click edit',SL_DOMAIN);
@@ -486,7 +486,7 @@ EOT2;
 	}
 	public function echoDataTableEditColumn($target_name,$add_col = "",$add_callback_process="",$add_check_process = "") {	
 		
-		$target_src = get_bloginfo( 'wpurl' ).'/wp-admin/admin-ajax.php?action='.$target_name;
+		$target_src = get_bloginfo( 'wpurl' ).'/wp-admin/admin-ajax.php?action=sl'.$target_name;
 		$add_char1 = '';
 		if ( ! empty($add_col) ) {	//[TODO]salesとresevationのIDで使用しているが、IDはやめられないか
 			$add_char1 = ',"'.$add_col.'":setData["aoData"][position[0]]["_aData"]["'.$add_col.'"] ';
@@ -542,7 +542,7 @@ EOT;
 	}
 
 	public function echoDataTableDeleteRow($target_name,$target_key_name = '',$is_delete_row = true,$add_parm = '',$add_check = '') {
-		$target_src = get_bloginfo( 'wpurl' ).'/wp-admin/admin-ajax.php?action='.$target_name;
+		$target_src = get_bloginfo( 'wpurl' ).'/wp-admin/admin-ajax.php?action=sl'.$target_name;
 		if (empty($target_key_name) ) $target_key_name = $target_name;
 		$menu_func = ucwords($target_name);
 		if ($is_delete_row) $delete_string = 'var rest = target.fnDeleteRow( position[0] );	fnDetailInit();';
@@ -800,7 +800,7 @@ EOT;
 
 	static function echoSearchCustomer($url = '') {
 		if (empty($url) ) $url = get_bloginfo( 'wpurl' );
-		$target_src = $url.'/wp-admin/admin-ajax.php?action=search';
+		$target_src = $url.'/wp-admin/admin-ajax.php?action=slsearch';
 		$check_char = __('No',SL_DOMAIN);
 		echo <<<EOT
 			\$j("#button_search").click(function(){
@@ -856,7 +856,7 @@ EOT;
 	}
 	
 	static function echoDownloadEvent($target){
-		$target_src = get_bloginfo( 'wpurl' ).'/wp-admin/admin-ajax.php?action=download';
+		$target_src = get_bloginfo( 'wpurl' ).'/wp-admin/admin-ajax.php?action=sldownload';
 		echo <<<EOT
 			\$j("#button_download").click(function(){
 				 \$j.ajax({
@@ -954,7 +954,7 @@ EOT;
 	}
 
 	static function echoDownloadFunc($branch_cd,$target){	
-		$target_src = get_bloginfo( 'wpurl' ).'/wp-admin/admin-ajax.php?action=download';
+		$target_src = get_bloginfo( 'wpurl' ).'/wp-admin/admin-ajax.php?action=sldownload';
 		echo <<<EOT
 			function fnExecDownload(element) {
 				var tmp = new Array();  
@@ -2154,6 +2154,12 @@ EOT2;
 		 ,'label' => '19.'.__('Default load tab',SL_DOMAIN)
 		 ,'tips' => __('Please select default load tab at the Reservation Screen.',SL_DOMAIN));
 
+		//[2014/07/26]Ver1.4.5
+		$item_contents['memo'] =array('id'=>'memo'
+		 ,'class' => array()
+		 ,'check' => array( 'lenmax300')
+		 ,'label' => __('Introductions',SL_DOMAIN)
+		 ,'tips' => __('Please input self-introductions.',SL_DOMAIN));
 
 
 		return $item_contents;	
@@ -2595,7 +2601,7 @@ EOT;
 	}
 
 	public function echoDataTableSeqUpdateRow($target_name,$target_key_name,$is_multi_branch ) {
-		$target_src = get_bloginfo( 'wpurl' ).'/wp-admin/admin-ajax.php?action='.$target_name;
+		$target_src = get_bloginfo( 'wpurl' ).'/wp-admin/admin-ajax.php?action=sl'.$target_name;
 		if (empty($target_key_name) ) $target_key_name = $target_name;
 		$menu_func = ucwords($target_name);
 		$check_logic = '';

@@ -1007,13 +1007,27 @@ label#mail_lbl  {
 
 #all_flg {
 	width:15px !important;
+} 
+
+
+
+.sl_intro_box {
+	display: none;
+	left:50px;
+	position: absolute;
+	width: 300px;
+	height: auto;
+	text-align: left;
+	line-height: 100px;
+	background-color: #FFFFFF;
+	border: 6px solid #66CCFF;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	-webkit-box-shadow: 2px 2px 4px #888;
+	-moz-box-shadow: 2px 2px 4px #888;
+	box-shadow: 2px 2px 4px #888;
+	z-index:100;
 }
 
-/*
-.btns{font-size: 80px; width:150px; background:#111; height: 150px; line-height:150px; text-align:center; font-family: arial; color: #fff; float: left; margin:10px; cursor: pointer}
-.close{cursor: pointer;}
-.modal{width:690px; color: #eee;}
-.modal p{font-size:12px; text-align:justify;}
-.modal h1{font-weight:bold; font-size: 30px;}
-.modalBody{padding: 10px;}
-*/
+div.sl_staff_name:hover  p.sl_intro_box { display: block; }

@@ -286,10 +286,10 @@ EOT3;
 				}
 				return "<b>"+title_name+"</b>";
 			}
-			scheduler.load("<?php echo $this->url; ?>/wp-admin/admin-ajax.php?action=booking&menu_func=Booking_Get_Event&branch_cd=<?php echo $this->branch_datas['branch_cd']; ?>",function() {
+			scheduler.load("<?php echo $this->url; ?>/wp-admin/admin-ajax.php?action=slbooking&menu_func=Booking_Get_Event&branch_cd=<?php echo $this->branch_datas['branch_cd']; ?>",function() {
 				$j(".lightbox").colorbox();
 			});
-			var dp = new dataProcessor("<?php echo $this->url; ?>/wp-admin/admin-ajax.php?action=booking&menu_func=Booking_Edit");
+			var dp = new dataProcessor("<?php echo $this->url; ?>/wp-admin/admin-ajax.php?action=slbooking&menu_func=Booking_Edit");
 			dp.init(scheduler);
 			dp.defineAction("error",function(response){	
 				if (response.getAttribute('sid') )	{

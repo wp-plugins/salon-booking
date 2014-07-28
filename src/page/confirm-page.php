@@ -96,7 +96,7 @@ class Confirm_Page extends Salon_Page {
 			function fnFixReservation(action) {
 				$j.ajax({
 						type: "post"
-						,url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=confirm"
+						,url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slconfirm"
 						,dataType : "json"
 						,data: {
 							"type":action

@@ -180,7 +180,7 @@ class Salon_Component {
 		
 	}
 	
-	static function serverReservationCheck($set_data ,&$datas) {
+	static function serverReservationCheck($set_data ,&$datas,$isFullCheck = true) {
 
 		global $wpdb;
 		$reservation_data = '';
@@ -302,11 +302,13 @@ class Salon_Component {
 					throw new Exception(self::getMsg('W002',array(__('staff',SL_DOMAIN), $result[0]['duplicate_cnt']+1)),1);
 				}
 //[2014/07/15]Ver 1.4.3　スタッフとメニューの相関チェック
-				$treated_item_array = explode(',',$result[0]['in_items']);
-				$item_array = explode(',',$set_data['item_cds']);
-				foreach($item_array as $k1 => $d1 ) {
-					if(! in_array($d1,$treated_item_array) )
-						throw new Exception(self::getMsg('E901',basename(__FILE__).':'.__LINE__));
+				if ($isFullCheck) {
+					$treated_item_array = explode(',',$result[0]['in_items']);
+					$item_array = explode(',',$set_data['item_cds']);
+					foreach($item_array as $k1 => $d1 ) {
+						if(! in_array($d1,$treated_item_array) )
+							throw new Exception(self::getMsg('E901',basename(__FILE__).':'.__LINE__));
+					}
 				}
 //[2014/07/15]Ver 1.4.3
 
@@ -638,9 +640,17 @@ class Salon_Component {
 		$show_menu =  explode(",",$result[0]['role']);
 		if ($target_name == 'basic') $target_name = 'base';
 		if ($target_name == 'search') $target_name = 'booking';
-		if (!in_array('edit_'.$target_name,$show_menu) ) {
-				throw new Exception(self::getMsg('E908',$class_name),1);
+		if ($target_name == 'photo') $target_name = 'staff';
+		if ($target_name == 'download') {
+			if (!in_array('edit_resevation',$show_menu) && !in_array('edit_sales',$show_menu) ) {
+					throw new Exception(self::getMsg('E908',$class_name),1);
+			}
 		}
+		else {
+			if (!in_array('edit_'.$target_name,$show_menu) ) {
+					throw new Exception(self::getMsg('E908',$class_name),1);
+			}
+		};
 	}
 	
 }

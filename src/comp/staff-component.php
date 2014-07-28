@@ -183,7 +183,7 @@ class Staff_Component {
 			$set_data['branch_cd'] = intval($_POST['branch_cd']);
 			$set_data['position_cd'] = intval($_POST['position_cd']);
 			$set_data['remark'] = stripslashes($_POST['remark']);
-			$set_data['memo'] = '';
+			$set_data['memo'] = stripslashes($_POST['memo']);
 			$set_data['notes'] = '';
 			$set_data['duplicate_cnt'] = intval($_POST['duplicate_cnt']);
 			//

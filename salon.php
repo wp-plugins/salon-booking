@@ -3,7 +3,7 @@
 Plugin Name: Salon booking 
 Plugin URI: http://salon.mallory.jp
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff member. 
-Version: 1.4.4
+Version: 1.4.5
 Author: kuu
 Author URI: http://salon.mallory.jp
 */
@@ -80,26 +80,28 @@ class Salon_Booking {
 
 		add_filter('user_contactmethods',array( &$this,'update_profile_fields'),10,1);
 		
-		add_action('wp_ajax_staff', array( &$this,'edit_staff')); 
-		add_action('wp_ajax_basic', array( &$this,'edit_base')); 
-		add_action('wp_ajax_branch', array( &$this,'edit_branch')); 
-		add_action('wp_ajax_booking', array( &$this,'edit_booking')); 
-		add_action('wp_ajax_config', array( &$this,'edit_config')); 
-		add_action('wp_ajax_confirm', array( &$this,'edit_confirm')); 
-		add_action('wp_ajax_customer', array( &$this,'edit_customer')); 
-		add_action('wp_ajax_download', array( &$this,'edit_download')); 
-		add_action('wp_ajax_item', array( &$this,'edit_item')); 
-		add_action('wp_ajax_position', array( &$this,'edit_position')); 
-		add_action('wp_ajax_reservation', array( &$this,'edit_reservation')); 
-		add_action('wp_ajax_sales', array( &$this,'edit_sales')); 
-		add_action('wp_ajax_search', array( &$this,'edit_search')); 
-		add_action('wp_ajax_working', array( &$this,'edit_working')); 
-		add_action('wp_ajax_log', array( &$this,'edit_log')); 
-		add_action('wp_ajax_photo', array( &$this,'edit_photo')); 
+		add_action('wp_ajax_slstaff', array( &$this,'edit_staff')); 
+		add_action('wp_ajax_slbasic', array( &$this,'edit_base')); 
+		add_action('wp_ajax_slbranch', array( &$this,'edit_branch')); 
+		add_action('wp_ajax_slbooking', array( &$this,'edit_booking')); 
+		add_action('wp_ajax_slconfig', array( &$this,'edit_config')); 
+		add_action('wp_ajax_slconfirm', array( &$this,'edit_confirm')); 
+		add_action('wp_ajax_slcustomer', array( &$this,'edit_customer')); 
+		add_action('wp_ajax_sldownload', array( &$this,'edit_download')); 
+		add_action('wp_ajax_slitem', array( &$this,'edit_item')); 
+		add_action('wp_ajax_slposition', array( &$this,'edit_position')); 
+		add_action('wp_ajax_slreservation', array( &$this,'edit_reservation')); 
+		add_action('wp_ajax_slsales', array( &$this,'edit_sales')); 
+		add_action('wp_ajax_slsearch', array( &$this,'edit_search')); 
+		add_action('wp_ajax_slworking', array( &$this,'edit_working')); 
+		add_action('wp_ajax_sllog', array( &$this,'edit_log')); 
+		add_action('wp_ajax_slphoto', array( &$this,'edit_photo')); 
+		add_action('wp_ajax_slmail', array( &$this,'edit_mail')); 
+		
 
-		add_action('wp_ajax_nopriv_booking', array( &$this,'edit_booking')); 
-		add_action('wp_ajax_nopriv_confirm', array( &$this,'edit_confirm')); 
-		add_action('wp_ajax_nopriv_search', array( &$this,'edit_search')); 
+		add_action('wp_ajax_nopriv_slbooking', array( &$this,'edit_booking')); 
+		add_action('wp_ajax_nopriv_slconfirm', array( &$this,'edit_confirm')); 
+		add_action('wp_ajax_nopriv_slsearch', array( &$this,'edit_search')); 
 
 
 		if (SALON_DEMO ) {
@@ -113,7 +115,6 @@ class Salon_Booking {
 		if(!file_exists(SALON_UPLOAD_DIR)){
 			mkdir(SALON_UPLOAD_DIR,0744,true);	
 		}
-
 
 		add_action('admin_head',array( &$this, 'display_favicon'));
 
@@ -733,6 +734,9 @@ public function example_remove_dashboard_widgets() {
 	}
 	public function edit_photo() {
 		require_once( SL_PLUGIN_SRC_DIR.'/control/photo-control.php' );
+	}
+	public function edit_mail() {
+		require_once( SL_PLUGIN_SRC_DIR.'/control/mail-control.php' );
 	}
 
 	public function admin_javascript($hook_suffix) {

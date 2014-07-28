@@ -57,7 +57,7 @@ class Customer_Page extends Salon_Page {
 						
 			
 			target = $j("#lists").dataTable({
-				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=customer",
+				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slcustomer",
 				<?php parent::echoDataTableLang(); ?>
 				<?php
 					if ($this->config_datas['SALON_CONFIG_NAME_ORDER'] == Salon_Config::NAME_ORDER_JAPAN )
@@ -161,7 +161,7 @@ class Customer_Page extends Salon_Page {
 <?php //グローバル変数 target はどうにかならん？ ?>
 			 $j.ajax({
 				 	type: "post",
-					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=customer",
+					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slcustomer",
 					dataType : "json",
 					data: {
 						"customer_cd":customer_cd,

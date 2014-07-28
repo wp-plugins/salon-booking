@@ -61,13 +61,20 @@
 			$reserve_possible_cnt = 0;
 			
 			//
+			
+			
 			foreach ($this->staff_datas as $k1 => $d1 ) {
 				if ($this->config_datas['SALON_CONFIG_MAINTENANCE_INCLUDE_STAFF'] != Salon_Config::MAINTENANCE_NOT_INCLUDE_STAFF
 					|| $d1['position_cd'] != Salon_Position::MAINTENANCE ) {
 					//写真大きさを50pxにしとく。IEだと自動で補正してくれない？
 	//				$tmp = preg_replace("/(width|height)(=\\\'\d+\\\')/","$1=\'50\'",$d1['photo']);
-					if (empty($d1['photo_result'][0]) ) $tmp="";
-					else $tmp = "<a href='".$d1['photo_result'][0]['photo_path']."' rel='staff".$d1['staff_cd']."' ' class='lightbox' ><img src='".$d1['photo_result'][0]['photo_resize_path']."' alt='' width='150' height='150' class='alignnone size-thumbnail wp-image-186' /></a>";
+					$tmp = "";				
+					if (!empty($d1['photo_result'][0]) ) {
+						$tmp = "<a href='".$d1['photo_result'][0]['photo_path']."' rel='staff".$d1['staff_cd']."' ' class='lightbox' ><img src='".$d1['photo_result'][0]['photo_resize_path']."' alt='' width='150' height='150' class='alignnone size-thumbnail wp-image-186' /></a>";
+					}
+					if (!empty($d1['memo']) ) 
+						//頭につける
+						$tmp = "<p id='sl_intro".$d1['staff_cd']."' class='sl_intro_box'>". str_replace(array("\r\n","\r","\n"), '<br/>',htmlspecialchars($d1['memo'],ENT_QUOTES))."</p>".$tmp;
 					$url = site_url();
 					$url = substr($url,strpos($url,':')+1);
 					$url = str_replace('/','\/',$url);
@@ -77,7 +84,7 @@
 					else {
 						$tmp = preg_replace("/([hH][tT][tT][pP][sS]:".$url.")/","http:".$url,$tmp);
 					}
-					echo $comma.'{key:'.$d1['staff_cd'].', label:"'.htmlspecialchars($d1['name'],ENT_QUOTES).$tmp.'" }';
+					echo $comma.'{key:'.$d1['staff_cd'].', label:"<div class=\'sl_staff_name\' >'.htmlspecialchars($d1['name'],ENT_QUOTES).$tmp.'</div>" }';
 					$tmp_staff_index[$d1['staff_cd']] = $index;
 					$index++;
 					$comma = ',';
@@ -202,10 +209,10 @@ EOT3;
 				}
 				return "<b>"+title_name+"</b>";
 			}
-			scheduler.load("<?php echo $this->url; ?>/wp-admin/admin-ajax.php?action=booking&menu_func=Booking_Get_Event&branch_cd=<?php echo $this->branch_datas['branch_cd']; ?>",function() {
+			scheduler.load("<?php echo $this->url; ?>/wp-admin/admin-ajax.php?action=slbooking&menu_func=Booking_Get_Event&branch_cd=<?php echo $this->branch_datas['branch_cd']; ?>",function() {
 				$j(".lightbox").colorbox();
 			});
-			var dp = new dataProcessor("<?php echo $this->url; ?>/wp-admin/admin-ajax.php?action=booking&menu_func=Booking_Edit");
+			var dp = new dataProcessor("<?php echo $this->url; ?>/wp-admin/admin-ajax.php?action=slbooking&menu_func=Booking_Edit");
 			dp.init(scheduler);
 			dp.defineAction("error",function(response){	
 				if (response.getAttribute('sid') )	{

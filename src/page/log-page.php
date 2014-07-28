@@ -67,7 +67,7 @@ class Log_Page extends Salon_Page {
 
 			
 			target = $j("#lists").dataTable({
-				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=log",
+				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=sllog",
 				<?php parent::echoDataTableLang(); ?>
 				<?php parent::echoTableItem($this->set_items); ?>
 

@@ -150,7 +150,7 @@ EOT;
 
 			
 			target = $j("#lists").dataTable({
-				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=sales",
+				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slsales",
 				<?php parent::echoDataTableLang(); ?>
 				<?php parent::echoTableItem(array('reserved_time','customer_name','rstatus','remark')); //for only_branch?>
 
@@ -285,7 +285,7 @@ EOT;
 
 			$j.ajax({
 				 	type: "post",
-					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=reservation",
+					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slreservation",
 					dataType : "json",
 <?php //priceに関しては今後セキュリティ上考慮する ?>
 					data: {

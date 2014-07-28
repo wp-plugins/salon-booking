@@ -54,7 +54,7 @@ class Reservation_Component {
 	}
 	
 	public function serverCheck($set_data) {
-		Salon_Component::serverReservationCheck($set_data,$this->datas);
+		Salon_Component::serverReservationCheck($set_data,$this->datas,false);
 	}
 
 	

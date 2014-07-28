@@ -93,7 +93,7 @@ class Basic_Page extends Salon_Page {
 
 			
 			target = $j("#lists").dataTable({
-				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=basic",
+				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slbasic",
 				<?php parent::echoDataTableLang(); ?>
 				<?php parent::echoTableItem("",true); ?>
 					 { "mData":"target_date","sTitle": "<?php _e('Date',SL_DOMAIN); ?>", "sWidth":"<?php echo Salon_Page::MIDDLE_WIDTH; ?>" }
@@ -126,7 +126,7 @@ class Basic_Page extends Salon_Page {
 			var target_date = setData['aoData'][position[0]]['_aData']['target_date']; 				
 			 $j.ajax({
 				 	type: "post",
-					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=basic",
+					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slbasic",
 					dataType : "json",
 					data: 	{
 						"type":"deleted",
@@ -160,7 +160,7 @@ class Basic_Page extends Salon_Page {
 			
 			$j.ajax({
 				 	type: "post",
-					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=basic",
+					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slbasic",
 					dataType : "json",
 					data: {
 						"type":"inserted",
@@ -195,7 +195,7 @@ class Basic_Page extends Salon_Page {
 			
 			$j.ajax({
 				 	type: "post",
-					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=basic",
+					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slbasic",
 					dataType : "json",
 					data: {
 						"type":"updated",

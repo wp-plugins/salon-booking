@@ -21,12 +21,12 @@ class Staff_Page extends Salon_Page {
 		if ($is_multi_branch ) {
 			$this->branch_column = 4;
 			$this->position_column = 5;
-			$this->set_items = array('first_name','last_name','branch_cd','position_cd','zip','address','tel','mobile','mail','user_login','remark','employed_day','leaved_day','duplicate_cnt_staff','item_cds_set');
+			$this->set_items = array('first_name','last_name','branch_cd','position_cd','zip','address','tel','mobile','mail','user_login','remark','employed_day','leaved_day','duplicate_cnt_staff','item_cds_set','memo');
 		}
 		else {
 			$this->branch_column = 3;
 			$this->position_column = 4;
-			$this->set_items = array('first_name','last_name','position_cd','zip','address','tel','mobile','mail','user_login','remark','employed_day','leaved_day','duplicate_cnt_staff','item_cds_set');
+			$this->set_items = array('first_name','last_name','position_cd','zip','address','tel','mobile','mail','user_login','remark','employed_day','leaved_day','duplicate_cnt_staff','item_cds_set','memo');
 		}
 
 	}
@@ -70,7 +70,7 @@ class Staff_Page extends Salon_Page {
 			//写真を登録したけどやめてしまった場合
 			$j.ajax({
 				type: "post",
-				url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=photo",
+				url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slphoto",
 				dataType : "json",
 					data: {
 						"photo_id":insert_photo_ids.join(","),
@@ -100,7 +100,7 @@ class Staff_Page extends Salon_Page {
 //［PHOTO]ここから
 			Dropzone.autoDiscover = false;
 			$j("#image_drop_area").dropzone({ 
-				url: "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=photo&menu_func=Photo_Edit&type=inserted&nonce=<?php echo $this->nonce; ?>"
+				url: "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slphoto&menu_func=Photo_Edit&type=inserted&nonce=<?php echo $this->nonce; ?>"
 				,maxFilesize:<?php echo SALON_MAX_FILE_SIZE; ?>
 				,init: function() {
 					$j(this.element).addClass("dropzone");
@@ -182,7 +182,7 @@ class Staff_Page extends Salon_Page {
 						
 			
 			target = $j("#lists").dataTable({
-				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=staff",
+				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slstaff",
 				<?php parent::echoDataTableLang(); ?>
 				<?php 
 					if ($this->config_datas['SALON_CONFIG_NAME_ORDER'] == Salon_Config::NAME_ORDER_JAPAN )
@@ -298,11 +298,14 @@ class Staff_Page extends Salon_Page {
 			}
 			$j(".lightbox").colorbox({rel:"staffs",width:"<?php echo SALON_COLORBOX_SIZE; ?>", height:"<?php echo SALON_COLORBOX_SIZE; ?>"});
 			
-			//[2014/06/22]
+			<?php //[2014/06/22] ?>
 			var items_array = Array();
 			if (setData['aoData'][position[0]]['_aData']['in_items'])
 				items_array = setData['aoData'][position[0]]['_aData']['in_items'].split(",");
-			
+			<?php //[2014/07/25] ?>
+			$j("#memo").val(htmlspecialchars_decode(setData['aoData'][position[0]]['_aData']['memo']));	
+
+
 			$j("#sl_tb_items_"+$j("#branch_cd").val()+" .sl_items_set").attr("checked",false);
 			
 			for (var i = 0; i < items_array.length; i++) {
@@ -383,7 +386,7 @@ class Staff_Page extends Salon_Page {
 		<?php endif; ?>
 			 $j.ajax({
 				 	type: "post",
-					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=staff",
+					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slstaff",
 					dataType : "json",
 					data: {
 						"ID":ID,
@@ -406,6 +409,7 @@ class Staff_Page extends Salon_Page {
 						"employed_day":$j("#employed_day").val(),
 						"leaved_day":$j("#leaved_day").val(),
 						"item_cds":tmp_items.join(","),
+						"memo":$j("#memo").val(),
 						"menu_func":"Staff_Edit",
 						"nonce":"<?php echo $this->nonce; ?>",
 						"display_sequence":display_sequence,
@@ -534,7 +538,8 @@ class Staff_Page extends Salon_Page {
 		<input type="text" id="mobile"/>
 		<input type="text" id="mail"/>
 		<input type="text" id="user_login" value="" />
-		<textarea id="remark"  ></textarea>
+		<textarea id="remark" ></textarea>
+		<textarea id="memo" ></textarea>
 		<input type="text" id="employed_day" value="" />
 		<input type="text" id="leaved_day" value="" />
 		<div class="spacer"></div>

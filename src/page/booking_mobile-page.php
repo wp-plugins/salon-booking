@@ -467,7 +467,7 @@
 		function _GetEvent(targetDay) {
 			$j.ajax({
 				 	type: "post",
-					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=booking", 
+					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slbooking", 
 					dataType : "json",
 					data: {
 						"target_day":targetDay
@@ -521,7 +521,7 @@
 			<?php   endif; ?>
 			$j.ajax({
 				 	type: "post",
-					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=booking", 
+					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slbooking", 
 					dataType : "json",
 					data: {
 						"staff_cd":$j("#staff_cd").val()
