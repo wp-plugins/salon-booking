@@ -3,7 +3,7 @@
 Plugin Name: Salon booking 
 Plugin URI: http://salon.mallory.jp
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff member. 
-Version: 1.4.5
+Version: 1.4.6
 Author: kuu
 Author URI: http://salon.mallory.jp
 */
@@ -412,6 +412,10 @@ public function example_remove_dashboard_widgets() {
 				$file = $show_menu[$this->maintenance][0] == 'edit_config' ? $this->maintenance : 'salon_config';
 				$my_admin_page = add_submenu_page(  $this->maintenance, __('Environment Setting',SL_DOMAIN), __('Environment Setting',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_config' ) );
 				add_action('load-'.$my_admin_page, array(&$this,'admin_add_help_config'));
+//				//[2014/07/30]
+				$my_admin_page = add_submenu_page(  $this->maintenance, __('Mail Setting',SL_DOMAIN), __('Mail Setting',SL_DOMAIN), 'level_1', 'salon_mail', array( &$this, 'edit_mail' ) );
+				add_action('load-'.$my_admin_page, array(&$this,'admin_add_help_mail'));
+
 			}
 			if (in_array('edit_position',$show_menu[$this->maintenance]) )  {
 				$file = $show_menu[$this->maintenance][0] == 'edit_position' ? $this->maintenance : 'salon_position';
@@ -570,6 +574,16 @@ public function example_remove_dashboard_widgets() {
 		$this->help_common($screen,array(true,false,false));
 		$this->help_side($screen);
 	}
+
+	public function admin_add_help_mail() {
+		$screen = get_current_screen();
+		$help = '<h3>Under Construction</h3>';
+		$this->_setTab($screen,'_content',__( 'Content'),$help);
+		$this->help_common($screen,array(true,false,false));
+		$this->help_side($screen);
+	}
+
+
 
 	public function admin_add_help_position() {
 		$screen = get_current_screen();
@@ -962,8 +976,13 @@ public function example_remove_dashboard_widgets() {
 				$this->_set_items();
 				
 			}
-			
-			
+			//[2014/08/01]Ver 1.4.6
+			$result =  unserialize(get_option( 'SALON_CONFIG'));
+			//<br>を改行へ、%s、X-SHOPなどを変換
+			unset($result['SALON_CONFIG_SEND_MAIL_TEXT']);
+			unset($result['SALON_CONFIG_SEND_MAIL_TEXT_USER']);
+			update_option('SALON_CONFIG',serialize($result));
+			//
 		}
 		else {
 			//status 会員の場合は、Icomplete

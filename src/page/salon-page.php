@@ -1898,15 +1898,22 @@ EOT2;
 
 		$item_contents['send_mail_text'] =array('id'=>'send_mail_text'
 		 ,'class' => array()
-		 ,'check' => array( 'lenmax200')
+		 ,'check' => array( 'lenmax300')
 		 ,'label' => '17.'.__('The Content of the Mail to Confirming Notice to the Client',SL_DOMAIN)
-		 ,'tips' => __('within 200 charctors. {X-TO_NAME} in the content replace customer name',SL_DOMAIN));
+		 ,'tips' => __('within 300 charctors. {X-TO_NAME} in the content replace customer name',SL_DOMAIN));
+		
+		$item_contents['send_mail_text_on_mail'] = $item_contents['send_mail_text'];
+		$item_contents['send_mail_text_on_mail']['label'] = substr($item_contents['send_mail_text_on_mail']['label'],3);
 
 		$item_contents['regist_mail_text'] =array('id'=>'regist_mail_text'
 		 ,'class' => array()
-		 ,'check' => array( 'lenmax200')
+		 ,'check' => array( 'lenmax300')
 		 ,'label' => '18.'.__('The Content of the Mail to respond to the Client newly registered as a Member',SL_DOMAIN)
-		 ,'tips' => __('within 200 charctors.  {X-TO_NAME} in the content replace customer name',SL_DOMAIN));
+		 ,'tips' => __('within 300 charctors.  {X-TO_NAME} in the content replace customer name',SL_DOMAIN));
+
+		$item_contents['regist_mail_text_on_mail'] = $item_contents['regist_mail_text'];
+		$item_contents['regist_mail_text_on_mail']['label'] = substr($item_contents['regist_mail_text_on_mail']['label'],3);
+
 
 		$item_contents['config_staff_holiday_set'] =array('id'=>'config_staff_holiday_normal'
 		 ,'class'	=>array()
@@ -2088,12 +2095,19 @@ EOT2;
 		 ,'label' => '15.'.__('Mail from',SL_DOMAIN)
 		 ,'tips' => 'Name<XXX@XXX.XXX>');
 
+
+		$item_contents['mail_from_on_mail'] = $item_contents['mail_from'];
+		$item_contents['mail_from_on_mail']['label'] = substr($item_contents['mail_from_on_mail']['label'],3);
+		
+		
 		$item_contents['mail_returnPath'] =array('id'=>'mail_returnPath'
 		 ,'class' => array()
 		 ,'check' => array( 'chkMail')
 		 ,'label' => '16.'.__('Mail return path',SL_DOMAIN)
 		 ,'tips' => __('please XXX@XXX.XXX format',SL_DOMAIN));
 
+		$item_contents['mail_returnPath_on_mail'] = $item_contents['mail_returnPath'];
+		$item_contents['mail_returnPath_on_mail']['label'] = substr($item_contents['mail_returnPath_on_mail']['label'],3);
 
 		//[20140416]Ver1.3.7
 		$item_contents['mobile_search_day'] =array('id'=>'slm_searchdate'
@@ -2160,6 +2174,25 @@ EOT2;
 		 ,'check' => array( 'lenmax300')
 		 ,'label' => __('Introductions',SL_DOMAIN)
 		 ,'tips' => __('Please input self-introductions.',SL_DOMAIN));
+
+		//[2014/08/01]Ver1.4.6
+		$item_contents['target_mail_patern'] =array('id'=>'target_mail_patern'
+		 ,'class' => array()
+		 ,'check' => array()
+		 ,'label' => __('Select Mail',SL_DOMAIN)
+		 ,'tips' => __('Please select.',SL_DOMAIN));
+
+		$item_contents['send_mail_subject'] =array('id'=>'send_mail_subject'
+		 ,'class' => array()
+		 ,'check' => array('lenmax78')
+		 ,'label' => __('The Subject of the Mail to Confirming Notice to the Client',SL_DOMAIN)
+		 ,'tips' => __('within 78 charctors.',SL_DOMAIN));
+
+		$item_contents['regist_mail_subject'] =array('id'=>'regist_mail_subject'
+		 ,'class' => array()
+		 ,'check' => array('lenmax78')
+		 ,'label' => __('The Subject of the Mail to respond to the Client newly registered as a Member',SL_DOMAIN)
+		 ,'tips' => __('within 78 charctors.',SL_DOMAIN));
 
 
 		return $item_contents;	

@@ -3,7 +3,7 @@ Contributors: kuu(Tanaka Hisao)
 Tags: hair salon,salon,appointment,booking,beauty apps,reservation,dental clinic,hospital,mutilingual,散髪予約,美容院予約,美容室予約,サロン予約,エステ予約,予約システム,予約管理
 Requires at least: 3.8
 Tested up to: 3.8.1
-Stable tag: 1.4.5
+Stable tag: 1.4.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -98,6 +98,8 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 1. Upload `salon-booking` to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
 
+3. Already Installed,input mail text again.
+
 
 == Frequently Asked Questions ==
 1. [Docs](http://salon.mallory.jp/en/?page_id=80)
@@ -112,9 +114,13 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 5. 管理画面（出退勤）
 
 == Changelog ==
+= 1.4.6 =
+* Added: the screen of "mail".
+* Fixed: and so on.
+
 = 1.4.5 =
 * Added: Display a self-introduce of staff member at the screen of "Reservation(PC)".
-* Fixed: 
+* Fixed: and so on.
 
 = 1.4.4 =
 * Changed: When a customer login,"name","tel" or "mail" can't be changed.

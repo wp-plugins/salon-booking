@@ -1030,4 +1030,11 @@ label#mail_lbl  {
 	z-index:100;
 }
 
+#data_detail .sl_mail_area{	
+	height: 300px;
+	margin-right:0px;
+	resize:vertical;
+	width:380px;
+}
+
 div.sl_staff_name:hover  p.sl_intro_box { display: block; }

@@ -717,7 +717,8 @@ EOT3;
 					ev_cnt++;
 					if (staff_array[evs[i].staff_cd]) staff_array[evs[i].staff_cd] += 1;
 					else staff_array[evs[i].staff_cd] = 1;
-					if (evs[i].user_login == ev.user_login) {
+					
+					if (ev.user_login && evs[i].user_login == ev.user_login) {
 						if ( is_do_form) {
 							var label = $j("#start_time").prev().children(".small" );
 							label.text("<?php _e('your reservation is duplicated',SL_DOMAIN); ?>")

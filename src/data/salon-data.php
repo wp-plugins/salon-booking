@@ -17,8 +17,8 @@ abstract class Salon_Data {
 		$result =  unserialize(get_option( 'SALON_CONFIG'));
 		if (empty($result['SALON_CONFIG_BRANCH']) ) $result['SALON_CONFIG_BRANCH'] =  Salon_Config::MULTI_BRANCH;
 		if (!isset($result['SALON_CONFIG_USER_LOGIN']) && empty($result['SALON_CONFIG_USER_LOGIN']) ) $result['SALON_CONFIG_USER_LOGIN'] = Salon_Config::USER_LOGIN_OK;
-		if (empty($result['SALON_CONFIG_SEND_MAIL_TEXT']) ) $result['SALON_CONFIG_SEND_MAIL_TEXT'] = __('Mr/Ms {X-TO_NAME} Please Fixed this reservation.Click the following URL<br>{X-SHOP}',SL_DOMAIN);
-		if (empty($result['SALON_CONFIG_SEND_MAIL_TEXT_USER']) ) $result['SALON_CONFIG_SEND_MAIL_TEXT_USER'] = __('Mr/Ms {X-TO_NAME} Thank you for registration .your User_id is %s,your initial password is %s',SL_DOMAIN);
+//		if (empty($result['SALON_CONFIG_SEND_MAIL_TEXT']) ) $result['SALON_CONFIG_SEND_MAIL_TEXT'] = __('Mr/Ms {X-TO_NAME} Please Fixed this reservation.Click the following URL<br>{X-SHOP}',SL_DOMAIN);
+//		if (empty($result['SALON_CONFIG_SEND_MAIL_TEXT_USER']) ) $result['SALON_CONFIG_SEND_MAIL_TEXT_USER'] = __('Mr/Ms {X-TO_NAME} Thank you for registration .your User_id is %s,your initial password is %s',SL_DOMAIN);
 		if (empty($result['SALON_CONFIG_STAFF_HOLIDAY_SET']) ) $result['SALON_CONFIG_STAFF_HOLIDAY_SET'] =  Salon_Config::SET_STAFF_NORMAL;
 		if (empty($result['SALON_CONFIG_BEFORE_DAY']) ) $result['SALON_CONFIG_BEFORE_DAY'] =  Salon_Config::DEFALUT_BEFORE_DAY;
 		if (empty($result['SALON_CONFIG_AFTER_DAY']) ) $result['SALON_CONFIG_AFTER_DAY'] =  Salon_Config::DEFALUT_AFTER_DAY;
@@ -37,6 +37,16 @@ abstract class Salon_Data {
 		if (empty($result['SALON_CONFIG_MOBILE_NO_PHOTO']) ) $result['SALON_CONFIG_MOBILE_NO_PHOTO']  = "";
 		if (empty($result['SALON_CONFIG_LOAD_TAB']) ) $result['SALON_CONFIG_LOAD_TAB']  = Salon_Config::LOAD_STAFF;
 		
+		//[2014/08/01]Ver1.4.6
+		if (empty($result['SALON_CONFIG_SEND_MAIL_TEXT']) ) $result['SALON_CONFIG_SEND_MAIL_TEXT'] = __("Mr/Ms {X-TO_NAME} \nPlease confirm this reservation.Click the following URL\n{X-URL}\n\n{X-SHOP_NAME}\n{X-SHOP_ADDRESS}\n{X-SHOP_TEL}\n{X-SHOP_MAIL}",SL_DOMAIN);		
+		if (empty($result['SALON_CONFIG_SEND_MAIL_TEXT_USER']) ) $result['SALON_CONFIG_SEND_MAIL_TEXT_USER'] = __("Mr/Ms {X-TO_NAME} \nThank you for the registration.\nyour User_id is {X-USER_ID},\nyour initial password is {X-PASSWORD}\n\n{X-SHOP_NAME}\n{X-SHOP_ADDRESS}\n{X-SHOP_TEL}\n{X-SHOP_MAIL}",SL_DOMAIN);
+		
+		
+		if (empty($result['SALON_CONFIG_SEND_MAIL_SUBJECT']) ) $result['SALON_CONFIG_SEND_MAIL_SUBJECT'] = __("Confirm Reservation",SL_DOMAIN);
+		if (empty($result['SALON_CONFIG_SEND_MAIL_SUBJECT_USER']) ) $result['SALON_CONFIG_SEND_MAIL_SUBJECT_USER'] = __("Your registration is completed",SL_DOMAIN);
+		
+		
+				
 		$this->config = $result;
 	}
 	
@@ -793,18 +803,19 @@ abstract class Salon_Data {
 			throw new Exception(Salon_Component::getMsg('E902',array($wpdb->last_error,$wpdb->last_query)));
 		}
 		
-		$this->sendMailRegist($first_name,$last_name,$mail,$user_login,$pass);		
+		$this->sendMailRegist($first_name,$last_name,$mail,$user_login,$pass,$branch_cd);		
 		return $user_login;	
 		
 	}
 
 
-	public function sendMailRegist($first_name,$last_name,$mail,$user_login,$pass) {
+	public function sendMailRegist($first_name,$last_name,$mail,$user_login,$pass,$branch_cd) {
 		if (strpos($mail,self::SALON_DUMMY_DOMAIN) !== false) return;
 		
+		$branch_datas = $this->getBranchData($branch_cd);
 		$to = $mail;
-		$subject = sprintf(__("your registration is completed",SL_DOMAIN));
-		$message = $this->_create_body($first_name,$last_name,$user_login,$pass);
+		$subject = $this->getConfigData('SALON_CONFIG_SEND_MAIL_SUBJECT_USER');
+		$message = $this->_create_body($first_name,$last_name,$user_login,$pass,$branch_datas);
 
 		$header = $this->getConfigData('SALON_CONFIG_SEND_MAIL_FROM');	
 		if (!empty($header))	$header = "from:".$header."\n";
@@ -830,7 +841,7 @@ abstract class Salon_Data {
 		$phpmailer->Sender = $path;
 	}
 
-	private function _create_body($first_name,$last_name,$user_login,$pass) {
+	private function _create_body($first_name,$last_name,$user_login,$pass,$branch_datas) {
 		if ($this->config['SALON_CONFIG_NAME_ORDER'] == Salon_Config::NAME_ORDER_JAPAN ) {
 			$name = $last_name.' '.$first_name;
 		}
@@ -838,8 +849,24 @@ abstract class Salon_Data {
 			$name = $first_name.' '.$last_name;
 		}
 		$send_mail_text = $this->getConfigData('SALON_CONFIG_SEND_MAIL_TEXT_USER');
-		$body = sprintf(Salon_Component::writeMailHeader().'<body>'.$send_mail_text.'</body>',$user_login,$pass);
+		
+
+
+		$body = '<body>'.$send_mail_text.'</body>';
+
+
 		$body = str_replace('{X-TO_NAME}',htmlspecialchars($name,ENT_QUOTES),$body);
+		$body = str_replace('{X-USER_ID}',$user_login,$body);
+		$body = str_replace('{X-PASSWORD}',$pass,$body);
+		
+		
+		$body = str_replace('{X-SHOP_NAME}',htmlspecialchars($branch_datas['name'],ENT_QUOTES),$body);
+		$body = str_replace('{X-SHOP_ADDRESS}',htmlspecialchars($branch_datas['address'],ENT_QUOTES),$body);
+		$body = str_replace('{X-SHOP_TEL}',htmlspecialchars($branch_datas['tel'],ENT_QUOTES),$body);
+		$body = str_replace('{X-SHOP_MAIL}',htmlspecialchars($branch_datas['mail'],ENT_QUOTES),$body);
+		
+		$body = Salon_Component::writeMailHeader().nl2br($body);
+
 		return $body;
 	}
 

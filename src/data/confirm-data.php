@@ -24,6 +24,7 @@ class Confirm_Data extends Salon_Data {
 						' rs.non_regist_activate_key, '.
 						' DATE_FORMAT(rs.time_from, "%%H:%%i")  as time_from,'.
 						' DATE_FORMAT(rs.time_to, "%%H:%%i")   as time_to,'.
+						' DATE_FORMAT(rs.time_from, "%%Y%%m%%d%%H%%i")  as check_day,'.
 						' rs.branch_cd,'.
 						' rs.staff_cd ,'.
 						' st.user_login, '.

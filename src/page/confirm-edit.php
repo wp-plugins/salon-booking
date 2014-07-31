@@ -44,6 +44,11 @@ class Confirm_Edit extends Salon_Page {
 		if ( count($this->datas) == 0  ||  $this->datas['non_regist_activate_key'] !== $this->activation_key ) {
 			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
 		}
+		$now =  date_i18n("YmdHi");
+		if ($this->datas['check_day'] < $now )  {
+			throw new Exception(Salon_Component::getMsg('E011',$this->datas['target_day'].' '.$this->datas['time_from']));
+		}
+		
 	}
 
 

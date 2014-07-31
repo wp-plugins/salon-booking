@@ -409,6 +409,9 @@ class Salon_Component {
 				break;
 			case 'E010':
 				$err_msg = sprintf(__("this branch has no staff ",SL_DOMAIN),$add_char);
+				break;
+			case 'E011':
+				$err_msg = sprintf(__("This reservation has expired. [%s]",SL_DOMAIN),$add_char);
 				break;	
 			case 'E201':
 				$err_msg = sprintf(__("%s required[%s]",SL_DOMAIN),$err_cd,$add_char);
@@ -641,6 +644,7 @@ class Salon_Component {
 		if ($target_name == 'basic') $target_name = 'base';
 		if ($target_name == 'search') $target_name = 'booking';
 		if ($target_name == 'photo') $target_name = 'staff';
+		if ($target_name == 'mail') $target_name = 'config';
 		if ($target_name == 'download') {
 			if (!in_array('edit_resevation',$show_menu) && !in_array('edit_sales',$show_menu) ) {
 					throw new Exception(self::getMsg('E908',$class_name),1);

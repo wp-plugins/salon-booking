@@ -42,6 +42,12 @@ class Confirm_Page extends Salon_Page {
 		if ($this->datas['non_regist_activate_key'] !== $this->activation_key) {
 			$this->error_msg = Salon_Component::getMsg('E005',__LINE__);
 		}
+				
+		$now =  date_i18n("YmdHi");
+		if ($this->datas['check_day'] < $now )  {
+			$this->error_msg = Salon_Component::getMsg('E011',$this->datas['target_day'].' '.$this->datas['time_from']);
+		}
+		
 	}
 	
 	public function set_config_datas($config_datas) {
@@ -75,11 +81,12 @@ class Confirm_Page extends Salon_Page {
 		if ($this->datas['status'] == Salon_Reservation_Status::TEMPORARY) {
 			$echo_data_exec = '<input id="button_exec" type="button" value="'.__('Reservation Completed',SL_DOMAIN).'" class="sl_button"/>';
 			$echo_data_cancel = '<input id="button_cancel" type="button" value="'.__('Reservation Cancel',SL_DOMAIN).'" class="sl_button"/>';
-			$echo_data_exec_event = '$j("#button_exec").click(function(){if (confirm("'.__('Reservation Completed ?',SL_DOMAIN).'") == false) return;fnFixReservation("exec");});';
+			$echo_data_exec_event = '$j("#button_exec").click(function(){if (!_checkNow() ) return;if (confirm("'.__('Reservation Completed ?',SL_DOMAIN).'") == false) return;fnFixReservation("exec");});';
 		}
 		else {
 			$echo_data_exec = '';
-			$echo_data_cancel = '<input id="button_cancel" type="button" value="'.__('Reservation Cancel',SL_DOMAIN).'" class="sl_button"/>';
+			$echo_data_cancel = '<input id="button_cancel" type="button" value="'.__('Reservated Cancel',SL_DOMAIN).'" class="sl_button"/>';
+			$echo_data_exec_event = '';
 		}
 ?>		
 		<div id="salon_button_div" >
@@ -89,6 +96,8 @@ class Confirm_Page extends Salon_Page {
 		<script type="text/javascript">
 			var $j = jQuery
 			$j("#button_cancel").click(function(){
+				
+				if (!_checkNow() ) return;
 				if (confirm("<?php _e('reservation cancel ok',SL_DOMAIN); ?>") == false) return;
 				fnFixReservation("cancel");
 			});
@@ -115,7 +124,7 @@ class Confirm_Page extends Salon_Page {
 								return false;
 							}
 							$j("#status_name").text(data.set_data["status_name"]);
-							$j("#button_cancel").val("<?php _e('reservated cancel',SL_DOMAIN); ?>");
+							$j("#button_cancel").val("<?php _e('Reservated Cancel',SL_DOMAIN); ?>");
 							$j("#button_exec").remove();
 						}
 						,error:  function(XMLHttpRequest, textStatus){
@@ -123,6 +132,15 @@ class Confirm_Page extends Salon_Page {
 							return false;
 						}
 				});			
+			}
+			function _checkNow() {
+				var target = new Date(<?php echo sprintf("%d,%d,%d,%d,%d,%d",substr($this->datas['check_day'],0,4),substr($this->datas['check_day'],4,2)-1,substr($this->datas['check_day'],6,2), substr($this->datas['check_day'],8,2),substr($this->datas['check_day'],10,2), 59); ?>);
+				var now = new Date();
+				if(target.getTime() < now.getTime()) {
+					alert("<?php echo Salon_Component::getMsg('E011',$this->datas['target_day'].' '.$this->datas['time_from']); ?>");
+					return false;
+				}
+				return true;
 			}
 		</script>
 <?php  
