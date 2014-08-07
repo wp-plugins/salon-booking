@@ -70,13 +70,23 @@ class Booking_Mobile_Edit extends Booking_Edit {
 		  $this->checkOk = false;
 		  $this->msg  .=  (empty($this->msg) ? '' : "\n"). 'EM003 '.__('Check reserved time ',SL_DOMAIN);
 		}		
-		//fromは今より後
-		$dt = new DateTime();
-		$current_time = $dt->format('Y-m-d H:i');
-		if (strtotime($current_time) > $from) {
+		//fromは指定分以降より後
+		$limit_time = new DateTime(date_i18n('Y-m-d H:i'));
+		$limit_time->add(new DateInterval("PT".$this->config_datas['SALON_CONFIG_RESERVE_DEADLINE']."M"));
+		if ($limit_time->getTimestamp() > $from) {
 		  $this->checkOk = false;
-		  $this->msg .=  (empty($this->msg) ? '' : "\n"). 'EM001 '.__('The past times can not reserve',SL_DOMAIN);
+		  $this->msg .=  (empty($this->msg) ? '' : "\n"). 'EM004 '.sprintf(__('Your reservation is possible from %s.',SL_DOMAIN),$limit_time->format(__('m/d/Y',SL_DOMAIN).' H:i'));
 		}
+
+
+		//fromは今より後
+//		$dt = new DateTime();
+//		$current_time = $dt->format('Y-m-d H:i');
+//		if (strtotime($current_time) > $from) {
+//		  $this->checkOk = false;
+//		  $this->msg .=  (empty($this->msg) ? '' : "\n"). 'EM001 '.__('The past times can not reserve',SL_DOMAIN);
+//		}
+
 		//未来も制限がある
 		if (strtotime($this->insert_max_day) < $from) {
 		  $this->checkOk = false;

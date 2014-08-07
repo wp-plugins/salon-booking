@@ -71,9 +71,13 @@ class Reservation_Page extends Salon_Page {
 		
 		var save_operate = "inserted";
 		
-		<?php parent::echoClientItem($this->set_items); //for only_branch?>	
+		var staff_items = new Array();
 
+		
+		<?php parent::echoClientItem($this->set_items); //for only_branch?>	
 		<?php parent::set_datepicker_date($this->current_user_branch_cd,null ,unserialize($this->branch_datas['sp_dates'])); ?>
+
+		<?php parent::echoItemFromto($this->item_datas); ?>
 
 		$j(document).ready(function() {
 			
@@ -83,6 +87,13 @@ class Reservation_Page extends Salon_Page {
 			
 			<?php  parent::set_datepickerDefault(); ?>
 			<?php  parent::set_datepicker("target_day",$this->current_user_branch_cd,false,'',$this->branch_datas['closed']); ?>			
+
+			<?php //[2012/08/02] 
+			foreach ($this->staff_datas as $k1 => $d1 ) {
+				echo 'staff_items['.$d1['staff_cd'].'] = "'.$d1['in_items'].'";';
+			}
+			?>
+
 
 
 <?php			
@@ -135,10 +146,48 @@ EOT;
 			$j("#item_cds input[type=checkbox]").click(function(){
 				_fnSetEndTime()
 			});
+
+
+
+			<?php //[2014/08/02]スタッフコードにより選択を変更 ?>
+			$j("#staff_cd").change(function(){
+				var checkday = $j("#target_day").val();
+				checkday = checkday.replace(/\//g,"");
+				if (!$j(this).val()  ) {
+					$j("#item_cds input").attr("disabled",true);
+				}
+				else if ( $j(this).val() == <?php echo Salon_Default::NO_PREFERENCE; ?>) {
+					$j("#item_cds input").attr("disabled",false);
+					$j("#item_cds :checkbox").each(function(){
+						if (checkday < item_fromto[+$j(this).val()].f ||  checkday > item_fromto[+$j(this).val()].t) 
+							$j("#item_cds #check_"+$j(this).val()).attr("disabled",true);
+					})
+				}
+				else {
+					var staff_cd = $j(this).val();
+					$j("#item_cds input").attr("disabled",true);
+					var item_array = staff_items[staff_cd].split(",");
+					var max_loop = item_array.length;
+					for	 (var i = 0 ; i < max_loop; i++) {
+						<?php //メニューの有効期間を判定する　?>
+						if (item_fromto[+item_array[i]].f <= checkday && checkday <= item_fromto[+item_array[i]].t) 
+							$j("#item_cds #check_"+item_array[i]).attr("disabled",false);
+					}
+					$j("#item_cds :checkbox").each(function(){
+						if($j(this).attr("disabled") ){
+							$j(this).attr("checked",false);
+						}
+					})
+					<?php //値段を再計算する ?>
+					_fnSetEndTime();
+				}
+			});
+
 			$j("#time_from_aft").click(function(){
 				_fnSetEndTime()
 			});
 			$j("#target_day").change(function(){
+				$j("#staff_cd").change();
 				_fnSetEndTime()
 			});
 
@@ -222,7 +271,6 @@ EOT;
 			$j("#status").val(setData['aoData'][position[0]]['_aData']['status']);
 			$j("#time_from_aft").val(setData['aoData'][position[0]]['_aData']['time_from_bef']);
 			$j("#time_to_aft").val(setData['aoData'][position[0]]['_aData']['time_to_bef']);
-			$j("#staff_cd").val(setData['aoData'][position[0]]['_aData']['staff_cd_bef']);
 			$j("#remark").val(htmlspecialchars_decode(setData['aoData'][position[0]]['_aData']['remark_bef']));	
 			$j("#price").val(setData['aoData'][position[0]]['_aData']['price']);
 			$j("#tel").val(setData['aoData'][position[0]]['_aData']['tel']);
@@ -250,6 +298,7 @@ EOT;
 
 			$j("#button_detail").val("<?php _e('Hide Details',SL_DOMAIN); ?>");
 
+			$j("#staff_cd").val(setData['aoData'][position[0]]['_aData']['staff_cd_bef']).change();
 		}
 
 		<?php parent::echoDataTableDeleteRow("reservation","reservation",true,'"p2":setData["aoData"][position[0]]["_aData"]["non_regist_activate_key"],'); ?>
@@ -349,6 +398,7 @@ EOT;
 			$j("#data_detail input[type=\"text\"]").val("");
 			$j("#data_detail textarea").val("");
 			$j("#item_cds input").attr("checked",false);
+			$j("#item_cds input").attr("disabled",true);
 			$j("#data_detail select").val("");
 			$j("#button_update").attr("disabled", true);
 			$j("#target_date_patern").children("option[value=<?php echo parent::TARGET_DATE_PATERN; ?>]").attr("selected","selected");

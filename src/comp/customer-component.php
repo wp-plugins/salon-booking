@@ -63,10 +63,6 @@ class Customer_Component {
 		foreach ( $result_after as $k1 => $d1) {
 			if (empty($d1['first_name'] ) ) $result_after[$k1]['first_name'] = __('last name',SL_DOMAIN).__('not registered',SL_DOMAIN);
 			if (empty($d1['last_name'] ) ) $result_after[$k1]['last_name'] = __('first name',SL_DOMAIN).__('not registered',SL_DOMAIN);
-//			if (empty($d1['zip'] ) ) $result_after[$k1]['zip'] = __('zip',SL_DOMAIN).__('not registered',SL_DOMAIN);
-//			if (empty($d1['address'] ) ) $result_after[$k1]['address'] = __('address',SL_DOMAIN).__('not registered',SL_DOMAIN);
-//			if (empty($d1['tel'] ) ) $result_after[$k1]['tel'] = __('tel',SL_DOMAIN).__('not registered',SL_DOMAIN);
-//			if (empty($d1['mobile'] ) ) $result_after[$k1]['mobile'] = __('mobile',SL_DOMAIN).__('not registered',SL_DOMAIN);
 			if (empty($d1['branch_cd'] ) ) {
 				$result_after[$k1]['branch_name'] = __('registerd salon ',SL_DOMAIN).__('not registered',SL_DOMAIN);
 			}

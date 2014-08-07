@@ -85,6 +85,7 @@ class Booking_Edit extends Salon_Page {
 					tid="{$tid}" 
 					name="{$edit_name}" 
 					status="{$status}" 
+				 	end_date  = "{$this->table_data['time_to']}"
 					p2 = "{$p2}"
 					edit_flg="{$edit_flg}" 
 					alert_msg = "{$msg}" >

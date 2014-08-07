@@ -11,6 +11,8 @@ abstract class Salon_Data {
 
 	private $version = '1.0';
 	private $config = null;
+	
+	private $isAdmin = null;
 
 
 	public function __construct() {
@@ -44,6 +46,9 @@ abstract class Salon_Data {
 		
 		if (empty($result['SALON_CONFIG_SEND_MAIL_SUBJECT']) ) $result['SALON_CONFIG_SEND_MAIL_SUBJECT'] = __("Confirm Reservation",SL_DOMAIN);
 		if (empty($result['SALON_CONFIG_SEND_MAIL_SUBJECT_USER']) ) $result['SALON_CONFIG_SEND_MAIL_SUBJECT_USER'] = __("Your registration is completed",SL_DOMAIN);
+		
+		if (empty($result['SALON_CONFIG_RESERVE_DEADLINE']) ) $result['SALON_CONFIG_RESERVE_DEADLINE'] =  Salon_Config::DEFALUT_RESERVE_DEADLINE;
+		
 		
 		
 				
@@ -213,6 +218,25 @@ abstract class Salon_Data {
 			$this->_dbAccessAbnormalEnd();
 		}
 		return $result;
+	}
+	
+	//[2014/08/06]
+	public function getMenuItemCalcEndTime($startTime,$menus) {
+		global $wpdb;
+		$setIn = explode(',',$menus);
+		$sql = $wpdb->prepare(' SELECT sum(minute) as min'.
+			   ' FROM '.$wpdb->prefix.'salon_item '.
+			   ' WHERE item_cd IN(' . substr(str_repeat(',%d', count($setIn)), 1) . ')',$setIn);
+			   
+		if ($wpdb->query($sql) === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+		$from = new DateTime($startTime);
+		$from->add(new DateInterval("PT".$result[0]['min']."M"));
+		return $from->format('Y-m-d H:i');
 	}
 
 	public function getTargetStaffData($branch_cd = null,$except_delete = true){
@@ -601,6 +625,10 @@ abstract class Salon_Data {
 	
 
 	public function isSalonAdmin($user_login,&$role = false){	
+		if (!is_null($this->isAdmin)) return  $this->isAdmin;
+
+		$this->isAdmin = false;
+
 		if (empty($user_login) ) $user_login = $this->getUserLogin();
 		if (empty($user_login) ){
 			return false;
@@ -622,12 +650,9 @@ abstract class Salon_Data {
 		if ($result) {
 			$show_menu =  explode(",",$result[0]['role']);
 			if (! $role ) $role = $show_menu;
-			if (in_array('edit_admin',$show_menu) || $result[0]['position_cd'] == self::SALON_MAINTENANCE) return true;
-			else return false;
+			if (in_array('edit_admin',$show_menu) || $result[0]['position_cd'] == self::SALON_MAINTENANCE) 	$this->isAdmin = true;
 		}
-		else {
-			return false;
-		}
+		return $this->isAdmin;
 	}
 	
 	

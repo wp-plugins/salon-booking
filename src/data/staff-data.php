@@ -7,6 +7,8 @@ class Staff_Data extends Salon_Data {
 	
 	const TABLE_NAME = 'salon_staff';	
 	
+	private $isCompleteDelete = false;
+	
 	function __construct() {
 		parent::__construct();
 	}
@@ -90,22 +92,36 @@ class Staff_Data extends Salon_Data {
 	}
 
 	public function deleteTable ($table_data){
-		$set_string = 	' delete_flg = %d, update_time = %s  ';
-		$set_data_temp = array(Salon_Reservation_Status::DELETED,
-						date_i18n('Y-m-d H:i:s'),
-						$table_data['staff_cd']);
+		//予約があれば更新なければDELETE。単純な間違いは削除しないと、実績登録で同じ名前のスタッフが羅列されてしまう
 		$where_string = ' staff_cd = %d ';
-		if ( $this->updateSql(self::TABLE_NAME,$set_string,$where_string,$set_data_temp) === false) {
-			$this->_dbAccessAbnormalEnd();
+		if ($this->_hasReservationByStaffcd($table_data['staff_cd']) ){
+			$set_string = 	' delete_flg = %d, update_time = %s  ';
+			$set_data_temp = array(Salon_Reservation_Status::DELETED,
+							date_i18n('Y-m-d H:i:s'),
+							$table_data['staff_cd']);
+			if ( $this->updateSql(self::TABLE_NAME,$set_string,$where_string,$set_data_temp) === false) {
+				$this->_dbAccessAbnormalEnd();
+			}
+		}
+		else {
+			$this->isCompleteDelete = true;
+			$set_data_temp = array($table_data['staff_cd']);
+			if ( $this->deleteSql(self::TABLE_NAME,$where_string,$set_data_temp) === false) {
+				$this->_dbAccessAbnormalEnd();
+			}
 		}
 		return true;
 	}
 	
+	public function isCompleteDelete () { return $this->isCompleteDelete; }
 
 
 	public function getInitDatas() {
 		return $this->getStaffDataByStaffcd();
 	}
+	
+	
+	
 	
 	public function getStaffDataByStaffcd($staff_cd = "") {
 		global $wpdb;
@@ -117,6 +133,7 @@ class Staff_Data extends Salon_Data {
 		else {
 			$join = ' AND st.delete_flg <> '.Salon_Reservation_Status::DELETED;
 		}
+		
 
 		$sql = 'SELECT us.ID,us.user_login,um.* ,us.user_email,'.
 				'        st.staff_cd,st.branch_cd,st.position_cd,st.remark,st.memo,st.notes,st.photo, st.duplicate_cnt, '.
@@ -145,6 +162,55 @@ class Staff_Data extends Salon_Data {
 		return $result;
 
 	}
+
+
+	public function getStaffDataByUser($user_login) {
+		global $wpdb;
+
+		$sql = 'SELECT us.ID,us.user_login,um.* ,us.user_email,'.
+				'        "" AS staff_cd,"" AS branch_cd,"" AS position_cd,"" AS remark,"" AS memo,"" AS notes,"" AS photo, 0 AS duplicate_cnt, '.
+				'        "" AS employed_day,"" AS  leaved_day ,0 AS display_sequence,"" AS in_items '.
+				' FROM (SELECT * FROM '.$wpdb->prefix.'users WHERE user_login = %s ) us '.
+				' INNER JOIN '.$wpdb->prefix.'usermeta um  '.
+				'       ON    us.ID = um.user_id ';
+		$sql = $wpdb->prepare($sql,$user_login);
+
+
+		if ($wpdb->query($sql) === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+		return $result;
+
+	}
+
+	private function _hasReservationByStaffcd($staff_cd) {
+		global $wpdb;
+		$where ='';
+		if (!empty($staff_cd)) { 
+			$where = $wpdb->prepare(' WHERE st.staff_cd = %d ',$staff_cd);
+		}
+		else {
+			$join = ' AND st.delete_flg <> '.Salon_Reservation_Status::DELETED;
+		}
+
+		$sql = $wpdb->prepare('SELECT COUNT(*) as cnt  '.
+				' FROM '.$wpdb->prefix.'salon_reservation '.
+				' WHERE delete_flg <> '.Salon_Reservation_Status::DELETED.
+				' AND   staff_cd = %d ',$staff_cd);
+				
+		if ($wpdb->query($sql) === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+		if ($result[0]['cnt'] > 0 ) return true;
+		return false;
+	}
+
 
 	public function updateStaffPhotoData($staff_cd,$new_photo_ids) {
 		global $wpdb;

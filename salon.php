@@ -3,7 +3,7 @@
 Plugin Name: Salon booking 
 Plugin URI: http://salon.mallory.jp
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff member. 
-Version: 1.4.6
+Version: 1.4.7
 Author: kuu
 Author URI: http://salon.mallory.jp
 */
@@ -567,9 +567,10 @@ public function example_remove_dashboard_widgets() {
 		$help .= '<li><strong>'.__('The Content of the Mail to Confirming Notice to the Client',SL_DOMAIN).'</strong> - '.__('When responding to the clients of without registration as a member, if you put [X-TO_NAME] and [X-TO_SALON] into the contents of the confirmation mail, which will be displayed as the name of the client and the shop automatically and sent to the client.  ',SL_DOMAIN ) . '</li>';
 		$help .= '<li><strong>'.__('The Content of the Mail to respond to the Client newly registered as a Member',SL_DOMAIN).'</strong> - '.__('This is the model contents of the mail to the client who checked "register as a member"on the screen of Reservation Confirmation. In this notice mail, the password for the client is also included. ',SL_DOMAIN ) . '</li>';
 		$help .= '<li><strong>'.__('Default load tab',SL_DOMAIN).'</strong> - '.__('If you change the load default tab at "Reservation Screen",select "Staff","Month","Week" or  "Day". ',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('Deadline of reservations',SL_DOMAIN).'</strong> - '.__('How many days or hours is the deadline of reservation.If you set 0, cancellation of the start time just before it is possible',SL_DOMAIN ) . '</li>';
 		$help .= '</ol>';
 
-		$this->_setTab($screen,'_content3',__( 'Content').'(13-19)',$help);
+		$this->_setTab($screen,'_content3',__( 'Content').'(13-20)',$help);
 
 		$this->help_common($screen,array(true,false,false));
 		$this->help_side($screen);

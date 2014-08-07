@@ -66,7 +66,13 @@ class Staff_Control extends Salon_Control  {
 				$this->datas->deleteStaffPhotoData($res['staff_cd']);
 				$this->datas->deleteTable( $res);
 			}
-			$reRead = $this->comp->editInitData($this->datas->getStaffDataByStaffcd($res['staff_cd']));
+			//完全に削除した場合のみとそれ以外で分岐
+			if ( $_POST['type'] == 'deleted' && $this->datas->isCompleteDelete() ) {
+				$reRead = $this->comp->editInitData($this->datas->getStaffDataByUser($res['user_login']));
+			}
+			else {
+				$reRead = $this->comp->editInitData($this->datas->getStaffDataByStaffcd($res['staff_cd']));
+			}
 			$this->pages->set_table_data($reRead[0]);
 		}
 		elseif ($this->action_class == 'Staff_Col_Edit' ) {

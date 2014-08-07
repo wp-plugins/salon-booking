@@ -185,10 +185,15 @@ class Staff_Page extends Salon_Page {
 				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slstaff",
 				<?php parent::echoDataTableLang(); ?>
 				<?php 
-					if ($this->config_datas['SALON_CONFIG_NAME_ORDER'] == Salon_Config::NAME_ORDER_JAPAN )
+				
+					if ($this->config_datas['SALON_CONFIG_NAME_ORDER'] == Salon_Config::NAME_ORDER_JAPAN ){
 						$seq = array('last_name','first_name','branch_cd','position_cd','display_sequence','remark','branch_name_table','position_name_table');
-					else 
+						$set_name = 'last_name';
+					}
+					else {
 						$seq = array('first_name','last_name','branch_cd','position_cd','display_sequence','remark','branch_name_table','position_name_table');
+						$set_name = 'first_name';
+					}
 					parent::echoTableItem($seq,false,$this->is_multi_branch,"120px",true); 
 				?>
 				"bSort":false,
@@ -201,7 +206,7 @@ class Staff_Page extends Salon_Page {
 					?>
 				},
 				fnRowCallback: function( nRow, aData, iDisplayIndex, iDataIndex ) {	
-					<?php parent::echoDataTableSelecter("first_name",false); ?>
+					<?php parent::echoDataTableSelecter($set_name,false); ?>
 					if (aData.branch_cd && aData.staff_cd != <?php echo get_option('salon_initial_user',1); ?>) {
 						element.append(sel_box);
 						element.append(del_box);
@@ -323,7 +328,7 @@ class Staff_Page extends Salon_Page {
 		?>
 
 		<?php parent::echoDataTableEditColumn("staff","ID",$add_callback_process,'if (!target_cd) { alert("'.__('this user not registerd',SL_DOMAIN).'"); return false; }'); ?>
-		<?php parent::echoDataTableDeleteRow("staff","staff",false); ?>
+		<?php parent::echoDataTableDeleteRow("staff","staff",false,'"user_login":setData["aoData"][position[0]]["_aData"]["user_login"],'); ?>
 
 		function _getFileName(file_path) {  
 			file_name = file_path.substring(file_path.lastIndexOf('/')+1, file_path.length);  

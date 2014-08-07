@@ -139,6 +139,7 @@
 			});
 			$j("#slm_regist_button").click(function(){
 				var now = new Date();
+				now.setMinutes(now.getMinutes()+<?php echo $this->config_datas['SALON_CONFIG_RESERVE_DEADLINE']; ?>);
 				_fnAddReservation(now.getHours()+1);
 				$j('#staff_cd').prop('selectedIndex', 0).change();
 			});
@@ -265,6 +266,10 @@
 		});
 		
 <?php */?>
+
+		<?php parent::echoCheckDeadline	($this->config_datas['SALON_CONFIG_RESERVE_DEADLINE']); ?>
+		
+
 		function _fnAddReservation (startHour) {
 			<?php //過去は予約できないようにしとく ?>
 			var chk_date = 	new Date($j("#slm_searchdate").val());
@@ -272,10 +277,14 @@
 				chk_date.setHours(startHour); 
 			}
 			var now = new Date();
+<?php /*			
 			if (now > chk_date ) {
 				alert("<?php _e('The past times can not reserve',SL_DOMAIN); ?>");
 				return;
 			}
+*/ ?>
+			if (!_checkDeadline(chk_date) ) return;
+
 			$j("#slm_page_main").hide();
 			$j("#slm_page_regist").show();
 			$j("#slm_exec_delete").hide();
@@ -450,6 +459,7 @@
 		parent::echoClientItemMobile(array('mobile_search_day','booking_user_login','booking_user_password','customer_name','mail_norequired','booking_tel','staff_cd','start_time','remark'));
 		?> 
 		<?php parent::echoDayFormat(); ?>
+		<?php parent::echoCheckDeadline	($this->config_datas['SALON_CONFIG_RESERVE_DEADLINE']); ?>
 
 
 		function AutoFontSize(){

@@ -69,6 +69,11 @@ class Salon_Config {
 	const LOAD_MONTH = 2;
 	const LOAD_WEEK = 3;
 	const LOAD_DAY = 4;
+	//
+	const DEFALUT_RESERVE_DEADLINE = 30;
+	const DEFALUT_RESERVE_DEADLINE_UNIT_DAY = 1;
+	const DEFALUT_RESERVE_DEADLINE_UNIT_HOUR = 2;
+	const DEFALUT_RESERVE_DEADLINE_UNIT_MIN = 3;
 	
 }
 
@@ -191,13 +196,23 @@ class Salon_Component {
 		else {
 			$reservation_data = $datas->getTargetSalesData($set_data['reservation_cd']);
 			if ($_POST['p2'] != $reservation_data[0]['non_regist_activate_key'] ) {
-				throw new Exception(self::getMsg('E901', basename(__FILE__).':'.__LINE__),1);
+				throw new Exception(self::getMsg('E909', basename(__FILE__).':'.__LINE__),1);
 			}
 		}
 		
 		$reservation_cd = '';
 		if ( $_POST['type'] == 'updated'    ) $reservation_cd = $set_data['reservation_cd'];
 		if ( ($_POST['type'] != 'deleted') ) {
+			//[2014/08/06]
+			if (!$datas->isSalonAdmin("")){
+				//fromは指定分以降より後
+				$from = strtotime($set_data['time_from']);
+				$limit_time = new DateTime(date_i18n('Y-m-d H:i'));
+				$limit_time->add(new DateInterval("PT".$datas->getConfigData('SALON_CONFIG_RESERVE_DEADLINE')."M"));
+				if ($limit_time->getTimestamp() > $from) {
+					throw new Exception(self::getMsg('E901', basename(__FILE__).':'.__LINE__),1);
+				}
+			}
 			//[2014/07/23]同一時間帯に同じユーザはだめ。ログインしている場合のみのチェック
 			//ログインしていない場合は電話・メール等のチェックも可能だが今後？
 			if (!empty($set_data['user_login']) ) {
@@ -476,6 +491,9 @@ class Salon_Component {
 			case 'E908':
 				//ここは英字のみ
 				$err_msg = sprintf("This access is out of the authority[%s]",$add_char);
+				break;
+			case 'E909':
+				$err_msg = sprintf(__("This reservation already updated.",SL_DOMAIN),$add_char);
 				break;
 			case 'W001':
 				$err_msg = sprintf(__("already reservation existed, so you can't day off",SL_DOMAIN),$add_char);	

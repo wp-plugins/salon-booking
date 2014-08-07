@@ -250,9 +250,12 @@ EOT3;
 					scheduler._events[tid].name = xml_node.getAttribute("name");
 					scheduler._events[tid].text = _edit_text_name(xml_node.getAttribute("name"));
 					scheduler._events[tid].p2 = xml_node.getAttribute("p2");
+					var setAfterDate = scheduler.date.str_to_date(scheduler.config.xml_date,scheduler.config.server_utc);
+					scheduler._events[tid].end_date = setAfterDate(xml_node.getAttribute("end_date"));
 					if (xml_node.getAttribute("alert_msg") ) {
 						alert(xml_node.getAttribute("alert_msg"));
 					}
+
 				}
 				return true;
 			})
@@ -305,9 +308,14 @@ EOT3;
 				if (ev.staff_cd) {
 					is_check = checkStaffHolidayLogic(ev.staff_cd,ev.start_date,ev.end_date);
 				}
+<?php /*
 				if ( (new Date() ) > ev.start_date ) {
 					is_check = false;
 					alert("<?php _e('The past times can not reserve',SL_DOMAIN); ?>");
+				}
+*/ ?>
+				if (!_checkDeadline(ev.start_date) ) {
+					is_check = false;
 				}
 				if ( ev.start_date > new Date(<?php echo $this->insert_max_day; ?>) ) {
 					is_check = false;
@@ -340,9 +348,14 @@ EOT3;
 			function allow_own(id){
 				var is_check = true;
 				var ev = this.getEvent(id);
+<?php /*
 				if ( (new Date() ) > ev.start_date ) {
 					is_check = false;
 					alert("<?php _e('past data can not edit',SL_DOMAIN); ?>");
+				}
+*/ ?>
+				if (!_checkDeadline(ev.start_date) ) {
+					is_check = false;
 				}
 				
 				<?php if ( ! $this->isSalonAdmin() ) : ?>
@@ -543,12 +556,15 @@ EOT3;
 				$j("#tel").val( ev.tel );
 				$j("#remark").val( htmlspecialchars_decode(ev.remark) );
 				$j("#staff_cd").val( ev.staff_cd ).change();
+				$j("#name").attr("readonly", false);
+				$j("#mail").attr("readonly", false);
+				$j("#tel").attr("readonly", false);
 				<?php if ( !is_user_logged_in() ||  $this->isSalonAdmin() ) : ?>
 					$j("#name").focus();			
 				<?php else : ?>
 					$j("#name").attr("readonly", true);
 					$j("#mail").attr("readonly", true);
-					$j("#tel").attr("readonly", true);
+					if (ev.tel) $j("#tel").attr("readonly", true);
 					$j("#staff_cd").focus();			
 				<?php endif; ?>
 				$j("#start_time").val(ev.start_date.getHours()+":"+(ev.start_date.getMinutes()<10?'0':'')+ev.start_date.getMinutes());
@@ -766,6 +782,8 @@ EOT3;
 			<?php endif; ?>
 			if ( ! checkStaffHoliday(ev,target_day_from,target_day_to) ) return false;
 			if ( ! checkDuplicate(ev,target_day_from,target_day_to) ) return false;
+			if (!_checkDeadline(target_day_from) ) return false;
+
 			ev.name = $j("#name").val();
 			ev.text = _edit_text_name($j("#name").val());
 			ev.tel =  $j("#tel").val();
@@ -784,6 +802,11 @@ EOT3;
 			
 
 		}
+		
+		
+		<?php parent::echoCheckDeadline	($this->config_datas['SALON_CONFIG_RESERVE_DEADLINE']); ?>
+		
+				
 		function delete_booking_data() {
 			var ev = scheduler.getEvent(scheduler.getState().lightbox_id);
 			ev.nonce = "<?php echo $this->nonce; ?>";

@@ -40,6 +40,7 @@ class Config_Component {
 		}
 
 		$set_data['SALON_CONFIG_LOAD_TAB'] = empty($_POST['config_load_tab']) ? Salon_Config::LOAD_STAFF : $_POST['config_load_tab'];
+		$set_data['SALON_CONFIG_RESERVE_DEADLINE'] = intval($_POST['config_reserve_deadline']);
 
 		return $set_data;
 		

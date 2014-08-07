@@ -928,6 +928,35 @@ EOT;
 			}
 EOT;
 	}
+	
+	//[2014/08/15]
+	public function echoCheckDeadline($minutes) {
+		//管理者は過去でも動作可能にする。
+		if ($this->isSalonAdmin() ) {
+			echo '	function _checkDeadline(checkTime) { return true; }';
+			return;
+		}
+		$msg_part = __('%m/%d/%Y',SL_DOMAIN);
+		$msg = __('Your reservation is possible from %s.',SL_DOMAIN);
+		echo <<<EOT
+		function _checkDeadline(checkTime) {
+			var limit_time = new Date();
+			if ("Date" !== Object.prototype.toString.call(checkTime).slice(8, -1) ){
+				checkTime = new Date(checkTime);
+			}
+			limit_time.setMinutes(limit_time.getMinutes()+{$minutes});
+			if ( limit_time > checkTime) {
+				var display_msg = fnDayFormat(limit_time,"{$msg_part}")+" "+('0'+limit_time.getHours()).slice(-2)+":"+('0'+limit_time.getMinutes()).slice(-2);
+				var display_main = "{$msg}";
+				display_main = display_main.replace("%s",display_msg);
+				alert(display_main);
+				return false;
+			}
+			return true;
+			
+		}
+EOT;
+	}
 
 
 	static function echoWorkingCheck($is_noEcho = false){
@@ -2193,6 +2222,14 @@ EOT2;
 		 ,'check' => array('lenmax78')
 		 ,'label' => __('The Subject of the Mail to respond to the Client newly registered as a Member',SL_DOMAIN)
 		 ,'tips' => __('within 78 charctors.',SL_DOMAIN));
+
+		//[20140714]Ver1.4.7
+		$item_contents['reserve_deadline'] =array('id'=>'reserve_deadline'
+		 ,'class'	=>array()
+		 ,'check' => array("num")
+		 ,'label' => '20.'.__('Deadline of reservations',SL_DOMAIN)
+		 ,'tips' => __('How many days or hours is the deadline of reservation.',SL_DOMAIN));
+
 
 
 		return $item_contents;	

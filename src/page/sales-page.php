@@ -66,9 +66,15 @@ class Sales_Page extends Salon_Page {
 		var save_tel = "";
 		
 		var save_operate = "inserted";
+
+		var staff_items = new Array();
+
 		
 		<?php parent::echoClientItem($this->set_items); //for only_branch?>	
 		<?php parent::set_datepicker_date($this->current_user_branch_cd,null ,unserialize($this->branch_datas['sp_dates'])); ?>
+
+
+		<?php parent::echoItemFromto($this->item_datas); ?>
 
 		$j(document).ready(function() {
 			
@@ -79,6 +85,12 @@ class Sales_Page extends Salon_Page {
 				
 			<?php  parent::set_datepickerDefault(true); ?>
 			<?php  parent::set_datepicker("target_day",$this->current_user_branch_cd,true,'',$this->branch_datas['closed']); ?>			
+
+			<?php //[2012/08/02] 
+			foreach ($this->staff_datas as $k1 => $d1 ) {
+				echo 'staff_items['.$d1['staff_cd'].'] = "'.$d1['in_items'].'";';
+			}
+			?>
 
 
 <?php			
@@ -138,8 +150,41 @@ EOT;
 				}
 				fnDetailInit(false);
 			});
+			
+			<?php //[2014/08/02]スタッフコードにより選択を変更 ?>
+			$j("#staff_cd").change(function(){
 
-						
+				var checkday = $j("#target_day").val();
+				checkday = checkday.replace(/\//g,"");
+				$j("#item_cds input").attr("disabled",true);
+				if (checkday && $j(this).val()  ) {
+					var staff_cd = $j(this).val();
+					var item_array = staff_items[staff_cd].split(",");
+					var max_loop = item_array.length;
+					for	 (var i = 0 ; i < max_loop; i++) {
+						<?php //メニューの有効期間を判定する　?>
+						if (item_fromto[+item_array[i]] && item_fromto[+item_array[i]].f <= checkday && checkday <= item_fromto[+item_array[i]].t) 
+							$j("#item_cds #check_"+item_array[i]).attr("disabled",false);
+							$j("#item_cds #check_"+item_array[i]).addClass("sl_color_cant_treat");
+					}
+					//実績登録の場合は、他の画面と異なりすでにチェックの入っている場合は逆にOK入力可能にする
+					//途中から扱えなくなった場合？
+					
+					$j("#item_cds :checkbox").each(function(){
+						if($j(this).attr("checked") ){
+							$j(this).attr("disabled",false)
+						}
+					})
+				}
+			});
+			
+			$j("#target_day").change(function() {
+				$j("#staff_cd").change();
+			});
+			
+			
+			
+									
 			
 			target = $j("#lists").dataTable({
 				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slsales",
@@ -250,6 +295,8 @@ EOT;
 			$j("#name").val(save_name);
 			$j("#mail").val(save_mail);
 			$j("#tel").val(save_tel);
+			
+			$j("#staff_cd").change();
 
 		}
 
@@ -366,6 +413,7 @@ EOT;
 			$j("#data_detail input[type=\"text\"]").val("");
 			$j("#data_detail textarea").val("");
 			$j("#item_cds input").attr("checked",false);
+			$j("#item_cds input").attr("disabled",true);
 			$j("#data_detail select").val("");
 			$j("#button_update").attr("disabled", true);
 			$j("#reserved span").text("");
@@ -381,6 +429,8 @@ EOT;
 				$j("#button_insert").attr("disabled", true);
 				
 			}
+			
+			
 
 			save_k1 = "";
 			save_item_cds_aft = "";

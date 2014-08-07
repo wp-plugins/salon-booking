@@ -60,8 +60,10 @@ class Booking_Component {
 			$set_data['staff_cd'] = intval($_POST['staff_cd']);	
 			$set_data['non_regist_name'] = stripslashes($_POST['name']);			
 			$set_data['non_regist_email'] = $_POST['mail'];	
-			$set_data['time_from'] = $_POST['start_date'];	
-			$set_data['time_to'] = $_POST['end_date'];		
+			$set_data['time_from'] = $_POST['start_date'];
+			//[2014/08/16]終了時間はメニュから再設定する。
+			//$set_data['time_to'] = $_POST['end_date'];		
+			
 			$set_data['status'] = $_POST['status'];		
 			$set_data['remark'] = stripslashes($_POST['remark']);		
 			$set_data['branch_cd'] = intval($_POST['branch_cd']);
@@ -71,6 +73,8 @@ class Booking_Component {
 			$set_data['non_regist_activate_key'] = substr(md5(uniqid(mt_rand(),1)),0,8);
 			$set_data['item_cds'] = $_POST['item_cds'];	
 			$set_data['non_regist_tel'] = $_POST['tel'];	
+
+			$set_data['time_to'] = $this->datas->getMenuItemCalcEndTime($set_data['time_from'],$set_data['item_cds']);
 			
 			$user_login = $this->datas->getUserLogin();	
 			if (  empty($user_login) ) {
