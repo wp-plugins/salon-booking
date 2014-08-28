@@ -45,7 +45,7 @@ class Customer_Edit extends Salon_Page {
 		}
 		$msg = null;
 		if ($_POST['type'] != 'deleted' ) {
-			if (Salon_Page::serverCheck(array('first_name','last_name','branch_cd','zip','address','tel','mobile','customer_mail','user_login','remark'),$msg) == false) {
+			if (Salon_Page::serverCheck(array('first_name','last_name','branch_cd','zip','address','tel','mobile','customer_mail','user_login','remark','rank_patern'),$msg) == false) {
 				throw new Exception($msg );
 			}
 		}
@@ -78,6 +78,7 @@ class Customer_Edit extends Salon_Page {
 		$res['remark'] = htmlspecialchars($this->table_data['remark'],ENT_QUOTES);
 		$res['branch_name'] = htmlspecialchars($this->table_data['branch_name'],ENT_QUOTES);
 		$res['user_login'] =  htmlspecialchars($this->table_data['user_login']);
+		$res['rank_patern_cd'] = $this->table_data['rank_patern_cd'];
 //		}
 		
 		echo '{	"status":"Ok","message":"'.Salon_Component::getMsg('N001').'",

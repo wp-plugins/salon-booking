@@ -37,6 +37,8 @@ class Customer_Control extends Salon_Control  {
 		if ($this->action_class == 'Customer_Page' ) {
 			$this->pages->set_branch_datas($this->datas->getAllBranchData());
 			$this->pages->set_config_datas($this->datas->getConfigData());
+			$this->pages->set_customer_rank_datas($this->datas->getCustomerRank());
+
 		}
 		elseif ($this->action_class == 'Customer_Init' ) {
 			$this->pages->set_init_datas($this->comp->editInitData($this->datas->getInitDatas()));

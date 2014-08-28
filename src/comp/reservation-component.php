@@ -48,6 +48,10 @@ class Reservation_Component {
 				$user_login = $this->datas->registCustomer($set_data['branch_cd'],$set_data['non_regist_email'], $set_data['non_regist_tel'] ,$set_data['non_regist_name'],__('registerd by reservation process',SL_DOMAIN),'','','',$regist_customer,false);
 			}
 			$set_data['user_login'] = $user_login;
+			$set_data['coupon'] ="";
+			if (isset($_POST['coupon']) && !empty($_POST['coupon'])) {
+				$set_data['coupon'] = stripslashes($_POST['coupon']);
+			}
 		}
 		return $set_data;
 		

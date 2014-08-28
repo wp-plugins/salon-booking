@@ -26,6 +26,18 @@ class Confirm_Component {
 			$res[] = $item_table[$d1]['name'];
 		}
 		$result[0]['item_name'] = implode(',',$res);
+		$promotion_datas = $this->datas->getPromotionData($result[0]['branch_cd']);
+		$promotion_table = array();
+		foreach ($promotion_datas as $k1 => $d1 ) {
+			$promotion_table[$d1['set_code']] = $d1['description'];
+		}
+		$result[0]['coupon_name'] = "";
+		if (empty($result[0]['coupon']) ) {
+			$result[0]['coupon_name'] = __('No Use',SL_DOMAIN);
+		}
+		else {
+			$result[0]['coupon_name'] = $promotion_table[$result[0]['coupon']];
+		}
 		if ($result[0]['staff_cd'] == Salon_Default::NO_PREFERENCE) 	$result[0]['staff_name'] = __('Anyone',SL_DOMAIN);
 		else $result[0]['staff_name'] = $this->datas->getUserName($result[0]['user_login']);
 		if ($result[0]['status'] == Salon_Reservation_Status::COMPLETE) $result[0]['status_name'] = __('reservation completed',SL_DOMAIN);

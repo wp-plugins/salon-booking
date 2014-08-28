@@ -55,6 +55,7 @@ class Booking_Edit extends Salon_Page {
 		$type = htmlspecialchars($_POST['type']);
 		$ID = floatval($_POST['id']);
 		$status = '';
+		$time_to = '';
 		if (is_user_logged_in()	) {
 			$edit_flg = Salon_Edit::OK;
 			$tid = $this->reservation_cd;
@@ -65,6 +66,7 @@ class Booking_Edit extends Salon_Page {
 				$p2 = $this->table_data['non_regist_activate_key'];
 				$edit_name = htmlspecialchars($this->table_data['non_regist_name'],ENT_QUOTES);
 				$status = $this->table_data['status'];
+				$time_to = $this->table_data['time_to'];
 			}
 		}
 		else {
@@ -75,6 +77,7 @@ class Booking_Edit extends Salon_Page {
 			$edit_name = htmlspecialchars($this->table_data['non_regist_name'],ENT_QUOTES);
 			$msg = __('reservation is not completed.Please confirm your reservation by [confirm form] in E-mail ',SL_DOMAIN);
 			$status = Salon_Reservation_Status::TEMPORARY;
+			$time_to = $this->table_data['time_to'];
 		}
 		header('Content-type: text/xml');
 		echo '<?xml version="1.0" encoding="UTF-8" ?>';
@@ -85,7 +88,7 @@ class Booking_Edit extends Salon_Page {
 					tid="{$tid}" 
 					name="{$edit_name}" 
 					status="{$status}" 
-				 	end_date  = "{$this->table_data['time_to']}"
+				 	end_date  = "{$time_to}"
 					p2 = "{$p2}"
 					edit_flg="{$edit_flg}" 
 					alert_msg = "{$msg}" >

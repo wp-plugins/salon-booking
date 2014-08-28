@@ -26,6 +26,32 @@ class Booking_Component {
 		return $result;
 	}
 
+	public function editPromotionData($branch_cd) {
+		$edit_result = array();
+		$result = $this->datas->getPromotionData($branch_cd);
+		if ($result) {
+			if ($this->datas->isPromotion() ) return $result;
+			foreach ($result as $k1=>$d1 ) {
+				switch ($d1['usable_patern_cd']) {
+				case Salon_Coupon::UNLIMITED:
+				case Salon_Coupon::FIRST:
+					$edit_result[] = $d1;
+					break;
+				case Salon_Coupon::TIMES:
+					if ($this->datas->isCustomer() || $this->datas->isStaff() )	$edit_result[] = $d1;
+					break;
+				case Salon_Coupon::RANK:
+					if ( $this->datas->isStaff() )	$edit_result[] = $d1;
+					if ($this->datas->isCustomer() && $this->datas->customerRank() >= $d1['usable_data'] )	$edit_result[] = $d1;
+					break;
+//				case Salon_Coupon::FIRST:
+//					if (!$this->datas->isCustomer() || $this->datas->isStaff() )	$edit_result[] = $d1;
+//					break;
+				}
+			}
+		}
+		return $edit_result;
+	}
 	public function editWorkingData($branch_cd) {
 		$day_from = Salon_Component::computeDate(-1 * $this->datas->getConfigData('SALON_CONFIG_BEFORE_DAY'));
 		$day_to = Salon_Component::computeDate( $this->datas->getConfigData('SALON_CONFIG_AFTER_DAY'));
@@ -75,6 +101,11 @@ class Booking_Component {
 			$set_data['non_regist_tel'] = $_POST['tel'];	
 
 			$set_data['time_to'] = $this->datas->getMenuItemCalcEndTime($set_data['time_from'],$set_data['item_cds']);
+			
+			$set_data['coupon'] = "";
+			if (isset($_POST['coupon']) && !empty($_POST['coupon'])) {
+				$set_data['coupon'] = stripslashes($_POST['coupon']);
+			}
 			
 			$user_login = $this->datas->getUserLogin();	
 			if (  empty($user_login) ) {

@@ -47,6 +47,8 @@ class Sales_Control extends Salon_Control  {
 
 			if ($this->pages->isSalonAdmin() ) $this->pages->set_all_branch_datas($this->datas->getAllBranchData());
 
+			$this->pages->set_promotion_datas($this->datas->getPromotionData($branch_cd));
+
 			$this->pages->set_current_user_branch_cd($branch_cd);
 			$this->pages->set_branch_datas($this->datas->getBranchData($branch_cd));
 			$this->pages->set_item_datas($this->datas->getTargetItemData($branch_cd,false));
@@ -60,7 +62,7 @@ class Sales_Control extends Salon_Control  {
 			$branch_cd = $this->pages->get_target_branch_cd();
 			$target_day_from = $this->pages->get_target_day_from();
 			$target_day_to = $this->pages->get_target_day_to();
-			$this->pages->set_init_datas($this->comp->editShowData($branch_cd,$this->datas->getAllSalesData($target_day_from,$target_day_to,$branch_cd)));
+			$this->pages->set_init_datas($this->comp->editShowData($branch_cd,$this->datas->getAllSalesData($target_day_from,$target_day_to,$branch_cd,$this->datas->getPromotionData($branch_cd))));
 		}
 		elseif ($this->action_class == 'Sales_Edit' ) {
 			$this->pages->check_request();

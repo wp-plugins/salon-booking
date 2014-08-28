@@ -14,7 +14,7 @@ class Reservation_Data extends Salon_Data {
 	
 
 	public function insertTable ($table_data){
-		$reservation_cd = $this->insertSql(self::TABLE_NAME,$table_data,'%d,%d,%s,%s,%s,%s,%d,%s,%s,%s,%s,%s,%s,%s');
+		$reservation_cd = $this->insertSql(self::TABLE_NAME,$table_data,'%d,%d,%s,%s,%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s');
 		if ($reservation_cd === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
@@ -32,6 +32,7 @@ class Reservation_Data extends Salon_Data {
 						' non_regist_email = %s , '.
 						' non_regist_tel = %s , '.
 						' status = %d , '.
+						' coupon = %s , '.
 						' update_time = %s ';
 												
 		$set_data_temp = array(
@@ -45,6 +46,7 @@ class Reservation_Data extends Salon_Data {
 						$table_data['non_regist_email'],
 						$table_data['non_regist_tel'],
 						$table_data['status'],
+						$table_data['coupon'],
 						date_i18n('Y-m-d H:i:s'),
 						$table_data['reservation_cd']);
 		$where_string = ' reservation_cd = %d ';

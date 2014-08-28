@@ -30,6 +30,7 @@ class BookingFront_Page extends Salon_Page {
 
 	private $user_inf = null;	
 	
+	private $promotion_datas = null; 
 
 	public function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch,session_id());
@@ -62,6 +63,12 @@ class BookingFront_Page extends Salon_Page {
 	
 	public function set_working_datas ($working_datas) {
 		$this->working_datas = $working_datas;
+	}
+
+
+	public function set_promotion_datas ($promotion_datas) {
+		$this->promotion_datas = $promotion_datas;
+
 	}
 
 	

@@ -54,6 +54,7 @@ class Sales_Init extends Salon_Page {
 			$this->init_datas[$k1]['staff_name_bef'] = htmlspecialchars($d1['staff_name_bef'],ENT_QUOTES);
 			$this->init_datas[$k1]['staff_name_aft'] = htmlspecialchars($d1['staff_name_aft'],ENT_QUOTES);
 			$this->init_datas[$k1]['item_name_bef'] = htmlspecialchars($d1['item_name_bef'],ENT_QUOTES);
+			$this->init_datas[$k1]['coupon_name'] = htmlspecialchars($d1['coupon_name'],ENT_QUOTES);
 		}
 		
 		$this->echoInitData($this->init_datas);

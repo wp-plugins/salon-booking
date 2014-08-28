@@ -13,7 +13,7 @@ class Customer_Data extends Salon_Data {
 	
 
 	public function insertTable ($table_data){
-		$customer_cd = $this->insertSql(self::TABLE_NAME,$table_data,'%d,%s,%d,%s,%s,%s,%s');
+		$customer_cd = $this->insertSql(self::TABLE_NAME,$table_data,'%d,%s,%d,%d,%s,%s,%s,%s');
 		if ($customer_cd === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
@@ -27,6 +27,7 @@ class Customer_Data extends Salon_Data {
 						' remark =  %s , '.
 						' memo =  %s , '.
 						' user_login =  %s , '.
+						' rank_patern_cd =  %d , '.
 						' update_time = %s ';
 												
 		$set_data_temp = array(
@@ -35,6 +36,7 @@ class Customer_Data extends Salon_Data {
 						$table_data['remark'],
 						$table_data['memo'],
 						$table_data['user_login'],
+						$table_data['rank_patern_cd'],
 						date_i18n('Y-m-d H:i:s'),
 						$table_data['customer_cd']);
 		$where_string = ' customer_cd = %d ';
@@ -91,7 +93,7 @@ class Customer_Data extends Salon_Data {
 		}
 
 		$sql = 'SELECT us.ID,us.user_login,um.* ,us.user_email,'.
-				'        cu.customer_cd,cu.branch_cd,cu.remark,cu.memo,cu.notes,cu.delete_flg '.
+				'        cu.customer_cd,cu.branch_cd,cu.remark,cu.memo,cu.notes,cu.delete_flg ,cu.rank_patern_cd'.
 				' FROM '.$wpdb->prefix.'users us  '.
 				' INNER JOIN '.$wpdb->prefix.'usermeta um  '.
 				'       ON    us.ID = um.user_id '.
@@ -101,9 +103,11 @@ class Customer_Data extends Salon_Data {
 				$where.
 				' ORDER BY ID';
 
-		$result = $wpdb->get_results($sql,ARRAY_A);
-		if ($result === false ) {
+		if ($wpdb->query($sql) === false ) {
 			$this->_dbAccessAbnormalEnd();
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
 		}
 		return $result;
 

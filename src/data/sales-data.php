@@ -13,7 +13,7 @@ class Sales_Data extends Salon_Data {
 	
 
 	public function insertTable ($table_data){
-		$result = $this->insertSql(self::TABLE_NAME,$table_data,'%d,%d,%d,%s,%s,%s,%s,%d,%s,%s,%s,%d');
+		$result = $this->insertSql(self::TABLE_NAME,$table_data,'%d,%d,%d,%s,%s,%s,%s,%d,%d,%s,%s,%d,%s');
 		if ($result === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
@@ -21,13 +21,13 @@ class Sales_Data extends Salon_Data {
 	}
 
 	public function updateTable ($table_data){
-
 		$set_string = 	' staff_cd = %d , '.
 						' time_from =  %s , '.
 						' time_to =  %s , '.
 						' item_cds =  %s , '.
 						' remark =  %s , '.
 						' price  = %d , '.
+						' coupon =  %s , '.
 						' update_time = %s ';
 												
 		$set_data_temp = array(
@@ -37,6 +37,7 @@ class Sales_Data extends Salon_Data {
 						$table_data['item_cds'],
 						$table_data['remark'],
 						$table_data['price'],
+						$table_data['coupon'],
 						date_i18n('Y-m-d H:i:s'),
 						$table_data['reservation_cd']);
 		$where_string = ' reservation_cd = %d ';

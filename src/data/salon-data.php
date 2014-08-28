@@ -13,7 +13,11 @@ abstract class Salon_Data {
 	private $config = null;
 	
 	private $isAdmin = null;
+	private $isStaff = null;
+	private $isPromotion = null;
+	private $isCustomer = null;
 
+	private $customer_rank = 0;
 
 	public function __construct() {
 		$result =  unserialize(get_option( 'SALON_CONFIG'));
@@ -55,6 +59,10 @@ abstract class Salon_Data {
 		$this->config = $result;
 	}
 	
+	public function isPromotion() { return $this->isPromotion; }
+	public function isStaff() { return $this->isStaff; }
+	public function isCustomer() { return $this->isCustomer; }
+	public function customerRank() { return $this->customer_rank; }
 
 	public function getAllBranchData ($add_where = '') {
 		global $wpdb;
@@ -207,15 +215,20 @@ abstract class Salon_Data {
 		global $wpdb;
 		$delete_str = ' delete_flg <> '.Salon_Reservation_Status::DELETED;
 		if (! $except_delete ) $delete_str = '1=1';
-		$sql = ' SELECT item_cd,name,short_name,minute,price ,DATE_FORMAT(exp_from,"%%Y%%m%%d") as exp_from,DATE_FORMAT(exp_to,"%%Y%%m%%d") as exp_to'.
+		$sql = $wpdb->prepare(' SELECT item_cd,name,short_name,minute,price ,DATE_FORMAT(exp_from,"%%Y%%m%%d") as exp_from,DATE_FORMAT(exp_to,"%%Y%%m%%d") as exp_to'.
 			   ' FROM '.$wpdb->prefix.'salon_item '.
 			   ' WHERE '.$delete_str.
-			   ' AND exp_to > %s '.
+//			   ' AND exp_to > %s '.
 			   ' AND branch_cd = %d  '.
-			   ' ORDER BY branch_cd,display_sequence,item_cd ';
-		$result = $wpdb->get_results($wpdb->prepare($sql,date_i18n('Ymd'),$branch_cd),ARRAY_A);
-		if ($result === false ) {
+			   ' ORDER BY branch_cd,display_sequence,item_cd '
+			   ,$branch_cd);
+//		$result = $wpdb->get_results($wpdb->prepare($sql,date_i18n('Ymd'),$branch_cd),ARRAY_A);
+		
+		if ($wpdb->query($sql) === false ) {
 			$this->_dbAccessAbnormalEnd();
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
 		}
 		return $result;
 	}
@@ -388,7 +401,9 @@ abstract class Salon_Data {
 						' sa.item_cds as item_cds_aft,'.
 						' sa.remark as remark,'.
 						' sa.price, '.
-						' rs.status as rstatus_cd'.
+						' rs.status as rstatus_cd,'.
+						' rs.coupon as coupon, '. 
+						' sa.coupon as coupon_aft '. 
 						' FROM (SELECT * FROM '.$wpdb->prefix.'salon_reservation WHERE delete_flg <> %d ) rs '.
 	/*
 						' INNER JOIN '.$wpdb->prefix.'salon_staff st1'.
@@ -444,7 +459,10 @@ abstract class Salon_Data {
 						' sa.item_cds as item_cds_aft,'.
 						' sa.remark as remark,'.
 						' sa.price,'.
-						' rs.status as rstatus_cd'.
+						' rs.status as rstatus_cd, '.
+						' rs.coupon as coupon, '. 
+						' sa.coupon as coupon_aft '. 
+
 						' FROM '.$wpdb->prefix.'salon_reservation rs '.
 	/*
 						' INNER JOIN '.$wpdb->prefix.'salon_staff st1'.
@@ -628,6 +646,10 @@ abstract class Salon_Data {
 		if (!is_null($this->isAdmin)) return  $this->isAdmin;
 
 		$this->isAdmin = false;
+		$this->isStaff = false;
+		$this->isCustomer = false;
+		$this->isPromotion = false;
+		
 
 		if (empty($user_login) ) $user_login = $this->getUserLogin();
 		if (empty($user_login) ){
@@ -647,14 +669,47 @@ abstract class Salon_Data {
 		else {
 			$result = $wpdb->get_results($sql,ARRAY_A);
 		}
-		if ($result) {
+		if (count($result) > 0) {
+			$this->isStaff = true;
 			$show_menu =  explode(",",$result[0]['role']);
 			if (! $role ) $role = $show_menu;
-			if (in_array('edit_admin',$show_menu) || $result[0]['position_cd'] == self::SALON_MAINTENANCE) 	$this->isAdmin = true;
+			if (in_array('edit_admin',$show_menu) || $result[0]['position_cd'] == self::SALON_MAINTENANCE) {
+				$this->isAdmin = true;
+				$this->isPromotion = true;
+			}
+			else {
+				if (in_array('edit_promotion',$show_menu) || in_array('edit_use_promotion',$show_menu) )  {
+					$this->isPromotion = true;
+				}
+			}
+		}
+		else {
+			$result_customer = $this->getCustomerDataByUser($user_login);
+			if (count($result_customer) == 1 ) {
+				$this->customer_rank = $result_customer[0]['rank_patern_cd'];
+				$this->isCustomer = true;
+			}
 		}
 		return $this->isAdmin;
 	}
 	
+	public function getCustomerDataByUser($user_login) {
+		global $wpdb;
+
+		$sql = 'SELECT customer_cd,rank_patern_cd '.
+				' FROM '.$wpdb->prefix.'salon_customer '.
+				' WHERE user_login = %s   ';
+		$sql = $wpdb->prepare($sql,$user_login);
+
+		if ($wpdb->query($sql) === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+		return $result;
+
+	}
 	
 
 	public function setUserId ($user_datas) {
@@ -1195,6 +1250,121 @@ abstract class Salon_Data {
 		}
 	}
 
+	//[2014/8/1]1.4.8
+	static function getCustomerRank(){
+		
+		$result = array();
+		$result[Salon_CRank::STANDARD] = __('Standard',SL_DOMAIN);
+		$result[Salon_CRank::SILVER] = __('Silver',SL_DOMAIN);
+		$result[Salon_CRank::GOLD] = __('Gold',SL_DOMAIN);
+		$result[Salon_CRank::PLATINUM] = __('Platinum',SL_DOMAIN);
+		$result[Salon_CRank::DIAMOND] = __('Diamond',SL_DOMAIN);
+		return $result;
+	}
+	
+	public function getPromotionData($branch_cd = null,$promotion_cd = null,$set_code = null,$is_all_data = false) {
+		global $wpdb;
+		$where = '';
+		if (empty($promotion_cd) ) {
+			if (!$is_all_data ) 
+				$where = $wpdb->prepare(' AND valid_to >= %s ',date_i18n('Ymd'));
+			if (!empty($branch_cd) ) {
+				$where .= $wpdb->prepare(' AND branch_cd = %d ',$branch_cd);
+			}
+			if (!empty($set_code) ) {
+				$where .= $wpdb->prepare(' AND set_code = %s ',$set_code);
+			}
+		}
+		else {
+			$where .= $wpdb->prepare(' AND promotion_cd = %d ',$promotion_cd);
+		}
+		$sql = 'SELECT  '.
+				' promotion_cd '.
+				' ,branch_cd '.
+				' ,set_code '.
+				' ,description '.
+				' ,DATE_FORMAT(valid_from, "'.__("%m/%d/%Y",SL_DOMAIN).'")  as valid_from '.
+				' ,DATE_FORMAT(valid_to, "'.__("%m/%d/%Y",SL_DOMAIN).'")  as valid_to '.
+				' ,DATE_FORMAT(valid_to, "%Y%m%d")  as valid_to_check '.
+				' ,DATE_FORMAT(valid_from, "%Y%m%d")  as valid_from_check '.
+				' ,usable_patern_cd '.
+				' ,usable_data '.
+				' ,times '.
+				' ,discount_patern_cd '.
+				' ,discount '.
+				' ,remark '.
+				' FROM '.$wpdb->prefix.'salon_promotion '.
+				' WHERE delete_flg <> '.Salon_Reservation_Status::DELETED.
+				$where;
+		if ($wpdb->query($sql) === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+		if ($result){
+			foreach ($result as $k1 => $d1 ) {
+				if (str_replace('/','',$d1['valid_from']) == '00000000' ) $result[$k1]['valid_from'] = '';
+				if (substr($d1['valid_to_check'],0,4) == '2099' ) $result[$k1]['valid_to'] = '';
+
+			}
+		}
+		return $result;
+	}
+	
+	//[TODO]componentへ移す
+	public function checkCustomerPromotion($setData,$promotionData,&$add_char,$reservation_cd ){
+		global $wpdb;
+
+		switch ($promotionData['usable_patern_cd']) {
+			case Salon_Coupon::UNLIMITED:
+				return true;
+				break;
+			case Salon_Coupon::RANK:
+				if ($promotionData['usable_data'] <= $this->customerRank() ) {
+					return true;
+				}
+				$add_char = __('Customer Rank is wrong ?',SL_DOMAIN);
+				return false;
+				break;
+			case Salon_Coupon::FIRST:
+				//ここはブレークせずに下と一緒
+				$promotionData['usable_data'] = 1;	
+			case Salon_Coupon::TIMES:
+				//reservationで同一メールで件数を探す
+				$where = "";
+				if ($_POST['type'] == 'updated' ) {
+					$where = ' AND reservation_cd <> '.$reservation_cd;
+				}
+				$sql = $wpdb->prepare('SELECT  COUNT(*) as cnt'.
+						' FROM '.$wpdb->prefix.'salon_reservation '.
+						' WHERE delete_flg <> '.Salon_Reservation_Status::COMPLETE.
+						$where.
+						' AND   coupon = %s '.
+						' AND   non_regist_email = %s ',$setData['coupon'],$setData['non_regist_email']);
+				if ($wpdb->query($sql) === false ) {
+					$this->_dbAccessAbnormalEnd();
+				}
+				else {
+					$result = $wpdb->get_results($sql,ARRAY_A);
+				}
+				if ($result[0]['cnt'] >= $promotionData['usable_data'] ) {
+					if ($promotionData['usable_data'] == 0 ) {
+						$add_char = __('Same mail address aleredy used this coupon.',SL_DOMAIN);
+					}
+					else {
+						$add_char = sprintf(__('This coupon used %d times.',SL_DOMAIN),$promotionData['usable_data']);
+					}
+					return false;
+				}
+				else {
+					return true;
+				}
+				break;
+		}
+	}
+	//[2014/8/1]1.4.8
+
 
 	public function getConfigData ($target = null) {
 		if (empty($target) ) return $this->config;
@@ -1213,8 +1383,6 @@ abstract class Salon_Data {
 
 	}
 
-
-	
 
 	public function _dbAccessAbnormalEnd () {
 		global $wpdb;

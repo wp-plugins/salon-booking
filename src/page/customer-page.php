@@ -11,15 +11,16 @@ class Customer_Page extends Salon_Page {
 	private $branch_datas = null;
 	
 	private $config_datas = null;
+	private $customer_rank_datas = null;
 	
 
 	function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch);
 		if ($is_multi_branch ) {
-			$this->set_items = array('first_name','last_name','branch_cd','zip','address','customer_tel','customer_mobile','customer_mail','user_login','remark');
+			$this->set_items = array('first_name','last_name','branch_cd','zip','address','customer_tel','customer_mobile','customer_mail','user_login','rank_patern','remark');
 		}
 		else {
-			$this->set_items = array('first_name','last_name','zip','address','customer_tel','customer_mobile','customer_mail','user_login','remark');
+			$this->set_items = array('first_name','last_name','zip','address','customer_tel','customer_mobile','customer_mail','user_login','rank_patern','remark');
 		}
 
 	}
@@ -32,6 +33,9 @@ class Customer_Page extends Salon_Page {
 		$this->config_datas = $config_datas;
 	}
 
+	public function set_customer_rank_datas ($datas) {
+		$this->customer_rank_datas = $datas;
+	}
 
 
 	public function show_page() {
@@ -114,6 +118,7 @@ class Customer_Page extends Salon_Page {
 			$j("#tel").val(setData['aoData'][position[0]]['_aData']['tel']);	
 			$j("#mobile").val(setData['aoData'][position[0]]['_aData']['mobile']);	
 			$j("#mail").val(setData['aoData'][position[0]]['_aData']['mail']);	
+			$j("#rank_patern_cd").val(setData['aoData'][position[0]]['_aData']['rank_patern_cd']);	
 			$j("#remark").val(htmlspecialchars_decode(setData['aoData'][position[0]]['_aData']['remark']));	
 			if ( setData['aoData'][position[0]]['_aData']['customer_cd'] ) {
 				$j("#button_update").removeAttr("disabled");
@@ -178,6 +183,7 @@ class Customer_Page extends Salon_Page {
 						"tel":$j("#tel").val(),
 						"mobile":$j("#mobile").val(),
 						"mail":$j("#mail").val(),
+						"rank_patern_cd":$j("#rank_patern_cd").val(),
 						"nonce":"<?php echo $this->nonce; ?>",
 						"menu_func":"Customer_Edit"
 					},
@@ -274,6 +280,7 @@ class Customer_Page extends Salon_Page {
 		<input type="text" id="mobile"/>
 		<input type="text" id="mail"/>
 		<input type="text" id="user_login" value="" />
+		<?php parent::echoRankPatern( $this->customer_rank_datas); ?>
 		<textarea id="remark"  ></textarea>
 
 		<div class="spacer"></div>

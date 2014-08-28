@@ -55,6 +55,9 @@ class Booking_Control extends Salon_Control  {
 			$this->pages->set_config_datas($this->datas->getConfigData());
 			$this->pages->set_working_datas($this->comp->editWorkingData($this->branch_cd));
 			$this->pages->set_role($role);
+			
+			$this->pages->set_promotion_datas($this->comp->editPromotionData($this->branch_cd));
+			
 			if (Salon_Component::isMobile() ) {
 				$this->pages->set_reservation_datas($this->datas->getAllEventData(date_i18n('Ymd'),$this->branch_cd,true));
 			}

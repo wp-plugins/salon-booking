@@ -16,9 +16,11 @@
 		var save_tel = "";
 		var item_name = new Array();
 		
+		
 		var is_collision_err = false;
 
 		<?php parent::echoItemFromto($this->item_datas); ?>
+		<?php parent::echoPromotionArray($this->promotion_datas); ?>
 		
 		$j(document).ready(function() {
 			<?php parent::echoSearchCustomer($this->url); //検索画面 ?>	
@@ -56,13 +58,8 @@
 			else {
 				echo 'var staffs=[ ';
 			}
-			
 			$comma = '';
 			$reserve_possible_cnt = 0;
-			
-			//
-			
-			
 			foreach ($this->staff_datas as $k1 => $d1 ) {
 				if ($this->config_datas['SALON_CONFIG_MAINTENANCE_INCLUDE_STAFF'] != Salon_Config::MAINTENANCE_NOT_INCLUDE_STAFF
 					|| $d1['position_cd'] != Salon_Position::MAINTENANCE ) {
@@ -327,7 +324,7 @@ EOT3;
 					var set_item_array = ev.item_cds.split(",");
 					var max_loop = set_item_array.length;
 					for	 (var i = 0 ; i < max_loop; i++) {
-						if (item_array.indexOf(set_item_array[i]) ) {
+						if (item_array.indexOf(set_item_array[i]) == -1) {
 							is_check = false;
 							alert("<?php echo _e('This staff member can not treat this menu ',SL_DOMAIN); ?>["+ item_name[set_item_array[i]] + "]");
 							break;
@@ -436,6 +433,11 @@ EOT3;
 						delete_booking_data();
 					}
 			});
+			
+			$j("#coupon").change(function () {
+				fnUpdateEndTime();
+			});
+			
 
 
 			$j("#item_cds input[type=checkbox]").click(function(){
@@ -506,7 +508,6 @@ EOT3;
 
 
 		});
-
 	
 		function fnUpdateEndTime() {
 			var tmp = new Array();  
@@ -519,6 +520,16 @@ EOT3;
 					minute += +$j(this).next().next().val();
 				}
 			});
+			if ($j("#coupon") && coupons[$j("#coupon").val()]) {
+				var coupon = coupons[$j("#coupon").val()];
+				if (coupon.discount_patern_cd == <?php echo Salon_Discount::PERCENTAGE; ?> ) {
+					price = (1 - coupon.discount/100) * price;
+				}
+				else {
+					price -= coupon.discount;
+				}
+			}
+			
 			$j("#price").text(price);
 			target_day_to = new Date(target_day_from.getTime());
 			target_day_to.setMinutes(target_day_to.getMinutes() + minute);				
@@ -579,16 +590,43 @@ EOT3;
 					$j("#rstatus").text("<?php _e('completed',SL_DOMAIN); ?>");
 				}
 				
-		
+				if (isNeedToCheckPromotionDate ) {
+					$j("#coupon").remove();
+					var target = fnDayFormat(ev.start_date,"%Y%m%d");
+					var cn = '<select id="coupon"><option value="">'+"<?php _e('select please',SL_DOMAIN); ?>"+'</option>';
+					for(var id in promotions) {
+						if(promotions[id]['from'] == 0 && promotions[id]['to'] == 20991231) {
+							cn += '<option value="'+promotions[id]['key']+'">'+promotions[id]['val']+'</option>';
+						}
+						else {
+							if (target >= promotions[id]['from'] && target <= promotions[id]['to'] ) {
+								cn += '<option value="'+promotions[id]['key']+'">'+promotions[id]['val']+'</option>';
+							}
+						}
+					}
+					$j("#coupon_lbl").after(cn);
+					$j("#coupon").change(function () {
+						fnUpdateEndTime();
+					});
+				}
+				
+				$j("#coupon").val(ev.coupon).change();
+					
+//					
+//		foreach($promotion_datas as $k1 => $d1 ) {
+//			$echo_data .= '<option value="'.$d1['set_code'].'">'.htmlspecialchars($d1['description'],ENT_QUOTES).'</option>';
+//		}
+//		$echo_data .= '</select></div>';
+					//alert("check");
 				<?php parent::echo_clear_error(); ?>
 			}
 		}
 		<?php 
 			if ($this->_is_editBooking() ) {
-				parent::echoClientItem(array('customer_name','mail_norequired','booking_tel','staff_cd','item_cds','start_time','remark','booking_user_login','booking_user_password','regist_customer')); 
+				parent::echoClientItem(array('customer_name','mail_norequired','booking_tel','staff_cd','item_cds','start_time','remark','booking_user_login','booking_user_password','regist_customer','coupon')); 
 			}
 			else {
-				parent::echoClientItem(array('customer_name','mail','branch_tel','staff_cd','item_cds','start_time','remark','booking_user_login','booking_user_password','regist_customer')); 
+				parent::echoClientItem(array('customer_name','mail','branch_tel','staff_cd','item_cds','start_time','remark','booking_user_login','booking_user_password','regist_customer','coupon')); 
 			}
 		?>	
 		
@@ -794,7 +832,9 @@ EOT3;
 			ev.item_cds = save_item_cds;
 			ev.remark = $j("#remark").val();
 			ev.user_login =	save_user_login;
+			ev.coupon = $j("#coupon").val();
 			scheduler.endLightbox(true, $j("#data_detail").get(0));
+
 			
 			$j("#customer_booking_form").hide();
 //				$j(".lightbox").colorbox({rel:"staffs"});
@@ -889,19 +929,14 @@ EOT3;
 <?php endif; ?>
 		<input type="text" id="tel"/>
 		<input type="text" id="mail"  />
-<?php /* //if ($this->isSalonAdmin() ) : ?>
-		<div id="regist_customer_wrap"  >
-			<input id="regist_customer" type="checkbox"  value="<?php echo Salon_Regist_Customer::OK; ?>" />
-		</div>
-<?php //endif; */ ?>
 
 		<div id="date_time_wrap" >
 				<?php parent::echoTimeSelect("start_time",$this->branch_datas['open_time'],$this->branch_datas['close_time'],$this->branch_datas['time_step']); ?>	
 				<span id="end_time" ></span>
 		</div>
 		<?php parent::echoStaffSelect("staff_cd",$this->staff_datas,$this->_is_noPreference(),false); ?>
-		<?php //parent::echoItemInputCheck($this->item_datas); ?>
 		<?php parent::echoItemInputCheckTable($this->item_datas); ?>
+		<?php parent::echoCouponSelect("coupon",$this->promotion_datas); ?>
 		<textarea id="remark"  ></textarea>
 		<label ><?php _e('price',SL_DOMAIN); ?>:</label>
 		<span id="price"></span>

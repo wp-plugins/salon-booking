@@ -77,6 +77,25 @@ class Salon_Config {
 	
 }
 
+class Salon_CRank {
+	const STANDARD = 1;
+	const SILVER = 2;
+	const GOLD = 3;
+	const PLATINUM = 4;
+	const DIAMOND = 5;
+}
+
+class Salon_Coupon {
+	const UNLIMITED = 1;
+	const TIMES = 2;
+	const RANK = 3;
+	const FIRST = 4;
+}
+
+class Salon_Discount {
+	const PERCENTAGE = 1;
+	const AMOUNT = 2;
+}
 
 class Salon_Working {
 	const USUALLY = 1;
@@ -115,7 +134,7 @@ class Salon_Component {
 	}
 
 
-	static function editSalesData($item_datas, $staff_datas, &$result ) {
+	static function editSalesData($item_datas, $staff_datas, &$result,$promotion_datas = null ) {
 		//アイテム名の設定　アイテムは正規化せず、コードで吸収する
 		$item_table = array();
 		//連想配列に書き直す
@@ -129,11 +148,24 @@ class Salon_Component {
 			$staff_table[$d1['staff_cd']]  = array('name'=> $d1['name']);
 		}
 		$staff_table[Salon_Default::NO_PREFERENCE] = array('name' => __('Anyone',SL_DOMAIN));
+		
+		$promotion_table = array();
+		if ( !is_null($promotion_datas ) ) {
+			foreach($promotion_datas as $k1 => $d1 ) {
+				$promotion_table[$d1['set_code']] = $d1['description']; 	
+			}
+		}
 		//個別データを編集する
 		foreach ($result as $k1 => $d1 ) {
 			$result[$k1]['staff_name_bef'] = @$staff_table[$result[$k1]['staff_cd_bef']]['name'];
 	//		//予約実績としては、SALESに登録して完了とする。
 	//		//で、実績として予約時の内容を設定しとく
+			//[2014/08/31]
+			$result[$k1]['coupon_name'] = "";
+			if (!empty($result[$k1]['coupon']) && !is_null($promotion_datas ) ){
+				$result[$k1]['coupon_name'] = $promotion_table[$result[$k1]['coupon']];
+			}
+
 			if ( empty($d1['time_from_aft']) ) {
 				$result[$k1]['status'] = Salon_Reservation_Status::COMPLETE;
 				$result[$k1]['status_name'] = __('result not registerd',SL_DOMAIN);
@@ -144,6 +176,7 @@ class Salon_Component {
 				$result[$k1]['staff_name_aft'] = $result[$k1]['staff_name_bef'];
 				$result[$k1]['item_cds_aft'] = $result[$k1]['item_cds_bef'];
 				$result[$k1]['remark'] = $result[$k1]['remark_bef'];
+				$result[$k1]['coupon_aft'] = $result[$k1]['coupon'];
 			}
 			else {
 				$result[$k1]['staff_name_aft'] = "";
@@ -351,16 +384,34 @@ class Salon_Component {
 							'   AND   delete_flg <> %d ',
 							$set_data['branch_cd'],Salon_Reservation_Status::DELETED
 						);
-			$result = $wpdb->get_results($edit_sql,ARRAY_A);
-			if ($result === false ) {
+			if ($wpdb->query($edit_sql) === false ) {
 				$datas->_dbAccessAbnormalEnd();
+			}
+			else {
+				$result = $wpdb->get_results($edit_sql,ARRAY_A);
 			}
 			$possible_cnt += $result[0]['staff_cnt'] + $result[0]['duplicate_cnt'];
 			$cnt = $datas->countReservation('',$set_data['time_from'],$set_data['time_to'],$reservation_cd);
 			if ($cnt >= $possible_cnt ) {
 				throw new Exception(self::getMsg('W002',array(__('branch',SL_DOMAIN), $possible_cnt)),1);
 			}
-
+			//[2014/08/25]Ver 1.4.8　クーポンのチェック
+			if ($datas->isPromotion() ) {
+				//クーポンを扱えるスタッフは期限切れ回数等は無視して何を設定してもよい。
+			}
+			else {
+				$result_promotion = $datas->getPromotionData($set_data['branch_cd'],null,$set_data['coupon']);
+				
+				if (count($result_promotion) == 0 ) {
+					throw new Exception(self::getMsg('E301'),1);
+				}
+				$add_char = "";
+				
+				if (!$datas->checkCustomerPromotion($set_data,$result_promotion[0],$add_char,$reservation_cd  ) ) {
+					throw new Exception(self::getMsg('E302',$add_char),1);
+				}
+			}
+			//[2014/08/25]Ver 1.4.8
 		}
 
 			
@@ -463,6 +514,21 @@ class Salon_Component {
 				break;	
 			case 'E212':
 				$err_msg = $err_cd.' '.__("your reservation is duplicated",SL_DOMAIN);
+				break;	
+			case 'E301':
+				$err_msg = $err_cd.' '.__("This coupon is invalid now.",SL_DOMAIN);
+				break;	
+			case 'E302':
+				$err_msg = sprintf(__("%s This coupon can not be used[%s]",SL_DOMAIN),$err_cd,$add_char);
+				break;	
+			case 'E303':
+				$err_msg = sprintf(__("%s This coupon is used now[%s]",SL_DOMAIN),$err_cd,$add_char);
+				break;	
+			case 'E304':
+				$err_msg = sprintf(__("%s This Code is aleready used[%s]",SL_DOMAIN),$err_cd,$add_char);
+				break;	
+			case 'E305':
+				$err_msg = sprintf(__("%s \"Valid to\" need after today",SL_DOMAIN),$err_cd);
 				break;	
 			case 'E401':
 				$err_msg = __('an unexpected error has occurred',SL_DOMAIN);

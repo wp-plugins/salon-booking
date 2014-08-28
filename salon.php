@@ -1,11 +1,13 @@
 <?php
 /*
-Plugin Name: Salon booking 
+Plugin Name: Salon Booking 
 Plugin URI: http://salon.mallory.jp
-Description: Salon Booking enables the reservation to one-on-one business between a client and a staff member. 
-Version: 1.4.7
+Description: Salon Booking enables the reservation to one-on-one business between a client and a staff member.
+Version: 1.4.8
 Author: kuu
 Author URI: http://salon.mallory.jp
+Text Domain: salon-booking
+Domain Path: /languages/
 */
 
 define( 'SL_DOMAIN', 'salon' );
@@ -64,7 +66,7 @@ class Salon_Booking {
 //		$this->config_branch = get_option( 'SALON_CONFIG_BRANCH', Salon_Config::ONLY_BRANCH );
 //		require_once(SL_PLUGIN_DIR.'/salon-installer.php');
 		register_activation_hook(__FILE__, array( &$this, 'salon_install'));
-		load_plugin_textdomain( SL_DOMAIN, SL_PLUGIN_DIR.'/lang', SL_PLUGIN_NAME.'/lang' );
+		load_plugin_textdomain( SL_DOMAIN, SL_PLUGIN_DIR.'/languages', SL_PLUGIN_NAME.'/languages' );
 
 		add_action( 'admin_init', array( &$this, 'admin_init' ) );
 		add_action( 'admin_menu', array( &$this, 'admin_menu' ) );
@@ -98,6 +100,7 @@ class Salon_Booking {
 		add_action('wp_ajax_slphoto', array( &$this,'edit_photo')); 
 		add_action('wp_ajax_slmail', array( &$this,'edit_mail')); 
 		
+		add_action('wp_ajax_slpromotion', array( &$this,'edit_promotion')); 
 
 		add_action('wp_ajax_nopriv_slbooking', array( &$this,'edit_booking')); 
 		add_action('wp_ajax_nopriv_slconfirm', array( &$this,'edit_confirm')); 
@@ -378,6 +381,7 @@ public function example_remove_dashboard_widgets() {
 		if (in_array('edit_working',$show_menu) ) $edit_menu[$this->management][] = 'edit_working';
 		if (in_array('edit_working_all',$show_menu) ) $edit_menu[$this->management][] = 'edit_working';
 		if (in_array('edit_base',$show_menu) ) $edit_menu[$this->management][] = 'edit_base';
+		if (in_array('edit_promotion',$show_menu) ) $edit_menu[$this->management][] = 'edit_promotion';
 		return $edit_menu;
 	}
 	
@@ -440,6 +444,11 @@ public function example_remove_dashboard_widgets() {
 				$file = $show_menu[$this->management][0] == 'edit_sales' ? $this->management : 'salon_sales';
 				$my_admin_page = add_submenu_page( $this->management, __('Performance Regist',SL_DOMAIN), __('Performance Regist',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_sales' ) );
 				add_action('load-'.$my_admin_page, array(&$this,'admin_add_help_sales'));
+			}
+			if (in_array('edit_promotion',$show_menu[$this->management]) ) {
+				$file = $show_menu[$this->management][0] == 'edit_promotion' ? $this->management : 'salon_promotion';
+				$my_admin_page = add_submenu_page( $this->management, __('Promotion',SL_DOMAIN), __('Promotion',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_promotion' ) );
+				add_action('load-'.$my_admin_page, array(&$this,'admin_add_help_promotion'));
 			}
 			if (in_array('edit_working',$show_menu[$this->management]) ) {
 				$file = $show_menu[$this->management][0] == 'edit_working' ? $this->management : 'salon_working';
@@ -625,6 +634,15 @@ public function example_remove_dashboard_widgets() {
 		$this->help_side($screen);
 	}
 
+	public function admin_add_help_promotion() {
+		$screen = get_current_screen();
+		$help = '<h3>Under Construction</h3>';
+		$this->_setTab($screen,'_content',__( 'Content'),$help);
+		$this->help_common($screen,array(true,false,false));
+		$this->help_side($screen);
+	}
+
+
 	public function admin_add_help_timecard() {
 		$screen = get_current_screen();
 		$help = '<br>'.__('Set the working schedule of staffs. With the role of "TimeCard(Full Members)", the system displays all the staffs belonging to the shop.',SL_DOMAIN);
@@ -754,13 +772,16 @@ public function example_remove_dashboard_widgets() {
 		require_once( SL_PLUGIN_SRC_DIR.'/control/mail-control.php' );
 	}
 
+	public function edit_promotion() {
+		require_once( SL_PLUGIN_SRC_DIR.'/control/promotion-control.php' );
+	}
+
 	public function admin_javascript($hook_suffix) {
 		global $plugin_page;
 		if ( ! isset( $plugin_page ) || ( substr($plugin_page,0,5)  !=	'salon' )) return;
 		wp_enqueue_script( 'jquery');		
 		wp_enqueue_script('thickbox');
 		wp_enqueue_script( 'jquery-ui-datepicker');
-		wp_enqueue_script( 'flexigrid', SL_PLUGIN_URL.'js/flexigrid.js',array( 'jquery' ) );
 		wp_enqueue_script( 'edit', SL_PLUGIN_URL.'js/jquery.jeditable.js',array( 'jquery' ) );
 		wp_enqueue_script( 'dataTables', SL_PLUGIN_URL.'js/jquery.dataTables.js',array( 'jquery' ) );
 		wp_enqueue_script( 'dataTables_plugin1', SL_PLUGIN_URL.'js/fnReloadAjax.js',array( 'dataTables' ) );
@@ -769,7 +790,6 @@ public function example_remove_dashboard_widgets() {
 		
 		
 		wp_enqueue_style( 'thickbox' );
-		wp_enqueue_style('flexigrid', SL_PLUGIN_URL.'css/flexigrid.css');
 		wp_enqueue_style('dataTables', SL_PLUGIN_URL.'css/dataTables.css');
 		wp_enqueue_style('salon', SL_PLUGIN_URL.'css/salon.css');
 		if ($plugin_page == 'salon_working' || $plugin_page == 'salon-management') {	//出退勤しかない場合の対処
@@ -830,8 +850,6 @@ public function example_remove_dashboard_widgets() {
 			wp_enqueue_style('colorbox', SL_PLUGIN_URL.'css/colorbox.css');
 			wp_enqueue_script( 'dhtmlxscheduler', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler.js',array( 'jquery' ) );
 	
-			if (defined ( 'WPLANG' ) && file_exists(SL_PLUGIN_DIR.SALON_JS_DIR.'locale_'.WPLANG.'.js') ) 
-				wp_enqueue_script( 'dhtmlxscheduler_locale', SL_PLUGIN_URL.SALON_JS_DIR.'locale_'.WPLANG.'.js',array( 'dhtmlxscheduler' ) );
 			wp_enqueue_script( 'dhtmlxscheduler_limit', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler_limit.js',array( 'dhtmlxscheduler' ) );
 			wp_enqueue_script( 'dhtmlxscheduler_timeline', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler_timeline.js',array( 'dhtmlxscheduler' ) );
 			wp_enqueue_script( 'dhtmlxscheduler_collision', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler_collision.js',array( 'dhtmlxscheduler' ) );
@@ -920,9 +938,43 @@ public function example_remove_dashboard_widgets() {
 			`update_time` DATETIME,
 			UNIQUE  (`photo_id`)
 		 ) ".$charset_collate);
+		//
+		//ver 1.4.8 From
+		$wpdb->query("	CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."salon_promotion (
+			`promotion_cd`	INT not null AUTO_INCREMENT,
+			`branch_cd`		INT,
+			`set_code`		VARCHAR(20),
+			`description`	TEXT,
+			`valid_from`	DATETIME default '0000-00-00 00:00:00' ,
+			`valid_to`	DATETIME default '2099-12-30 00:00:00' ,
+			`usable_patern_cd`		INT default 1,
+			`usable_data`	TEXT,
+			`times`			INT default 1,
+			`discount_patern_cd`		INT default 1,
+			`discount`		INT default 0,
+			`remark`		TEXT,
+			`memo`			TEXT,
+			`notes`			TEXT,
+			`delete_flg`	INT default 0,
+			`insert_time`	DATETIME,
+			`update_time`	DATETIME,
+			PRIMARY KEY (`promotion_cd`)
+		) ".$charset_collate);
+/*
+		$wpdb->query("	CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."salon_customer_extension (
+			`customer_cd`	INT,
+			`client_record`		TEXT,
+			`coupon`		TEXT,
+			`remark`		TEXT,
+			`memo`			TEXT,
+			`notes`			TEXT,
+			`delete_flg`	INT default 0,
+			`insert_time`	DATETIME,
+			`update_time`	DATETIME,
+			PRIMARY KEY (`customer_cd`)
+		) ".$charset_collate);
+*/
 
-
-		//ver 1.2.1 To
 
 
 		if (get_option('salon_installed') ) {
@@ -983,6 +1035,18 @@ public function example_remove_dashboard_widgets() {
 			unset($result['SALON_CONFIG_SEND_MAIL_TEXT']);
 			unset($result['SALON_CONFIG_SEND_MAIL_TEXT_USER']);
 			update_option('SALON_CONFIG',serialize($result));
+			//[2014/08/08]Ver 1.4.8
+			if (! $this->_isExixtColumn("salon_customer","rank_patern_cd") ) {
+				$wpdb->query("ALTER TABLE ".$wpdb->prefix."salon_customer ADD `rank_patern_cd` INT default 1 AFTER `is_send_mail` ");
+			}
+			if (! $this->_isExixtColumn("salon_reservation","coupon") ) {
+				$wpdb->query("ALTER TABLE ".$wpdb->prefix."salon_reservation ADD `coupon` varchar(2000)  default null AFTER `item_cds` ");
+			}
+			if (! $this->_isExixtColumn("salon_sales","coupon") ) {
+				$wpdb->query("ALTER TABLE ".$wpdb->prefix."salon_sales ADD `coupon` varchar(2000)  default null AFTER `item_cds` ");
+			}
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."salon_position SET role = concat(role,',edit_promotion'),update_time = %s WHERE position_cd in (1,2,3,7) or wp_role = 'administrator' ",$current));
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."salon_position SET role = concat(role,',edit_use_promotion'),update_time = %s WHERE position_cd in (4,5,6) or wp_role = 'administrator' ",$current));
 			//
 		}
 		else {
@@ -1002,6 +1066,7 @@ public function example_remove_dashboard_widgets() {
 								`time_from`		DATETIME,
 								`time_to`		DATETIME,
 								`item_cds`		VARCHAR(50),
+								`coupon`		VARCHAR(2000) default null,
 								`status`		INT,
 								`remark`		TEXT,
 								`memo`			TEXT,
@@ -1020,6 +1085,7 @@ public function example_remove_dashboard_widgets() {
 								`time_from`		DATETIME,
 								`time_to`		DATETIME,
 								`item_cds`		VARCHAR(50),
+								`coupon`		VARCHAR(2000) default null,
 								`status`		INT,
 								`remark`		TEXT,
 								`memo`			TEXT,
@@ -1041,6 +1107,7 @@ public function example_remove_dashboard_widgets() {
 								`notes`			TEXT,
 								`photo`			TEXT default null,
 								`is_send_mail`	INT default 1,
+								`rank_patern_cd`			INT default 1,
 								`delete_flg`	INT default 0,
 								`insert_time`	DATETIME,
 								`update_time`	DATETIME,
@@ -1148,7 +1215,6 @@ public function example_remove_dashboard_widgets() {
 							  PRIMARY KEY  (`no`)
 							) ".$charset_collate);
 	
-
 			
 			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_branch VALUES (".Salon_Default::BRANCH_CD.",'".__('SAMPLE SHOP NAME',SL_DOMAIN)."','100-0001','".__('SAMPLE SHOOP ADDRESS',SL_DOMAIN)."','223456789','mail@1.com','REMARK','MEMO','NOTES','1000','1900','2','',30,1,0,%s,%s);",$current,$current));
 			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_item VALUES (1,'".__('SAMPLE MENU CUT',SL_DOMAIN)."',".Salon_Default::BRANCH_CD.",'".__('SAMPLE MENU CUT',SL_DOMAIN)."',".__('30,50',SL_DOMAIN).",null,null,null,null,1,'0000-00-00 00:00:00','2099-12-30 00:00:00',1,0,%s,%s);",$current,$current));
@@ -1172,27 +1238,27 @@ public function example_remove_dashboard_widgets() {
 			//
 			update_option('salon_initial_user', $staff_cd);
 			if (defined ( 'SALON_DEMO' ) && SALON_DEMO   ) {
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (1,'".__('PRESIDENT',SL_DOMAIN)."','contributor','edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all','',0,%s,%s);",$current,$current));
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (2,'".__('DIRECTER',SL_DOMAIN)."','contributor','edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all','',0,%s,%s);",$current,$current));
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (3,'".__('SHOP MANAGER',SL_DOMAIN)."','contributor','edit_customer,edit_item,edit_staff,edit_reservation,edit_sales,edit_working,edit_base,edit_booking,edit_working_all','',0,%s,%s);",$current,$current));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (1,'".__('PRESIDENT',SL_DOMAIN)."','contributor','edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all,edit_promotion','',0,%s,%s);",$current,$current));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (2,'".__('DIRECTER',SL_DOMAIN)."','contributor','edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all,edit_promotion','',0,%s,%s);",$current,$current));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (3,'".__('SHOP MANAGER',SL_DOMAIN)."','contributor','edit_customer,edit_item,edit_staff,edit_reservation,edit_sales,edit_working,edit_base,edit_booking,edit_working_all,edit_promotion','',0,%s,%s);",$current,$current));
 				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (4,'".__('CHIEF',SL_DOMAIN)."','contributor','edit_customer,edit_reservation,edit_sales,edit_working,edit_booking','',0,%s,%s);",$current,$current));
 				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (5,'".__('STAFF',SL_DOMAIN)."','contributor','edit_reservation,edit_sales,edit_working,edit_booking','',0,%s,%s);",$current,$current));
 				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (6,'".__('TEMPORARY',SL_DOMAIN)."','contributor','edit_reservation,edit_sales','',0,%s,%s);",$current,$current));
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (".Salon_Position::MAINTENANCE.",'".__('MAINTENANCE',SL_DOMAIN)."','administrator','edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all','".__('this data can not delete or update',SL_DOMAIN)."',0,%s,%s);",$current,$current));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (".Salon_Position::MAINTENANCE.",'".__('MAINTENANCE',SL_DOMAIN)."','administrator','edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all,edit_promotion','".__('this data can not delete or update',SL_DOMAIN)."',0,%s,%s);",$current,$current));
 			}
 			else {
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (1,'".__('PRESIDENT',SL_DOMAIN)."','administrator','edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all','',0,%s,%s);",$current,$current));
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (2,'".__('DIRECTER',SL_DOMAIN)."','administrator','edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all','',0,%s,%s);",$current,$current));
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (3,'".__('SHOP MANAGER',SL_DOMAIN)."','editor','edit_customer,edit_item,edit_staff,edit_reservation,edit_sales,edit_working,edit_base,edit_booking,edit_working_all','',0,%s,%s);",$current,$current));
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (4,'".__('CHIEF',SL_DOMAIN)."','editor','edit_customer,edit_reservation,edit_sales,edit_working,edit_booking','',0,%s,%s);",$current,$current));
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (5,'".__('STAFF',SL_DOMAIN)."','author','edit_reservation,edit_sales,edit_working,edit_booking','',0,%s,%s);",$current,$current));
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (6,'".__('TEMPORARY',SL_DOMAIN)."','contributor','edit_reservation,edit_sales','',0,%s,%s);",$current,$current));
-				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (".Salon_Position::MAINTENANCE.",'".__('MAINTENANCE',SL_DOMAIN)."','administrator','edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all,edit_log','".__('this data can not delete or update',SL_DOMAIN)."',0,%s,%s);",$current,$current));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (1,'".__('PRESIDENT',SL_DOMAIN)."','editor','edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all,edit_promotion','',0,%s,%s);",$current,$current));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (2,'".__('DIRECTER',SL_DOMAIN)."','editor','edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all,edit_promotion','',0,%s,%s);",$current,$current));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (3,'".__('SHOP MANAGER',SL_DOMAIN)."','editor','edit_customer,edit_item,edit_staff,edit_reservation,edit_sales,edit_working,edit_base,edit_booking,edit_working_all,edit_promotion','',0,%s,%s);",$current,$current));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (4,'".__('CHIEF',SL_DOMAIN)."','editor','edit_customer,edit_reservation,edit_sales,edit_working,edit_booking,edit_use_promotion','',0,%s,%s);",$current,$current));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (5,'".__('STAFF',SL_DOMAIN)."','author','edit_reservation,edit_sales,edit_working,edit_booking,edit_use_promotion','',0,%s,%s);",$current,$current));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (6,'".__('TEMPORARY',SL_DOMAIN)."','contributor','edit_reservation,edit_sales,edit_use_promotion','',0,%s,%s);",$current,$current));
+				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (".Salon_Position::MAINTENANCE.",'".__('MAINTENANCE',SL_DOMAIN)."','administrator','edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all,edit_log,edit_promotion','".__('this data can not delete or update',SL_DOMAIN)."',0,%s,%s);",$current,$current));
 			}
 			
 			$holiday = '';
-			if (defined ( 'WPLANG' ) && file_exists(SL_PLUGIN_DIR.'/lang/holiday-'.WPLANG.'.php') )require_once(SL_PLUGIN_DIR.'/lang/holiday-'.WPLANG.'.php');
-			else require_once(SL_PLUGIN_DIR.'/lang/holiday.php');
+			if (defined ( 'WPLANG' ) && file_exists(SL_PLUGIN_DIR.'/languages/holiday-'.WPLANG.'.php') )require_once(SL_PLUGIN_DIR.'/languages/holiday-'.WPLANG.'.php');
+			else require_once(SL_PLUGIN_DIR.'/languages/holiday.php');
 			update_option('salon_holiday', serialize($holiday));
 			
 			update_option('salon_installed', 1);

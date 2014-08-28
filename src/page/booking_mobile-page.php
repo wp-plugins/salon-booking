@@ -78,6 +78,7 @@
 		};
 		
 		<?php parent::echoItemFromto($this->item_datas); ?>
+		<?php parent::echoPromotionArray($this->promotion_datas); ?>
 
 		$j(document).ready(function() {
 
@@ -144,17 +145,20 @@
 				$j('#staff_cd').prop('selectedIndex', 0).change();
 			});
 			$j("#slm_search").click(function(){
-				var setDate = fnDayFormat(new Date($j("#slm_searchdate").val()),"%Y%m%d");
+				var dt = _fnDateConvert($j("#slm_searchdate").val() );
+				var setDate = fnDayFormat(dt,"%Y%m%d");
 				setDayData(setDate);
 			});
 			$j("#slm_today").click(function(){
 				setDayData(today);
 			});
 			$j("#slm_prev").click(function(){
-				setDayData(_fnCalcDay(new Date($j("#slm_searchdate").val()),-1));
+				var dt = _fnDateConvert($j("#slm_searchdate").val() );
+				setDayData(_fnCalcDay(dt,-1));
 			});
 			$j("#slm_next").click(function(){
-				setDayData(_fnCalcDay(new Date($j("#slm_searchdate").val()),1));
+				var dt = _fnDateConvert($j("#slm_searchdate").val() );
+				setDayData(_fnCalcDay(dt,1));
 				
 			});
 			$j("#slm_mainpage").click(function(){
@@ -180,7 +184,7 @@
 
 			$j("#start_time").change(function(){
 				var start  = $j(this).val();
-				if (start != -1 )	{
+				if (start && start != -1 )	{
 					target_day_from.setHours(start.substr(0,2));
 					target_day_from.setMinutes(+start.substr(3,2));
 					fnUpdateEndTime();
@@ -272,7 +276,7 @@
 
 		function _fnAddReservation (startHour) {
 			<?php //過去は予約できないようにしとく ?>
-			var chk_date = 	new Date($j("#slm_searchdate").val());
+			var chk_date = _fnDateConvert($j("#slm_searchdate").val() );
 			if (startHour) { 
 				chk_date.setHours(startHour); 
 			}
@@ -289,7 +293,7 @@
 			$j("#slm_page_regist").show();
 			$j("#slm_exec_delete").hide();
 			$j("#slm_target_day").text($j("#slm_searchdate").val()); 
-			target_day_from = new Date($j("#slm_searchdate").val());
+			target_day_from = _fnDateConvert($j("#slm_searchdate").val() );
 			if (startHour) { 
 				target_day_from.setHours(startHour); 
 			}
@@ -340,7 +344,7 @@
 			$j(".slm_staff_holiday").remove();
 			
 			$j("#slm_searchdays").text(slmSchedule.config.day_full[tmpDate.getDay()]);
-			//休みだったら
+<?php			//休みだったら ?>
 			if (slmSchedule.chkHoliday(tmpDate) ) {
 				$j("#slm_holiday").show();
 				$j("#slm_regist_button").hide();
@@ -365,15 +369,29 @@
 						var fromH = tmpH[seqH][2].substr(0,2);
 						var setH = '<div class="<?php echo $staff_holiday_class; ?> slm_staff_holiday" style="position:absolute; top:0px; height: '+height+'px; left:'+left+'px; width:'+width+'px;"><?php echo $staff_holiday_set; ?><div style="display:none">'+staff_cd_h+':'+fromH+'</div></div>';
 						
-						
-//			<?php if (!$this->_is_staffSetNormal() )  : ?>			
-//			$j("#slm_st_"+staff_cd_h).on("click",".slm_staff_holiday",function() { alert("here"); } );
-//			<?php endif; ?>
-						
 						$j("#slm_st_"+staff_cd_h).prepend(setH);
 					}
 				}
 			}
+<?php //couponの組立 ?>
+			if (isNeedToCheckPromotionDate ) {
+				$j("#coupon").remove();
+				var target = yyyymmdd;
+				var cn = '<select id="coupon" name="coupon" class="slm_sel"><option value="">'+"<?php _e('select please',SL_DOMAIN); ?>"+'</option>';
+				for(var id in promotions) {
+					if(promotions[id]['from'] == 0 && promotions[id]['to'] == 20991231) {
+						cn += '<option value="'+promotions[id]['key']+'">'+promotions[id]['val']+'</option>';
+					}
+					else {
+						if (target >= promotions[id]['from'] && target <= promotions[id]['to'] ) {
+							cn += '<option value="'+promotions[id]['key']+'">'+promotions[id]['val']+'</option>';
+						}
+					}
+				}
+				$j("#coupon_wrap").prepend(cn);
+			}
+			
+
 
 			if (slmSchedule._daysStaff[yyyymmdd]) {
 				if (slmSchedule._daysStaff[yyyymmdd]["e"] == 0) {
@@ -425,7 +443,10 @@
 									var ev_tmp = slmSchedule._events[save_id];
 									
 									var settime = ev_tmp["from"].substr(0,2)+":"+ev_tmp["from"].substr(2,2);
-									target_day_from = new Date($j("#slm_searchdate").val()+" "+settime);
+
+									//target_day_from = new Date($j("#slm_searchdate").val()+" "+settime);
+									target_day_from = _fnDateConvert($j("#slm_searchdate").val(),settime );
+									
 									$j("#start_time").val(settime);
 									save_item_cds =ev_tmp["item_cds"];
 									
@@ -444,6 +465,8 @@
 									save_user_login = ev_tmp["user_login"];
 									$j("#start_time").trigger("change");
 									
+									$j("#coupon").val(ev_tmp["coupon"]);
+									
 								});
 							}
 
@@ -456,10 +479,11 @@
 		}
 		
 		<?php
-		parent::echoClientItemMobile(array('mobile_search_day','booking_user_login','booking_user_password','customer_name','mail_norequired','booking_tel','staff_cd','start_time','remark'));
+		parent::echoClientItemMobile(array('mobile_search_day','booking_user_login','booking_user_password','customer_name','mail_norequired','booking_tel','staff_cd','start_time','remark','coupon'));
 		?> 
 		<?php parent::echoDayFormat(); ?>
 		<?php parent::echoCheckDeadline	($this->config_datas['SALON_CONFIG_RESERVE_DEADLINE']); ?>
+		<?php parent::echoDateConvert(); ?>
 
 
 		function AutoFontSize(){
@@ -546,6 +570,7 @@
 						,"item_cds": save_item_cds
 						,"tel": tel
 						,"user_login":save_user_login
+						,"coupon":$j("#coupon").val()
 						,"p2":temp_p2
 						,"nonce":"<?php echo $this->nonce; ?>"
 						,"menu_func":"Booking_Mobile_Edit"
@@ -556,7 +581,10 @@
 							return false;
 						}
 						else {
-							var setDate = fnDayFormat(new Date($j("#slm_searchdate").val()),"%Y%m%d");
+
+							var dtConvert = _fnDateConvert($j("#slm_searchdate").val() );
+							var setDate = fnDayFormat(dtConvert,"%Y%m%d");
+//							var setDate = fnDayFormat(new Date($j("#slm_searchdate").val()),"%Y%m%d");
 							slmSchedule._daysStaff[setDate] = data.set_data[setDate];
 							$j("#slm_mainpage_regist").trigger("click");
 							setDayData(setDate);
@@ -691,7 +719,7 @@ EOT;
 		?>           
 		<ul><li  ><select id="start_time" name="start_time" class="slm_sel" >
 <?php
-	
+		
 		$dt = new DateTime($this->branch_datas['open_time']);
 		$last_hour = substr($this->branch_datas['close_time'],0,2).":".substr($this->branch_datas['close_time'],2,2);
 		$dt_max = new DateTime($last_hour);
@@ -735,27 +763,6 @@ EOT;
 <?php
 		if ($this->item_datas) {
 			$echo_data = "";
-/*[2014/06/22]
-			for($i = 0,$loop_max = count($this->item_datas); $i < $loop_max ; $i += 2 ){
-				$echo_data .= '<ul class="slm_chk">';
-				for($j= 0 ; $j < 2 ; $j++ ) {
-					if ( $loop_max > ($i+$j) ) {
-						$d1 = $this->item_datas[$i+$j];
-						$edit_price = number_format($d1['price']);
-						$edit_name = htmlspecialchars($d1['short_name'],ENT_QUOTES);
-						$echo_data .= <<<EOT
-							<li>
-							<input type="checkbox" id="slm_chk_{$d1['item_cd']}" value="{$d1['item_cd']}" />
-							<input type="hidden" id="check_price_{$d1['item_cd']}" value="{$d1['price']}" />
-							<input type="hidden" id="check_minute_{$d1['item_cd']}" value="{$d1['minute']}" />
-							<label for="slm_chk_{$d1['item_cd']}">{$edit_name}<br>({$edit_price})</label>
-							</li>
-EOT;
-					}
-				}
-				$echo_data .= "</ul>";
-			}
-*/			
 			$echo_data .= '<ul class="slm_chk">';
 			for($i = 0,$loop_max = count($this->item_datas); $i < $loop_max ; $i ++ ){
 				$d1 = $this->item_datas[$i];
@@ -777,6 +784,11 @@ EOT;
 		}
 ?>        
 		</div>
+
+        <ul><li class="slm_li" id="coupon_wrap" ><select id="coupon" name="coupon" class="slm_sel">
+		<?php parent::echoCouponSelect("coupon",$this->promotion_datas,true); ?>
+        </select></li></ul>
+		
 
 		<ul><li><textarea id="remark"  ></textarea></li></ul>
 		<ul><li class="slm_label"><label  ><?php _e('price',SL_DOMAIN); ?>:</label></li>

@@ -70,10 +70,14 @@ class Item_Page extends Salon_Page {
 		?>
 		
 		<?php parent::echoClientItem($this->set_items); //for only_branch?>	
+		<?php parent::set_datepicker_date(); ?>
 
 		$j(document).ready(function() {
 			<?php parent::echoSetItemLabel(); ?>	
 			<?php parent::echoCommonButton();			//共通ボタン	?>
+			<?php  parent::set_datepickerDefault(false,true); ?>
+			<?php  parent::set_datepicker("exp_from",true); ?>			
+			<?php  parent::set_datepicker("exp_to",true); ?>			
 			target = $j("#lists").dataTable({
 				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slitem",
 				<?php parent::echoDataTableLang(); ?>

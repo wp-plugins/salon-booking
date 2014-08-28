@@ -55,7 +55,7 @@ class Basic_Page extends Salon_Page {
 			$j("#target_year").val("<?php echo date_i18n('Y'); ?>");
 				
 			<?php  parent::set_datepickerDefault(); ?>
-			<?php  parent::set_datepicker("sp_date",$this->current_user_branch_cd,true,'',$this->branch_datas['closed']); ?>			
+			<?php  parent::set_datepicker("sp_date",true,$this->branch_datas['closed']); ?>			
 			$j("#button_sp_date_insert").click(function(){
 				res = fnClickAddRow('inserted') 
 				if (res !== false) {
@@ -188,10 +188,18 @@ class Basic_Page extends Salon_Page {
 					}
 			 });			
 		}
-
+		
+		<?php parent::echoTime25Check(); ?>		
+		
 		function fnClickUpdate() {
 <?php			//sp_dateはここではチェックしない。他の画面とはちとちがう ?>
 			if ( ! checkItem("data_detail","sp_date") ) return false;
+
+			var op = $j("#open_time").val();
+			if (!_fnCheckTimeStep(+$j("#time_step").val(),op.slice(-2) ) ) return false;
+			var cl = $j("#close_time").val();
+			if (!_fnCheckTimeStep(+$j("#time_step").val(),cl.slice(-2) ) ) return false;
+						
 			
 			$j.ajax({
 				 	type: "post",
@@ -260,7 +268,7 @@ class Basic_Page extends Salon_Page {
 	<div id="data_detail" >
 		<input id="duplicate_cnt" type="text"   />
 		<input id="open_time" type="text"   />
-		<input type="text" id="close_time"   />
+		<input id="close_time" type="text"   />
 		<?php parent::echoClosedCheck($this->branch_datas['closed'],"closed_day"); ?>
 		<?php parent::echoTimeStepSelect('time_step'); ?>
 <?php /*?>

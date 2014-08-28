@@ -70,11 +70,12 @@ class Booking_Data extends Salon_Data {
 		
 		$sql = 	$wpdb->prepare(
 						' SELECT '.
-						'reservation_cd,branch_cd,staff_cd,'.
-						'user_login,non_regist_name as name,non_regist_email as email,'.
+						' reservation_cd,branch_cd,staff_cd,'.
+						' user_login,non_regist_name as name,non_regist_email as email,'.
 						' non_regist_tel as tel, '.
-						'non_regist_activate_key,time_from,time_to,item_cds,status,'.
-						'remark,memo,notes,delete_flg,insert_time,update_time '.
+						' non_regist_activate_key,time_from,time_to,item_cds,status,'.
+						' coupon, '.
+						' remark,memo,notes,delete_flg,insert_time,update_time '.
 						' FROM '.$wpdb->prefix.'salon_reservation '.
 						'   WHERE time_from >= %s '.
 						'     AND time_to < %s '.
@@ -106,7 +107,8 @@ class Booking_Data extends Salon_Data {
 	
 
 	public function insertTable ($table_data){
-		$reservation_cd = $this->insertSql(self::TABLE_NAME,$table_data,'%d,%s,%s,%s,%s,%s,%s,%d,%s,%s,%s,%s,%s,%s');
+
+		$reservation_cd = $this->insertSql(self::TABLE_NAME,$table_data,'%d,%s,%s,%s,%s,%s,%s,%s,%d,%s,%s,%s,%s,%s,%s');
 		if ($reservation_cd === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
@@ -126,6 +128,7 @@ class Booking_Data extends Salon_Data {
 							' time_to = %s , '.
 							' status = %s ,  '.
 							' remark = %s , '.
+							' coupon = %s , '.
 							' update_time = %s '.
 							(empty($table_data['item_cds']) ? ' ' : ' , item_cds = %s  ' );
 													
@@ -141,6 +144,7 @@ class Booking_Data extends Salon_Data {
 							$table_data['time_to'],
 							$table_data['status'],
 							$table_data['remark'],
+							$table_data['coupon'],
 							date_i18n('Y-m-d H:i:s')	);
 			if (!empty($table_data['item_cds']) )	$set_data_temp[] = $table_data['item_cds'];
 			$set_data_temp[] = $table_data['reservation_cd'];

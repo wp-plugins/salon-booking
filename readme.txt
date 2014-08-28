@@ -1,9 +1,9 @@
 === Salon Booking ===
 Contributors: kuu(Tanaka Hisao)
-Tags: hair salon,salon,appointment,booking,beauty apps,reservation,dental clinic,hospital,mutilingual,plugin,散髪予約,美容院予約,美容室予約,サロン予約,エステ予約,予約システム,予約管理
+Tags: hair salon,salon,appointment,booking,beauty apps,reservation,dental clinic,hospital,mutilingual,散髪予約,美容院予約,美容室予約,サロン予約,エステ予約,予約システム,予約管理
 Requires at least: 3.8
 Tested up to: 3.8.1
-Stable tag: 1.4.7
+Stable tag: 1.4.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -114,6 +114,11 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 5. 管理画面（出退勤）
 
 == Changelog ==
+= 1.4.8 =
+* Added: function of "Promotion".
+* Fixed: CSS of "month tab".
+* Changed: "lang" directory to "language" directory.
+
 = 1.4.7 =
 * Added: "Deadline of reservations" at the screen of "configuration setting".
 

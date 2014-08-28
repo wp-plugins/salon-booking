@@ -363,7 +363,8 @@ EOT;
 				$j("#button_delete").show();
 			}
 			$j("#name").text( staff_name );
-			$j("#target_day").text(ev.start_date.getFullYear()+"/"+ ('00' + (ev.start_date.getMonth() + 1)).slice(-2) +"/"+('00' + (ev.end_date.getDate())).slice(-2) );
+//			$j("#target_day").text(ev.start_date.getFullYear()+"/"+ ('00' + (ev.start_date.getMonth() + 1)).slice(-2) +"/"+('00' + (ev.end_date.getDate())).slice(-2) );
+			$j("#target_day").text(fnDayFormat(ev.start_date,"<?php echo __('%m/%d/%Y',SL_DOMAIN); ?>"));
 			save_in_time = ('00' + (ev.start_date.getHours())).slice(-2)+":"+('00' + (ev.start_date.getMinutes())).slice(-2) ;
 			key_in_time = new Date(ev.start_date);
 			key_out_time = new Date(ev.end_date);
@@ -506,6 +507,7 @@ EOT;
 			alert("here2");
 		});
 		
+		<?php parent::echoDayFormat(); ?>
 
 	</script>
 

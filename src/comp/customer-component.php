@@ -31,6 +31,8 @@ class Customer_Component {
 			$edit[$index]['remark'] = $result[$i]['remark'];
 			$edit[$index]['memo'] = $result[$i]['memo'];
 			$edit[$index]['notes'] = $result[$i]['notes'];
+			$edit[$index]['rank_patern_cd'] = $result[$i]['rank_patern_cd'];
+			
 			$save_key = $result[$i]['ID'];
 		}
 		//不要な項目が多いので編集する
@@ -49,6 +51,7 @@ class Customer_Component {
 				$result_after[$index]['remark'] = $d1['remark'];
 				$result_after[$index]['memo'] = $d1['memo'];
 				$result_after[$index]['notes'] = $d1['notes'];
+				$result_after[$index]['rank_patern_cd'] = $d1['rank_patern_cd'];
 		//		$result_after[$index]['name'] = trim($d1['first_name'].' '.$d1['last_name']);
 				$result_after[$index]['first_name'] = $d1['first_name'];
 				$result_after[$index]['last_name'] = $d1['last_name'];
@@ -101,6 +104,7 @@ class Customer_Component {
 			$set_data['ID'] = intval($_POST['ID']);
 			$set_data['user_login'] =  stripslashes($_POST['user_login']);
 			$set_data['branch_cd'] = intval($_POST['branch_cd']);
+			$set_data['rank_patern_cd'] = intval($_POST['rank_patern_cd']);
 			$set_data['remark'] =  stripslashes($_POST['remark']);
 			$set_data['memo'] = '';
 			$set_data['notes'] = '';

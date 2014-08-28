@@ -30,6 +30,7 @@ class Confirm_Data extends Salon_Data {
 						' st.user_login, '.
 						' rs.item_cds ,'.
 						' rs.status ,'.
+						' rs.coupon ,'.
 						' rs.remark '.
 						' FROM '.$wpdb->prefix.'salon_reservation rs '.
 						' LEFT JOIN '.$wpdb->prefix.'salon_staff st'.

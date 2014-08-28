@@ -93,6 +93,7 @@ class Staff_Page extends Salon_Page {
 		//[photo]
 		
 		<?php parent::echoClientItem($this->set_items);  ?>	
+		<?php parent::set_datepicker_date(); ?>
 		<?php Salon_Country::echoZipTable(); //for only_branch?>	
 
 		$j(document).ready(function() {
@@ -153,6 +154,10 @@ class Staff_Page extends Salon_Page {
 			
 			<?php parent::echoSetItemLabel(); ?>	
 			<?php Salon_Country::echoZipFunc("zip","address");	?>
+
+			<?php  parent::set_datepickerDefault(false,true); ?>
+			<?php  parent::set_datepicker("employed_day",true); ?>			
+			<?php  parent::set_datepicker("leaved_day",true); ?>			
 
 			
 			$j("#user_login").change(function(){

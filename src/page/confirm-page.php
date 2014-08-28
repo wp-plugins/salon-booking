@@ -69,6 +69,7 @@ class Confirm_Page extends Salon_Page {
 					<tr><th><?php _e('reserved day',SL_DOMAIN); ?></th><td><?php echo $this->datas['target_day']; ?>&nbsp;<?php echo $this->datas['time_from']; ?>-<?php echo $this->datas['time_to']; ?></td></tr>
 					<tr><th><?php _e('reserved staff',SL_DOMAIN); ?></th><td><?php echo htmlspecialchars($this->datas['staff_name'],ENT_QUOTES); ?></td></tr>
 					<tr><th><?php _e('reserved menu',SL_DOMAIN); ?></th><td><?php echo htmlspecialchars($this->datas['item_name'],ENT_QUOTES); ?></td></tr>
+					<tr><th><?php _e('use coupon',SL_DOMAIN); ?></th><td><?php echo htmlspecialchars($this->datas['coupon_name'],ENT_QUOTES); ?></td></tr>
 					<tr><th><?php _e('Remark',SL_DOMAIN); ?></th><td><?php echo htmlspecialchars($this->datas['remark'],ENT_QUOTES); ?></td></tr>
 					<tr><th><?php _e('status',SL_DOMAIN); ?></th><td id="status_name"><?php echo $this->datas['status_name']; ?></td></tr>
 					<?php if (($this->datas['status'] == Salon_Reservation_Status::TEMPORARY) && ($this->config_datas['SALON_CONFIG_USER_LOGIN'] == Salon_Config::USER_LOGIN_OK)) : ?>

@@ -149,9 +149,16 @@ class Branch_Page extends Salon_Page {
 		}
 		<?php parent::echoDataTableEditColumn("branch"); ?>
 		<?php parent::echoDataTableDeleteRow("branch"); ?>
+		<?php parent::echoTime25Check(); ?>		
 
 		function fnClickAddRow(operate) {
 			if ( ! checkItem("data_detail") ) return false;
+			var op = $j("#open_time").val();
+			if (!_fnCheckTimeStep(+$j("#time_step").val(),op.slice(-2) ) ) return false;
+			var cl = $j("#close_time").val();
+			if (!_fnCheckTimeStep(+$j("#time_step").val(),cl.slice(-2) ) ) return false;
+
+
 			var item_cd = "";
 			var branch_cd = "";
 			if ( save_k1 !== ""  ) {

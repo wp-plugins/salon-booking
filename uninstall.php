@@ -25,6 +25,8 @@ function salon_delete_plugin() {
 	$wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."salon_item" );
 	$wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."salon_log" );
 	$wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."salon_photo" );
+	$wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."salon_promotion" );
+	$wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."salon_customer_extension" );
 
 	$id = get_option('salon_confirm_page_id');
 	if (! empty($id)  ){

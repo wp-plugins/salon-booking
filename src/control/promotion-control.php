@@ -1,10 +1,10 @@
 <?php
 
 	require_once(SL_PLUGIN_SRC_DIR . 'control/salon-control.php');
-	require_once(SL_PLUGIN_SRC_DIR . 'data/reservation-data.php');
-	require_once(SL_PLUGIN_SRC_DIR . 'comp/reservation-component.php');
+	require_once(SL_PLUGIN_SRC_DIR . 'data/promotion-data.php');
+	require_once(SL_PLUGIN_SRC_DIR . 'comp/promotion-component.php');
 
-class Reservation_Control extends Salon_Control  {
+class Promotion_Control extends Salon_Control  {
 
 	private $pages = null;
 	private $datas = null;
@@ -17,16 +17,16 @@ class Reservation_Control extends Salon_Control  {
 	function __construct() {
 		parent::__construct();
 		if (empty($_REQUEST['menu_func']) ) {
-			$this->action_class = 'Reservation_Page';
+			$this->action_class = 'Promotion_Page';
 			$this->set_response_type(Response_Type::HTML);
 		}
 		else {
 			$this->action_class = $_REQUEST['menu_func'];
 		}
-		$this->datas = new Reservation_Data();
+		$this->datas = new Promotion_Data();
 		$this->set_config($this->datas->getConfigData());
-		$this->comp = new Reservation_Component($this->datas);
-		$this->permits = array('Reservation_Page','Reservation_Init','Reservation_Edit');
+		$this->comp = new Promotion_Component($this->datas);
+		$this->permits = array('Promotion_Page','Promotion_Init','Promotion_Edit');
 	}
 	
 	
@@ -36,7 +36,7 @@ class Reservation_Control extends Salon_Control  {
 		$this->pages = new $this->action_class($this->is_multi_branch);
 
 
-		if ($this->action_class == 'Reservation_Page' ) {
+		if ($this->action_class == 'Promotion_Page' ) {
 
 			$user_login = $this->datas->getUserLogin();
 			$this->pages->set_isSalonAdmin($this->datas->isSalonAdmin($user_login));
@@ -46,45 +46,49 @@ class Reservation_Control extends Salon_Control  {
 
 			if ($this->pages->isSalonAdmin() ) $this->pages->set_all_branch_datas($this->datas->getAllBranchData());
 
-			$this->pages->set_promotion_datas($this->datas->getPromotionData($branch_cd));
-
 			$this->pages->set_current_user_branch_cd($branch_cd);
 			$this->pages->set_branch_datas($this->datas->getBranchData($branch_cd));
-			$this->pages->set_item_datas($this->datas->getTargetItemData($branch_cd));
-			$this->pages->set_staff_datas($this->datas->getTargetStaffData($branch_cd));
+
 			$this->pages->set_config_datas($this->datas->getConfigData());
 
+
+			$this->pages->set_usable_patern_datas($this->datas->getUsablePaternDatas());
+			$this->pages->set_customer_rank_datas($this->datas->getCustomerRank());
+
 		}
-		elseif ($this->action_class == 'Reservation_Edit' ) {
+		elseif ($this->action_class == 'Promotion_Init' ) {
+			$branch_cd = $this->pages->get_target_branch_cd();
+			$this->pages->set_init_datas($this->datas->getPromotionData($branch_cd,null,null,true));
+		}
+		elseif ($this->action_class == 'Promotion_Edit' ) {
 			$this->pages->check_request();
 			$res = $this->comp->editTableData();
-			$this->comp->serverCheck($res);
 
 			if ($_POST['type'] == 'inserted' ) {
-				$reservation_cd = $this->datas->insertTable( $res);
-				if (!empty($_POST['regist_customer'] ) )
-					$this->pages->set_user_pass($this->datas->getUserPass($res['user_login']));
+				$this->comp->serverCheck($res);
+				$promotion_cd = $this->datas->insertTable( $res);
 			}
 			elseif ($_POST['type'] == 'updated' ) {
+				$this->comp->serverCheck($res);
 				$this->datas->updateTable( $res);
-				$reservation_cd = $res['reservation_cd'];
+				$promotion_cd = $res['promotion_cd'];
 			}
 			elseif ($_POST['type'] == 'deleted' ) {
+				$this->comp->deleteCheck($res['promotion_cd']);
 				$this->datas->deleteTable( $res);
 			}
 			if ($_POST['type'] != 'deleted' ) {
-				$table_data = $this->datas->getTargetSalesData($reservation_cd);
-				Salon_Component::editSalesData($this->datas->getTargetItemData($res['branch_cd']),$this->datas->getTargetStaffData($res['branch_cd']),$table_data);
+				$table_data = $this->datas->getPromotionData(null,$promotion_cd);
 				$this->pages->set_table_data($table_data[0]);
 			}
 		}
 
 		$this->pages->show_page();
-		if ($this->action_class != 'Reservation_Page' ) die();
+		if ($this->action_class != 'Promotion_Page' ) die();
 
 	}
 }		//class
 
 
-$staffs = new Reservation_Control();
+$staffs = new Promotion_Control();
 $staffs->exec();

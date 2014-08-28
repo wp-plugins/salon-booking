@@ -219,6 +219,8 @@ div.dhx_modal_cover {
 	position:absolute;
 	top:2px; 
 	white-space:nowrap;
+/*[hisa] */	
+	line-height:1.71429;
 }
 .dhx_cal_navline .dhx_cal_date {
 	font-weight:600;
@@ -308,6 +310,8 @@ div.dhx_modal_cover {
 	background-color:#C2D5FC;
 	padding-top:3px;
 	border-left:1px dotted #586A7E;
+/*[hisa]*/
+	line-height:1.71429;
 }
 .dhx_scale_holder{
 	position:absolute;	
@@ -427,6 +431,7 @@ div.dhx_modal_cover {
 	font-family:Tahoma;
 	font-size:8pt;
 }
+
 .dhx_move_denied .dhx_cal_event .dhx_header, .dhx_move_denied .dhx_cal_event .dhx_title{
 	cursor:default;
 }
@@ -448,10 +453,14 @@ div.dhx_modal_cover {
 	background-position:right;
 	background-repeat:no-repeat;
 	cursor:pointer;
+/*[hisa]*/
+	line-height:1.71429;
 }
 .dhx_cal_event .dhx_body, .dhx_cal_event.dhx_cal_select_menu .dhx_body{
 	border-width:0 1px 1px 1px;
 	padding:5px;
+/*[hisa]*/
+	line-height:1.71429;
 }
 .dhx_resize_denied, .dhx_resize_denied .dhx_event_resize {
 	cursor:default !important;
@@ -497,6 +506,7 @@ div.dhx_modal_cover {
 	white-space:nowrap;
 	overflow:hidden;
 	cursor:pointer;
+	line-height:1.71429
 }
 .dhx_in_move{
 	background-color:#FFFF80;
@@ -977,6 +987,10 @@ div.icon_delete{
 }
 .dhx_matrix_line{
 	overflow: hidden;
+}
+/*[hisa]*/
+.dhx_cal_data td{
+	padding:6px 10px 6px 0px;
 }
 .dhx_matrix_cell div, .dhx_matrix_scell div{ 
 	overflow:hidden;
@@ -1578,9 +1592,20 @@ input.dhx_repeat_checkbox {
 
 .dhx_scheduler_month td {
 	padding:0px;
+	border-top-width:0px;
+	border-bottom-width:0px;
+	border-right-width:0px;
+}
+
+.dhx_cal_data table {
+	padding:0px;
 	border-top-width:1px;
-	border-top-style:solid;
-	border-top-color:#EDEDED;
+	border-top-style:dotted;
+	border-bottom-width:0px;
+	border-left-width:0px;
+	border-right-width:0px;
+	margin-top:0px;
+	margin-bottom:28px;
 }
 
 /* enabling marked timespans for month view */

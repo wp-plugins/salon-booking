@@ -400,14 +400,14 @@
 	font: bold 13px arial, helvetica, sans-serif;
 	text-decoration: none;
 	white-space: nowrap;
-	color: #555;
-	background-color: #ddd;
+	color: #555 !important;
+	background-color: #ddd !important;
 	background-image: linear-gradient(top, rgba(255,255,255,1),
 								rgba(255,255,255,0)),
 								url(data:image/png;base64,iVBORw0KGg[...]QmCC);
 	transition: background-color .2s ease-out;
 	background-clip: padding-box; /* Fix bleeding */
-	border-radius: 3px;
+	border-radius: 3px !important;
 	box-shadow: 0 1px 0 rgba(0, 0, 0, .3),
 							0 2px 2px -1px rgba(0, 0, 0, .5),
 							0 1px 0 rgba(255, 255, 255, .3) inset;
@@ -470,18 +470,20 @@
 
 /*datepickerの定休日対応 */
 .date-sunday   .ui-state-default {
-  background-image: none; background-color: #F00;
   background-image: none; background-color: #E6E6E6;
-  
+}
+.date-sunday-show   .ui-state-default {
+  background-image: none; background-color: #FFCCFF;
 }
 .date-saturday .ui-state-default {
-  background-image: none; background-color: #06F;
   background-image: none; background-color: #E6E6E6;
+}
+.date-saturday-show .ui-state-default {
+  background-image: none; background-color: #CCFFFF;
 }
 /* 祝日 */
 .date-holiday0 .ui-state-default {
-  background-image: none; background-color: #F0F;
-  background-image: none; background-color: #E6E6E6;
+  background-image: none; background-color: #FFCCFF;
 }
 /* 定休日 */
 .date-holiday1 .ui-state-default {
@@ -493,8 +495,8 @@
 }
 /* 定休日だけど営業する */
 .date-holiday3 .ui-state-default {
-  background-image: none; background-color: #F60;
-  background-image: none; background-color: #E6E6E6;
+/*  background-image: none; background-color: #F60;
+*/  background-image: none; background-color: #E6E6E6;
 }
 
 
@@ -959,6 +961,7 @@ label#mail_lbl  {
 #sl_front_items {
 	padding:0;
 	margin:0;
+	border-width:0px;
 	
 }
 
@@ -980,6 +983,7 @@ label#mail_lbl  {
 	line-height:12px;
 	padding:0;
 	margin:0;
+	border-width:0px;
 	
 }
 

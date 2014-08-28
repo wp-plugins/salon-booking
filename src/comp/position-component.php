@@ -45,11 +45,13 @@ class Position_Component {
 		$set_data[6] = array('name'=>__('Position Information',SL_DOMAIN),'func'=>'edit_position');
 		$set_data[7] = array('name'=>__('Reservation Regist',SL_DOMAIN),'func'=>'edit_reservation');
 		$set_data[8] = array('name'=>__('Performance Regist',SL_DOMAIN),'func'=>'edit_sales');
-		$set_data[9] = array('name'=>__('Time Card',SL_DOMAIN),'func'=>'edit_working');
-		$set_data[10] = array('name'=>__('Time Card(full members)',SL_DOMAIN),'func'=>'edit_working_all');
-		$set_data[11] = array('name'=>__('Basic Information',SL_DOMAIN),'func'=>'edit_base');
-		$set_data[12] = array('name'=>__('Authoriy of Management',SL_DOMAIN),'func'=>'edit_admin');
-		$set_data[13] = array('name'=>__('View Log',SL_DOMAIN),'func'=>'edit_log');
+		$set_data[9] = array('name'=>__('Promotion Regist',SL_DOMAIN),'func'=>'edit_promotion');
+		$set_data[10] = array('name'=>__('Promotion Use',SL_DOMAIN),'func'=> 'edit_use_promotion');
+		$set_data[11] = array('name'=>__('Time Card',SL_DOMAIN),'func'=>'edit_working');
+		$set_data[12] = array('name'=>__('Time Card(full members)',SL_DOMAIN),'func'=>'edit_working_all');
+		$set_data[13] = array('name'=>__('Basic Information',SL_DOMAIN),'func'=>'edit_base');
+		$set_data[14] = array('name'=>__('Authoriy of Management',SL_DOMAIN),'func'=>'edit_admin');
+		$set_data[15] = array('name'=>__('View Log',SL_DOMAIN),'func'=>'edit_log');
 		return $set_data;
 	}
 }

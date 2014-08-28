@@ -1,14 +1,14 @@
 <?php
 $set_lang = false;
 if (defined ( 'WPLANG' )  ) {
-	$file_name = SL_PLUGIN_DIR.'/lang/salon-page-'.WPLANG.'.php';
+	$file_name = SL_PLUGIN_DIR.'/languages/salon-page-'.WPLANG.'.php';
 	if ( file_exists($file_name) ) {
 		require_once($file_name);
 		$set_lang = true;
 	}
 }
 if (! $set_lang ) {
-	$file_name = SL_PLUGIN_DIR.'/lang/salon-page-com.php';
+	$file_name = SL_PLUGIN_DIR.'/languages/salon-page-com.php';
 	if ( file_exists($file_name) ) require_once($file_name);
 	else {
 		throw new Exception(Salon_Component::getMsg('E007',basename(__FILE__).':'.__LINE__ ) );
@@ -145,13 +145,18 @@ EOT;
 		echo <<<EOT
 			for(index in check_items) {
 				if (check_items[index] ) {
-					var ast = "";
-					if (check_items[index]["class"].indexOf("chk_required") != -1) {
-						ast = "<span class=\"sl_req\">*</span>";
-					}
 					var id = check_items[index]["id"];
-					\$j("#"+id).addClass(check_items[index]["class"]);
-					\$j("#"+id).before("<label id=\""+id+"_lbl\" for=\""+id+"\" >"+check_items[index]["label"]+ast+":<span class=\"small\"></span></label>");
+					if (check_items[index]["label"] == "") {
+						\$j("#"+id).addClass(check_items[index]["class"]);
+					}
+					else {
+						var ast = "";
+						if (check_items[index]["class"].indexOf("chk_required") != -1) {
+							ast = "<span class=\"sl_req\">*</span>";
+						}
+						\$j("#"+id).addClass(check_items[index]["class"]);
+						\$j("#"+id).before("<label id=\""+id+"_lbl\" for=\""+id+"\" >"+check_items[index]["label"]+ast+":<span class=\"small\"></span></label>");
+					}
 				}
 			}
 EOT;
@@ -1099,9 +1104,10 @@ EOT;
 		}
 	}
 	
-	static function set_datepickerDefault($is_maxToday = false){
+	static function set_datepickerDefault($is_maxToday = false,$is_all = false){
 		$range = 'minDate: new Date()';
 		if ($is_maxToday) $range = 'maxDate: new Date()';
+		if ($is_all) $range = 'minDate:new Date(2000,0,1),maxDate:new Date(2099,11,31)';
 		echo 
 			'$j.datepicker.setDefaults({
 					closeText: "'.__('close',SL_DOMAIN).'",
@@ -1126,7 +1132,7 @@ EOT;
 		
 	}
 
-	static function set_datepicker ($tag_id,$branch_cd,$select_ok = false,$target_year = '',$closed_data = null){
+	static function set_datepicker ($tag_id,$select_ok = false,$closed_data = null){
 		$tmp_status = Salon_Status::OPEN;
 		if ($select_ok) $tmp_select = 'true';
 		else $tmp_select = 'false';
@@ -1148,8 +1154,8 @@ EOT;
 					  else {
 						switch (day.getDay()) {';
 		if (empty($closed_data)) {
-			echo 'case 0: result = [true,"date-sunday",""]; break; ';
-			echo 'case 6: result = [true,"date-saturday",""]; break; ';
+			echo 'case 0: result = [true,"date-sunday-show",""]; break; ';
+			echo 'case 6: result = [true,"date-saturday-show",""]; break; ';
 		}
 		else {
 			$datas = explode(",",$closed_data);
@@ -1162,6 +1168,12 @@ EOT;
 			if (in_array(0,$datas) == false ) echo 'case 0: result = [true,"date-sunday",""]; break; ';
 			if (in_array(6,$datas) == false ) echo 'case 6: result = [true,"date-satureday",""]; break; ';
 		}
+		//店のカレンダーでは祭日は表示しないけど
+		//ふつうのカレンダーでは表示する
+		$holiday_set = 'result[2] =  result[2] + holiday.title;';
+		if (empty($closed_data)) {
+			$holiday_set .= 'result[1] =  "date-holiday0";';
+		}
 		echo <<<EOT2
 						default:
 							result = [true, "",""];
@@ -1169,7 +1181,8 @@ EOT;
 						}
 					  }
 					  if (holiday) {
-						result[2] =  result[2] + holiday.title;
+						{$holiday_set}
+						
 					  } 
 					  return result;
 					}
@@ -2231,6 +2244,79 @@ EOT2;
 		 ,'tips' => __('How many days or hours is the deadline of reservation.',SL_DOMAIN));
 
 
+		//[20140810]Ver1.4.8
+		$item_contents['set_code'] =array('id'=>'set_code'
+		 ,'class' => array()
+		 ,'check' => array( 'chk_required','lenmax10')
+		 ,'label' => __('Code',SL_DOMAIN)
+		 ,'tips' => __('within 10 charactors',SL_DOMAIN)
+		 ,'table' => array(  'class'=>''
+							,'width'=>self::MIDDLE_WIDTH
+							,'sort'=>'true'
+							,'search'=>'true'
+							,'visible'=>'true' ));
+		 
+		$item_contents['description'] =array('id'=>'description'
+		 ,'class' => array()
+		 ,'check' => array( 'chk_required','lenmax50')
+		 ,'label' => __('Description',SL_DOMAIN)
+		 ,'tips' => __('within 50 charactors',SL_DOMAIN)
+		 ,'table' => array(  'class'=>''
+							,'width'=>self::LONG_WIDTH
+							,'sort'=>'true'
+							,'search'=>'true'
+							,'visible'=>'true' ));
+		$item_contents['valid_from'] =array('id'=>'valid_from'
+		 ,'class' => array()
+		 ,'check' => array( 'chkDate')
+		 ,'label' => __('Valid from',SL_DOMAIN)
+		 ,'tips' => __('Leave fields to blank to indicate that no limit applies.',SL_DOMAIN)
+		 ,'table' => array(  'class'=>''
+							,'width'=>self::LONG_WIDTH
+							,'sort'=>'true'
+							,'search'=>'true'
+							,'visible'=>'true' ));
+		$item_contents['valid_to'] =array('id'=>'valid_to'
+		 ,'class' => array()
+		 ,'check' => array( 'chkDate')
+		 ,'label' => __('Valid to',SL_DOMAIN)
+		 ,'tips' => __('Leave fields to blank to indicate that no limit applies.',SL_DOMAIN)
+		 ,'table' => array(  'class'=>''
+							,'width'=>self::LONG_WIDTH
+							,'sort'=>'true'
+							,'search'=>'true'
+							,'visible'=>'true' ));
+		$item_contents['discount_patern'] =array('id'=>'discount_wrap'
+		 ,'class' => array()
+		 ,'check' => array( )
+		 ,'label' => __('Discount Patern',SL_DOMAIN)
+		 ,'tips' => __('please select',SL_DOMAIN));
+		$item_contents['discount'] =array('id'=>'discount'
+		 ,'class' => array()
+		 ,'check' => array( 'chk_required','num')
+		 ,'label' => __('Discount',SL_DOMAIN)
+		 ,'tips' => __('please enter numeric',SL_DOMAIN));
+		$item_contents['usable_patern'] =array('id'=>'usable_patern_cd'
+		 ,'class' => array()
+		 ,'check' => array( 'chk_required')
+		 ,'label' => __('Usable',SL_DOMAIN)
+		 ,'tips' => __('please select',SL_DOMAIN));
+		$item_contents['times'] =array('id'=>'times'
+		 ,'class' => array()
+		 ,'check' => array( 'chk_required')
+		 ,'label' => __('Times',SL_DOMAIN)
+		 ,'tips' => __('The Maximum Number of this promotion.',SL_DOMAIN));
+		$item_contents['rank_patern'] =array('id'=>'rank_patern_cd'
+		 ,'class' => array()
+		 ,'check' => array( 'chk_required')
+		 ,'label' => __('Rank',SL_DOMAIN)
+		 ,'tips' => __('please select',SL_DOMAIN));
+		$item_contents['coupon'] =array('id'=>'coupon'
+		 ,'class' => array()
+		 ,'check' => array()
+		 ,'label' => __('coupon',SL_DOMAIN)
+		 ,'tips' => __('please select',SL_DOMAIN));
+
 
 		return $item_contents;	
 	
@@ -2366,6 +2452,9 @@ EOT2;
 					if (preg_match('/^(?:\d{1,2}:\d{1,2})$|^(?:\d{4})$/', $target, $matches) == 0 ) {
 						$err_msg[] = Salon_Component::getMsg('E202',$label);
 					}
+					if ( +substr($target,0,2) > 24 ) {
+						$err_msg[] = Salon_Component::getMsg('E202',$label);
+					}
 					break;
 				case 'num':
 					if (preg_match('/^\d*$/',$target,$matches) == 0 ) {
@@ -2485,6 +2574,10 @@ EOT2;
 								if( ! val.match(/^(?:[ ]?\d{1,2}:\d{1,2})$|^(?:\d{4})$/)  ){
 									item_errors.push( "'.__('please HH:MM or HHMM format',SL_DOMAIN).'");
 								}
+								if (+val.slice(0,2) > 24 ) {
+									item_errors.push( "'.__('Hour is max 24',SL_DOMAIN).'");
+								}
+								
 							}';
 	
 		$check_contens['chkDate'] = '
@@ -2769,6 +2862,7 @@ EOT;
 						,'remark'=>$d1['remark']
 						,'p2'=>$d1['non_regist_activate_key']
 						,'user_login'=>$d1['user_login']
+						,'coupon'=>$d1['coupon']
 						);
 			}
 			else {
@@ -2834,6 +2928,7 @@ EOT;
 																			,$d5['tel']
 																			,$d5['mail']
 																			,$d5['user_login']
+																			,$d5['coupon']
 																			)
 																)
 													);						
@@ -2912,5 +3007,140 @@ EOT;
 		}
 	}
 //[2014/04/23]Ver 1.3.7 To
+
+//[2014/08/12]Ver 1.4.8 From
+	static function echoCouponSelect($target_name,$promotion_datas,$is_mobile = false) {
+		$echo_data = '';
+		if (!$is_mobile) {
+			$echo_data = '<div id="'.$target_name.'_wrap" ><select id="'.$target_name.'">';
+		}
+		if (count($promotion_datas) == 0 ) {
+			$echo_data .= '<option value="">'.__('No Coupon',SL_DOMAIN).'</option>';
+		}
+		else {
+			$echo_data .= '<option value="">'.__('select please',SL_DOMAIN).'</option>';
+		}
+		foreach($promotion_datas as $k1 => $d1 ) {
+			$echo_data .= '<option value="'.$d1['set_code'].'">'.htmlspecialchars($d1['description'],ENT_QUOTES).'</option>';
+		}
+		$echo_data .= '</select>';
+		if (!$is_mobile) {
+			$echo_data .= '</div>';
+		}
+		echo $echo_data;
+	}
+
+
+	static function echoPromotionArray($datas) {
+		$comma = '';
+		$isDateSet = false;
+		echo 'var promotions = {';
+		foreach ($datas as $k1 => $d1 ) {
+			echo $comma.'"'.$d1['promotion_cd'].'":{';
+			echo 'key:"'.$d1['set_code'].'"';
+			echo ',val:"'.htmlspecialchars($d1['description']).'"';
+			if ($d1['valid_from']) {
+				echo ',from:'.$d1['valid_from_check'];
+				$isDateSet = true;
+			}
+			else echo ',from:0';
+			
+			if ($d1['valid_to']) {
+				echo ',to:'.$d1['valid_to_check'];
+				$isDateSet = true;
+			}
+			else echo ',to:20991231';
+			echo '}';
+			$comma = ',';
+		}
+		echo '};';
+		echo 'var isNeedToCheckPromotionDate = '.($isDateSet ? 'true' : 'false').';';
+		echo 'var coupons = new Array(); ';
+		foreach ($datas as $k1=>$d1 ) {
+			echo 'coupons["'.$d1['set_code'].'"] = {promotion_cd:'.$d1['promotion_cd'].',discount_patern_cd:'.$d1['discount_patern_cd'].',discount:'.$d1['discount'].'};';
+		}
+		
+	}
+
+
+
+	static function echoDayFromToCheck() {
+		echo <<<EOT
+		
+		
+		
+EOT;
+	}
+	
+	static function echoDateConvert() {
+		$datePatern = __('MM/DD/YYYY',SL_DOMAIN);
+		echo <<<EOT
+		function _fnDateConvert(indate,addTime) {
+			var yyyy,mm,dd;
+			var sp_patern = "{$datePatern}";
+			var sp_patern_array = sp_patern.split("/"); 
+			if (indate.indexOf("/") == -1 ){
+				var posMM = sp_patern_array.indexOf("MM");
+				var posDD = sp_patern_array.indexOf("DD");
+				
+				switch (sp_patern_array.indexOf("YYYY")) {
+				case 0:
+					yyyy = indate.substr(0,4);
+					mm   = indate.substr(2*posMM+2,2);
+					dd   = indate.substr(2*posDD+2,2);
+					break;
+				case 1:
+					yyyy = indate.substr(2,4);
+					mm   = indate.substr(3*posMM,2);
+					dd   = indate.substr(3*posDD,2);
+					break;
+				case 2:
+					yyyy = indate.substr(4,4);
+					mm   = indate.substr(2*posMM,2);
+					dd   = indate.substr(2*posDD,2);
+					break;
+				}
+			}
+			else {
+				var sp = indate.split("/");
+				yyyy = sp[sp_patern_array.indexOf("YYYY")];
+				mm = sp[sp_patern_array.indexOf("MM")];
+				dd = sp[sp_patern_array.indexOf("DD")];
+			}
+			if (addTime) {
+				var time_array = addTime.split(":");
+				if (time_array.length == 2) time_array[2]=0;
+				return new Date(yyyy,mm-1,dd,+time_array[0],+time_array[1],+time_array[2]);
+			}
+			return new Date(yyyy,mm-1,dd);
+			
+		}
+EOT;
+	
+	}
+	
+	static function echoTime25Check() {
+		$msg =  __('Time step is wrong ?');
+		echo <<<EOT
+		function _fnCheckTimeStep(step,targetMin){
+			if ( targetMin%step === 0 ) return true;
+			alert("{$msg}");
+			return false;
+		}
+EOT;
+	}
+
+	static function echoRankPatern($customer_rank_datas) {
+		echo '<div id="rank_patern_wrap" >';
+		echo '<select id="rank_patern_cd" >';
+		foreach ($customer_rank_datas as $k1 => $d1 ) {
+			echo '<option value="'.$k1.'" >'.$d1.'</option>';
+		}
+		echo '</select></div>';
+	}
+
+//[2014/08/12]Ver 1.4.8 To
+
+
 
 }

@@ -16,12 +16,13 @@ class Reservation_Page extends Salon_Page {
 
 	private $config_datas = null;
 	
+	private $promotion_data = null;
 	
 	
 
 	function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch);
-		$this->set_items = array('reserved_mail','reserved_tel','customer_name','target_day','staff_cd','item_cds','remark','price','regist_customer','rstatus');
+		$this->set_items = array('reserved_mail','reserved_tel','customer_name','target_day','staff_cd','item_cds','remark','price','regist_customer','rstatus','coupon');
 	}
 	
 	public function set_all_branch_datas ($branch_datas) {
@@ -54,6 +55,11 @@ class Reservation_Page extends Salon_Page {
 		return @$_POST['set_branch_cd'];
 	}
 
+	public function set_promotion_datas ($promotion_datas) {
+		$this->promotion_datas = $promotion_datas;
+
+	}
+
 	public function show_page() {
 ?>
 
@@ -78,6 +84,7 @@ class Reservation_Page extends Salon_Page {
 		<?php parent::set_datepicker_date($this->current_user_branch_cd,null ,unserialize($this->branch_datas['sp_dates'])); ?>
 
 		<?php parent::echoItemFromto($this->item_datas); ?>
+		<?php parent::echoPromotionArray($this->promotion_datas); ?>
 
 		$j(document).ready(function() {
 			
@@ -86,7 +93,7 @@ class Reservation_Page extends Salon_Page {
 			<?php parent::echoDownloadEvent("reservation") //ダウンロード画面 From ?>	
 			
 			<?php  parent::set_datepickerDefault(); ?>
-			<?php  parent::set_datepicker("target_day",$this->current_user_branch_cd,false,'',$this->branch_datas['closed']); ?>			
+			<?php  parent::set_datepicker("target_day",false,$this->branch_datas['closed']); ?>			
 
 			<?php //[2012/08/02] 
 			foreach ($this->staff_datas as $k1 => $d1 ) {
@@ -151,8 +158,10 @@ EOT;
 
 			<?php //[2014/08/02]スタッフコードにより選択を変更 ?>
 			$j("#staff_cd").change(function(){
-				var checkday = $j("#target_day").val();
-				checkday = checkday.replace(/\//g,"");
+//				var checkday = $j("#target_day").val();
+//				checkday = checkday.replace(/\//g,"");
+				var dt = _fnDateConvert($j("#target_day").val() );
+				var checkday = dt.getFullYear() + ("0"+(dt.getMonth()+1)).slice(-2)+dt.getDate();
 				if (!$j(this).val()  ) {
 					$j("#item_cds input").attr("disabled",true);
 				}
@@ -189,6 +198,10 @@ EOT;
 			$j("#target_day").change(function(){
 				$j("#staff_cd").change();
 				_fnSetEndTime()
+			});
+
+			$j("#coupon").change(function () {
+				_fnSetEndTime();
 			});
 
 			$j("#button_redisplay").click(function() {
@@ -242,9 +255,21 @@ EOT;
 					minute += +$j(this).next().next().val();
 				}
 			});
+			if ($j("#coupon") && coupons[$j("#coupon").val()]) {
+				var coupon = coupons[$j("#coupon").val()];
+				if (coupon.discount_patern_cd == <?php echo Salon_Discount::PERCENTAGE; ?> ) {
+					price = (1 - coupon.discount/100) * price;
+				}
+				else {
+					price -= coupon.discount;
+				}
+			}
+			
+			
+			
 			$j("#price").val(price);
 			if ( $j("#time_from_aft").val() && $j("#time_from_aft").val()  != -1  &&  $j("#target_day").val() != ""  ) {
-				var dt = new Date($j("#target_day").val() + " " + $j("#time_from_aft").val() );
+				var dt = _fnDateConvert($j("#target_day").val(), $j("#time_from_aft").val() );
 				dt.setMinutes(dt.getMinutes() + minute);
 				$j("#time_to_aft").val(dt.getHours() + ":" + (dt.getMinutes()<10?'0':'') + dt.getMinutes());
 			}
@@ -276,6 +301,7 @@ EOT;
 			$j("#tel").val(setData['aoData'][position[0]]['_aData']['tel']);
 
 			$j("#rstatus").text(setData['aoData'][position[0]]['_aData']['rstatus']);
+			
 
 			save_user_login = setData['aoData'][position[0]]['_aData']['user_login']; 
 			save_mail = setData['aoData'][position[0]]['_aData']['email'];
@@ -289,6 +315,9 @@ EOT;
 			for	 (var index in setData['aoData'][position[0]]['_aData']['item_cd_array_bef']) {
 				$j("#item_cds #check_"+index).attr("checked",true);
 			}
+
+			$j("#coupon").val(setData['aoData'][position[0]]['_aData']['coupon']).change();
+
 			$j("#button_update").attr("disabled",false);
 			$j("#button_insert").attr("disabled",false);
 			$j("#button_clear").attr("disabled",false);
@@ -353,6 +382,7 @@ EOT;
 						"name":$j("#name").val(),
 						"mail":$j("#mail").val(),
 						"tel":$j("#tel").val(),
+						"coupon":$j("#coupon").val(),
 						"nonce":"<?php echo $this->nonce; ?>",
 						"p2":save_p2,
 						"regist_customer":regist_customer,
@@ -406,6 +436,7 @@ EOT;
 			$j("#button_search").attr("disabled",false);
 			$j("#regist_customer").attr("checked", false);
 			$j("#rstatus").text("");
+			$j("#coupon").prop("selectedIndex", 0);
 
 			save_k1 = "";
 			save_item_cds_aft = "";
@@ -425,6 +456,7 @@ EOT;
 	
 		<?php parent::echoCheckClinet(array('chk_required','zenkaku','chkMail','chkTime','chkDate','lenmax','reqOther','reqCheck','chkSpace','chkTel')); ?>		
 
+		<?php parent::echoDateConvert(); ?>
 	</script>
 
 
@@ -483,6 +515,7 @@ EOT;
 		
 		<?php parent::echoStaffSelect("staff_cd",$this->staff_datas,true); ?>
 		<?php parent::echoItemInputCheckTable($this->item_datas); ?>
+		<?php parent::echoCouponSelect("coupon",$this->promotion_datas); ?>
 		<textarea id="remark"  ></textarea>
 		<input type="text" id="price" value="" />
 			
