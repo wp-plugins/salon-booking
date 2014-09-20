@@ -36,7 +36,7 @@ class Reservation_Edit extends Salon_Page {
 			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
 		}
 		$msg = null;
-		if ($_POST['type'] != 'deleted' ) {
+		if ($_POST['type'] != 'deleted' && $_POST['type'] != 'cancel') {
 			if (Salon_Page::serverCheck(array('customer_mail','customer_tel','customer_name','target_day','staff_cd','item_cds','remark','price'),$msg) == false) {
 				throw new Exception($msg );
 			}
@@ -79,6 +79,7 @@ class Reservation_Edit extends Salon_Page {
 			$res['item_cd_array_aft'] = $this->table_data['item_cd_array_aft'];
 			$res['non_regist_activate_key'] = $this->table_data['non_regist_activate_key'];
 			$res['reserved_time'] = $this->table_data['reserved_time'];
+			$res['rstatus_cd'] = $this->table_data['rstatus_cd'];
 			$res['rstatus'] = $this->table_data['rstatus'];
 			$res['coupon'] = $this->table_data['coupon'];
 			if ($_POST['type'] == 'inserted' && !empty($_POST['regist_customer'] ) )	$res['regist_msg'] = Salon_Component::getMsg('I002',array($this->table_data['user_login'],$this->user_pass));

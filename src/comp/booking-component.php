@@ -81,6 +81,7 @@ class Booking_Component {
 	public function editTableData () {
 		if  ($_POST['type'] == 'deleted' ) {
 			$set_data['reservation_cd'] = intval($_POST['id']);
+			$set_data['status'] = Salon_Reservation_Status::DELETED;		
 		}
 		else {
 			$set_data['staff_cd'] = intval($_POST['staff_cd']);	

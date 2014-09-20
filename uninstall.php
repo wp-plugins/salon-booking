@@ -5,12 +5,30 @@ if ( !defined( 'ABSPATH') && !defined('WP_UNINSTALL_PLUGIN') )
 	
 if ( !defined('SALON_UPLOAD_DIR') ){
 	$uploads = wp_upload_dir();
-	define( 'SALON_UPLOAD_DIR', $uploads['basedir'].DIRECTORY_SEPARATOR.'salon'.DIRECTORY_SEPARATOR);
+	define( 'SALON_UPLOAD_DIR', $uploads['basedir'].'/'.'salon'.'/');
 }
 
 	
 
 function salon_delete_plugin() {
+	
+//	if (defined( 'MULTISITE' ) ) {
+//		$sites = wp_get_sites();
+//		foreach ( $sites as $site ) {
+//			switch_to_blog( $site['blog_id'] );
+//			salon_drop_table();
+//			restore_current_blog();
+//		}
+//	}
+//	else {
+			salon_drop_table();
+//	}
+	if(file_exists(SALON_UPLOAD_DIR)){
+		remove_directory(SALON_UPLOAD_DIR);
+	}
+}
+
+function salon_drop_table (){
 	global $wpdb;
 
 	delete_option( 'salon_holiday' );
@@ -26,7 +44,7 @@ function salon_delete_plugin() {
 	$wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."salon_log" );
 	$wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."salon_photo" );
 	$wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."salon_promotion" );
-	$wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."salon_customer_extension" );
+//	$wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."salon_customer_extension" );
 
 	$id = get_option('salon_confirm_page_id');
 	if (! empty($id)  ){
@@ -37,10 +55,6 @@ function salon_delete_plugin() {
 	delete_option( 'SALON_CONFIG' );
 	delete_option( 'SALON_CONFIG_BRANCH' );
 	delete_option( 'salon_initial_user' );
-
-	if(file_exists(SALON_UPLOAD_DIR)){
-		remove_directory(SALON_UPLOAD_DIR);
-	}
 }
 
 function remove_directory($dir) {

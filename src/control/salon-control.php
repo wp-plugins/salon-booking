@@ -81,7 +81,7 @@ abstract class Salon_Control  {
 		}
 		elseif ($this->respons_type == Response_Type::XML ) {
 			if (empty($errno) ) $msg =  $errstr.$detail_msg;
-			else $msg =  $errstr.' '.$errfile.$errline.'('.$errno.')';
+			else $msg =  $errstr.' '.$detail_msg.'('.$errno.')';
 			$msg = str_replace("'",'"',$msg);
 			if (empty($errno) ) $msg = Salon_Component::getMsg('E007',$msg);
 			header('Content-type: text/xml');

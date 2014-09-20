@@ -66,6 +66,7 @@ class Confirm_Data extends Salon_Data {
 	public function deleteTable ($table_data){
 		$set_string = 	' status = %d  '.
 						' ,update_time = %s ';
+		$set_string .= 	' ,remark = concat(remark,"'.sprintf(__("\nCanceled by %s. ",SL_DOMAIN),__("[Screen of Confirm]",SL_DOMAIN)).'") ';
 												
 		$set_data_temp = array(
 						$table_data['status']

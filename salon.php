@@ -3,7 +3,7 @@
 Plugin Name: Salon Booking 
 Plugin URI: http://salon.mallory.jp
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff member.
-Version: 1.4.8
+Version: 1.4.9
 Author: kuu
 Author URI: http://salon.mallory.jp
 Text Domain: salon-booking
@@ -12,25 +12,25 @@ Domain Path: /languages/
 
 define( 'SL_DOMAIN', 'salon' );
 define( 'SL_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
-define( 'SL_PLUGIN_NAME', trim( dirname( SL_PLUGIN_BASENAME ), DIRECTORY_SEPARATOR ) );
+define( 'SL_PLUGIN_NAME', trim( dirname( SL_PLUGIN_BASENAME ), '/' ) );
 define( 'SL_PLUGIN_DIR', plugin_dir_path(__FILE__)  );
-define( 'SL_PLUGIN_SRC_DIR', SL_PLUGIN_DIR . 'src'.DIRECTORY_SEPARATOR );
+define( 'SL_PLUGIN_SRC_DIR', SL_PLUGIN_DIR . 'src'.'/' );
 define( 'SL_PLUGIN_URL',  plugin_dir_url(__FILE__) );
-define( 'SL_PLUGIN_SRC_URL', SL_PLUGIN_URL  .DIRECTORY_SEPARATOR . 'src' );
-define( 'SL_LOG_DIR', '..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR );
+define( 'SL_PLUGIN_SRC_URL', SL_PLUGIN_URL  .'/' . 'src' );
+define( 'SL_LOG_DIR', '..'.'/'.'..'.'/' );
 
-define('SALON_JS_DIR', DIRECTORY_SEPARATOR.'booking'.DIRECTORY_SEPARATOR);
-define('SALON_CSS_DIR', DIRECTORY_SEPARATOR.'booking'.DIRECTORY_SEPARATOR);
-define('SALON_PHP_DIR', DIRECTORY_SEPARATOR.'booking'.DIRECTORY_SEPARATOR);
+define('SALON_JS_DIR', '/'.'booking'.'/');
+define('SALON_CSS_DIR', '/'.'booking'.'/');
+define('SALON_PHP_DIR', '/'.'booking'.'/');
 
 define( 'SALON_DEMO', false);
 
 
 define( 'SALON_UPLOAD_DIR_OLD', SL_PLUGIN_DIR . 'uploads');
-define( 'SALON_UPLOAD_URL_OLD', SL_PLUGIN_URL .DIRECTORY_SEPARATOR. 'uploads');
+define( 'SALON_UPLOAD_URL_OLD', SL_PLUGIN_URL .'/'. 'uploads');
 
 define( 'SALON_MAX_FILE_SIZE', 10 );	//１０メガまでUPLOAD
-define( 'SALON_UPLOAD_DIR_NAME',DIRECTORY_SEPARATOR.'salon'.DIRECTORY_SEPARATOR);
+define( 'SALON_UPLOAD_DIR_NAME','/'.'salon'.'/');
 
 $uploads = wp_upload_dir();
 
@@ -360,15 +360,34 @@ public function example_remove_dashboard_widgets() {
 		$user_roles = $current_user->roles;
 		$user_role = array_shift($user_roles);
 		if ($user_role == 'subscriber' ) return;
-		global $wpdb;
-		$sql =  'SELECT role FROM '.$wpdb->prefix.'salon_position po ,'.
-								$wpdb->prefix.'salon_staff st '.
-						' WHERE st.user_login = %s '.
-						'   AND st.position_cd = po.position_cd '.
-						'   AND st.delete_flg <> '.Salon_Reservation_Status::DELETED;
-		$result = $wpdb->get_results(
-					$wpdb->prepare($sql,$current_user->user_login),ARRAY_A);
-		$show_menu =  explode(",",$result[0]['role']);
+		if (defined( 'MULTISITE' ) && is_super_admin() ) {
+			$show_menu = array(
+				'edit_customer'
+				,'edit_item'
+				,'edit_staff'
+				,'edit_branch'
+				,'edit_config'
+				,'edit_position'
+				,'edit_log'
+				,'edit_reservation'
+				,'edit_sales'
+				,'edit_working'
+				,'edit_working_all'
+				,'edit_base'
+				,'edit_promotion'
+			);
+		}
+		else {
+			global $wpdb;
+			$sql =  'SELECT role FROM '.$wpdb->prefix.'salon_position po ,'.
+									$wpdb->prefix.'salon_staff st '.
+							' WHERE st.user_login = %s '.
+							'   AND st.position_cd = po.position_cd '.
+							'   AND st.delete_flg <> '.Salon_Reservation_Status::DELETED;
+			$result = $wpdb->get_results(
+						$wpdb->prepare($sql,$current_user->user_login),ARRAY_A);
+			$show_menu =  explode(",",$result[0]['role']);
+		}
 		if (in_array('edit_customer',$show_menu) ) $edit_menu[$this->maintenance][] = 'edit_customer';
 		if (in_array('edit_item',$show_menu) ) $edit_menu[$this->maintenance][] = 'edit_item';
 		if (in_array('edit_staff',$show_menu) ) $edit_menu[$this->maintenance][] = 'edit_staff';
@@ -794,8 +813,6 @@ public function example_remove_dashboard_widgets() {
 		wp_enqueue_style('salon', SL_PLUGIN_URL.'css/salon.css');
 		if ($plugin_page == 'salon_working' || $plugin_page == 'salon-management') {	//出退勤しかない場合の対処
 			wp_enqueue_script( 'dhtmlxscheduler', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler.js',array( 'jquery' ) );
-			if (defined ( 'WPLANG' ) && file_exists(SL_PLUGIN_DIR.SALON_JS_DIR.'locale_'.WPLANG.'.js') ) 
-				wp_enqueue_script( 'dhtmlxscheduler_locale', SL_PLUGIN_URL.SALON_JS_DIR.'locale_'.WPLANG.'.js',array( 'dhtmlxscheduler' ) );
 			wp_enqueue_script( 'dhtmlxscheduler_limit', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler_limit.js',array( 'dhtmlxscheduler' ) );
 			wp_enqueue_script( 'dhtmlxscheduler_collision', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler_collision.js',array( 'dhtmlxscheduler' ) );
 			wp_enqueue_script( 'dhtmlxscheduler_key_nav', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler_key_nav.js',array( 'dhtmlxscheduler' ) );
@@ -994,8 +1011,8 @@ public function example_remove_dashboard_widgets() {
 			$wpdb->query($sql);
 
 
-			foreach(glob(SALON_UPLOAD_DIR_OLD.DIRECTORY_SEPARATOR.'{*.jpg,*.gif,*.png}', GLOB_BRACE) as $image) {
-				@rename($image,rtrim(SALON_UPLOAD_DIR,'/').DIRECTORY_SEPARATOR.basename($image));
+			foreach(glob(SALON_UPLOAD_DIR_OLD.'/'.'{*.jpg,*.gif,*.png}', GLOB_BRACE) as $image) {
+				@rename($image,rtrim(SALON_UPLOAD_DIR,'/').'/'.basename($image));
 			}
 			
 			//ver 1.3.1 
@@ -1047,6 +1064,9 @@ public function example_remove_dashboard_widgets() {
 			}
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."salon_position SET role = concat(role,',edit_promotion'),update_time = %s WHERE position_cd in (1,2,3,7) or wp_role = 'administrator' ",$current));
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."salon_position SET role = concat(role,',edit_use_promotion'),update_time = %s WHERE position_cd in (4,5,6) or wp_role = 'administrator' ",$current));
+			//[2014/09/12]Ver 1.4.9
+			$wpdb->query("ALTER TABLE ".$wpdb->prefix."salon_staff ALTER COLUMN `leaved_day` SET DEFAULT '2099-12-28 00:01:00' ");
+			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."salon_staff SET leaved_day = '2099-12-28 00:02:00',update_time = %s WHERE leaved_day = '0000-00-00 00:00:00' OR leaved_day IS NULL ",$current));
 			//
 		}
 		else {
@@ -1148,7 +1168,7 @@ public function example_remove_dashboard_widgets() {
 								`memo`			TEXT,
 								`notes`			TEXT,
 								`employed_day`	DATETIME default null,
-								`leaved_day`	DATETIME default null,
+								`leaved_day`	DATETIME default '2099-12-28 00:00:00',
 								`photo`			TEXT default null,
 								`duplicate_cnt`	INT default 0,
 								`display_sequence`		INT default 0,
@@ -1256,9 +1276,11 @@ public function example_remove_dashboard_widgets() {
 				$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_position VALUES (".Salon_Position::MAINTENANCE.",'".__('MAINTENANCE',SL_DOMAIN)."','administrator','edit_customer,edit_item,edit_staff,edit_branch,edit_config,edit_position,edit_reservation,edit_sales,edit_working,edit_base,edit_admin,edit_booking,edit_working_all,edit_log,edit_promotion','".__('this data can not delete or update',SL_DOMAIN)."',0,%s,%s);",$current,$current));
 			}
 			
-			$holiday = '';
-			if (defined ( 'WPLANG' ) && file_exists(SL_PLUGIN_DIR.'/languages/holiday-'.WPLANG.'.php') )require_once(SL_PLUGIN_DIR.'/languages/holiday-'.WPLANG.'.php');
+			$lang = get_locale();
+			if ( file_exists(SL_PLUGIN_DIR.'/languages/holiday-'.$lang.'.php') )require_once(SL_PLUGIN_DIR.'/languages/holiday-'.$lang.'.php');
 			else require_once(SL_PLUGIN_DIR.'/languages/holiday.php');
+
+
 			update_option('salon_holiday', serialize($holiday));
 			
 			update_option('salon_installed', 1);

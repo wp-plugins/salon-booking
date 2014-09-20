@@ -52,6 +52,8 @@ abstract class Salon_Data {
 		if (empty($result['SALON_CONFIG_SEND_MAIL_SUBJECT_USER']) ) $result['SALON_CONFIG_SEND_MAIL_SUBJECT_USER'] = __("Your registration is completed",SL_DOMAIN);
 		
 		if (empty($result['SALON_CONFIG_RESERVE_DEADLINE']) ) $result['SALON_CONFIG_RESERVE_DEADLINE'] =  Salon_Config::DEFALUT_RESERVE_DEADLINE;
+		if (empty($result['SALON_CONFIG_WEEK_FIRST']) ) $result['SALON_CONFIG_WEEK_FIRST'] =  Salon_Week::MONDAY;
+		
 		
 		
 		
@@ -86,11 +88,14 @@ abstract class Salon_Data {
 
 	public function getAllPositionData($is_user = false){
 		global $wpdb;
-		$result = $wpdb->get_results(' SELECT * FROM '.$wpdb->prefix.'salon_position where delete_flg <> '.Salon_Reservation_Status::DELETED.' ORDER BY position_cd',ARRAY_A);
-		if ($result === false ) {
+		$sql = ' SELECT * FROM '.$wpdb->prefix.'salon_position where delete_flg <> '.Salon_Reservation_Status::DELETED.' ORDER BY position_cd';
+		if ($wpdb->query($sql) === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
-		if (! $is_user  ) return $result;
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+		if ((! $is_user) || (defined( 'MULTISITE' ) && is_super_admin() )  ) return $result;
 
 		$current_user = wp_get_current_user();
 		
@@ -148,7 +153,7 @@ abstract class Salon_Data {
 				$tmp = preg_replace("/([hH][tT][tT][pP]:".$url.")/","https:".$url,$tmp);
 			}
 			$result[$k1]['photo'] = $tmp;			
-	//		var_export(str_replace("\'","'",$d1['photo']));
+
 		}
 		return $result;
 	}
@@ -211,18 +216,16 @@ abstract class Salon_Data {
 		return implode(',',$edit_result);
 	}
 	
-	public function getTargetItemData($branch_cd,$except_delete = true){
+	public function getTargetItemData($branch_cd,$except_delete = true,$check_use_staff = false){
 		global $wpdb;
 		$delete_str = ' delete_flg <> '.Salon_Reservation_Status::DELETED;
 		if (! $except_delete ) $delete_str = '1=1';
 		$sql = $wpdb->prepare(' SELECT item_cd,name,short_name,minute,price ,DATE_FORMAT(exp_from,"%%Y%%m%%d") as exp_from,DATE_FORMAT(exp_to,"%%Y%%m%%d") as exp_to'.
 			   ' FROM '.$wpdb->prefix.'salon_item '.
 			   ' WHERE '.$delete_str.
-//			   ' AND exp_to > %s '.
 			   ' AND branch_cd = %d  '.
 			   ' ORDER BY branch_cd,display_sequence,item_cd '
 			   ,$branch_cd);
-//		$result = $wpdb->get_results($wpdb->prepare($sql,date_i18n('Ymd'),$branch_cd),ARRAY_A);
 		
 		if ($wpdb->query($sql) === false ) {
 			$this->_dbAccessAbnormalEnd();
@@ -230,6 +233,36 @@ abstract class Salon_Data {
 		else {
 			$result = $wpdb->get_results($sql,ARRAY_A);
 		}
+		//メニューは登録したけど誰も扱えない場合は、配列から消す
+		if ($check_use_staff && count($result) > 0) {
+			$sql = $wpdb->prepare(' SELECT in_items '.
+			   ' FROM '.$wpdb->prefix.'salon_staff '.
+			   ' WHERE  delete_flg <> '.Salon_Reservation_Status::DELETED.
+			   ' AND branch_cd = %d  '
+			   ,$branch_cd);
+			if ($wpdb->query($sql) === false ) {
+				$this->_dbAccessAbnormalEnd();
+			}
+			else {
+				$result_staff = $wpdb->get_results($sql,ARRAY_A);
+			}
+			$check_array = array();
+			
+			if (count($result_staff) > 0  ){
+				foreach ($result_staff as $k1 => $d1 ) {
+					$item_array = explode(',',$d1['in_items']);
+					foreach ($item_array as $k2 => $d2 ) {
+						$check_array[$d2] = "";
+					}
+				}
+			}
+			foreach ($result as $k1 => $d1 ) {
+				if (!array_key_exists($d1['item_cd'],$check_array) ) {
+					unset($result[$k1]);
+				}
+			}
+		}
+		
 		return $result;
 	}
 	
@@ -255,7 +288,12 @@ abstract class Salon_Data {
 	public function getTargetStaffData($branch_cd = null,$except_delete = true){
 		global $wpdb;
 		$where = 'WHERE st.delete_flg <> '.Salon_Reservation_Status::DELETED ;
-		if (! $except_delete ) $where = 'WHERE 1 = 1 ';
+		//削除したデータも全件とる仕様だが、退社日をみればよいかと。
+		//今日時点で退社日が未来の人
+//		if (! $except_delete ) $where = ' WHERE 1 = 1 ';
+		if ( $except_delete )  {
+			$where .= $wpdb->prepare(' AND leaved_day >= %s  ',date_i18n('Ymd'));
+		}
 		if (!empty($branch_cd) ) {
 			$where .= $wpdb->prepare(" AND st.branch_cd = %s ",$branch_cd);
 		}
@@ -265,15 +303,17 @@ abstract class Salon_Data {
 		else {
 			$name_order = 'um1.meta_value," " ,um2.meta_value';
 		}
-		
+		if ($this->config['SALON_CONFIG_MAINTENANCE_INCLUDE_STAFF'] ==  Salon_Config::MAINTENANCE_NOT_INCLUDE_STAFF) {
+			$where .= " AND st.position_cd <> ".Salon_Position::MAINTENANCE;
+		}
 		$sql = 	' SELECT staff_cd,concat('.$name_order.') as name , photo , remark , duplicate_cnt,position_cd,display_sequence'.
 				' ,in_items ,memo'.
 				' FROM '.$wpdb->prefix.'salon_staff st  '.
-				' INNER JOIN '.$wpdb->prefix.'users us  '.
+				' INNER JOIN '.$wpdb->users.' us  '.
 				'       ON    us.user_login = st.user_login '.
-				' INNER JOIN '.$wpdb->prefix.'usermeta um1  '.
+				' INNER JOIN '.$wpdb->usermeta.' um1  '.
 				'       ON    us.ID = um1.user_id AND um1.meta_key ="first_name" '.
-				' INNER JOIN '.$wpdb->prefix.'usermeta um2  '.
+				' INNER JOIN '.$wpdb->usermeta.' um2  '.
 				'       ON    us.ID = um2.user_id AND um2.meta_key ="last_name" '.
 				$where.
 				' ORDER BY st.branch_cd,display_sequence,position_cd ';
@@ -296,12 +336,12 @@ abstract class Salon_Data {
 		
 		$sql = 	' SELECT staff_cd,concat('.$name_order.') as name , photo , remark , duplicate_cnt,position_cd'.
 				' FROM '.$wpdb->prefix.'salon_staff st  '.
-				' INNER JOIN '.$wpdb->prefix.'users us  '.
+				' INNER JOIN '.$wpdb->users.' us  '.
 				'       ON    us.user_login = st.user_login '.
 				'       AND   st.user_login = %s '.
-				' INNER JOIN '.$wpdb->prefix.'usermeta um1  '.
+				' INNER JOIN '.$wpdb->usermeta.' um1  '.
 				'       ON    us.ID = um1.user_id AND um1.meta_key ="first_name" '.
-				' INNER JOIN '.$wpdb->prefix.'usermeta um2  '.
+				' INNER JOIN '.$wpdb->usermeta.' um2  '.
 				'       ON    us.ID = um2.user_id AND um2.meta_key ="last_name" '.
 				'WHERE st.delete_flg <> '.Salon_Reservation_Status::DELETED.
 				' ORDER BY staff_cd ';
@@ -324,14 +364,14 @@ abstract class Salon_Data {
 		}
 		
 		$sql = 	' SELECT us.user_login as user_login,concat('.$name_order.') as user_name , us.user_email , um3.meta_value as tel , um4.meta_value as mobile'.
-				' FROM '.$wpdb->prefix.'users us  '.
-				' INNER JOIN '.$wpdb->prefix.'usermeta um1  '.
+				' FROM '.$wpdb->users.' us  '.
+				' INNER JOIN '.$wpdb->usermeta.' um1  '.
 				'       ON    us.ID = um1.user_id AND um1.meta_key ="first_name" '.
-				' INNER JOIN '.$wpdb->prefix.'usermeta um2  '.
+				' INNER JOIN '.$wpdb->usermeta.' um2  '.
 				'       ON    us.ID = um2.user_id AND um2.meta_key ="last_name" '.
-				' LEFT JOIN '.$wpdb->prefix.'usermeta um3  '.
+				' LEFT JOIN '.$wpdb->usermeta.' um3  '.
 				'       ON    us.ID = um3.user_id AND um3.meta_key ="tel" '.
-				' LEFT JOIN '.$wpdb->prefix.'usermeta um4  '.
+				' LEFT JOIN '.$wpdb->usermeta.' um4  '.
 				'       ON    us.ID = um4.user_id AND um4.meta_key ="mobile" '.
 				'WHERE us.user_login = %s  ';
 		$result = $wpdb->get_results($wpdb->prepare($sql,$user_login),ARRAY_A);
@@ -368,11 +408,19 @@ abstract class Salon_Data {
 		}
 	}
 
-	static function getAllSalesData($target_day_from = null,$target_day_to = null,$target_branch_cd = null){
+	static function getAllSalesData($target_day_from = null,$target_day_to = null,$target_branch_cd = null,$submenu){
 		global $wpdb;
 		$where = '';
 		if (empty($target_day_from) ) $target_day_from = Salon_Component::computeDate(-1);
 		if (empty($target_day_to) ) $target_day_to = Salon_Component::computeDate(1);
+		//実績登録の時は、確定した予約のみをターゲットにする
+		$where = "";
+		$order = "";
+		if ($submenu != 'reserve' ) {
+			$where = ' AND status = '.Salon_Reservation_Status::COMPLETE;
+			$order = ' desc ';
+		}
+
 		
 		$sql = 			'SELECT '.
 						' rs.reservation_cd ,'.
@@ -404,7 +452,7 @@ abstract class Salon_Data {
 						' rs.status as rstatus_cd,'.
 						' rs.coupon as coupon, '. 
 						' sa.coupon as coupon_aft '. 
-						' FROM (SELECT * FROM '.$wpdb->prefix.'salon_reservation WHERE delete_flg <> %d ) rs '.
+						' FROM (SELECT * FROM '.$wpdb->prefix.'salon_reservation WHERE delete_flg <> %d '.$where.') rs '.
 	/*
 						' INNER JOIN '.$wpdb->prefix.'salon_staff st1'.
 						' ON rs.staff_cd = st1.staff_cd'.
@@ -418,11 +466,13 @@ abstract class Salon_Data {
 						' WHERE rs.time_from >= %s '.
 						' AND rs.time_to <= %s '.
 						' AND rs.branch_cd = %d '.
-						' ORDER BY target_day,rs.time_from';
+						' ORDER BY target_day '.$order.',rs.time_from';
 		$edit_sql = $wpdb->prepare($sql,Salon_Reservation_Status::DELETED,$target_day_from,$target_day_to,$target_branch_cd);
-		$result = $wpdb->get_results($edit_sql,ARRAY_A);
-		if ($result === false ) {
+		if ($wpdb->query($edit_sql) === false ) {
 			$this->_dbAccessAbnormalEnd();
+		}
+		else {
+			$result = $wpdb->get_results($edit_sql,ARRAY_A);
 		}
 		return $result;
 	}
@@ -445,17 +495,11 @@ abstract class Salon_Data {
 						' CONCAT (DATE_FORMAT(rs.time_from,"'.__('%%m/%%d/%%Y',SL_DOMAIN).'")," ",DATE_FORMAT(rs.time_from, "%%H:%%i"),"-",DATE_FORMAT(rs.time_to, "%%H:%%i")) as reserved_time,'.
 						' rs.branch_cd,'.
 						' rs.staff_cd as staff_cd_bef,'.
-	/*
-						' st1.name as staff_name_bef,'.
-	*/
 						' rs.item_cds as item_cds_bef,'.
 						' rs.remark as remark_bef,'.
 						' DATE_FORMAT(sa.time_from, "%%H:%%i") as time_from_aft,'.
 						' DATE_FORMAT(sa.time_to, "%%H:%%i")   as time_to_aft,'.
 						' sa.staff_cd as staff_cd_aft,'.
-	/*
-						' st2.name as staff_name_aft,'.
-	*/
 						' sa.item_cds as item_cds_aft,'.
 						' sa.remark as remark,'.
 						' sa.price,'.
@@ -464,16 +508,8 @@ abstract class Salon_Data {
 						' sa.coupon as coupon_aft '. 
 
 						' FROM '.$wpdb->prefix.'salon_reservation rs '.
-	/*
-						' INNER JOIN '.$wpdb->prefix.'salon_staff st1'.
-						' ON rs.staff_cd = st1.staff_cd'.
-	*/
 						' LEFT  JOIN '.$wpdb->prefix.'salon_sales sa'.
 						' ON rs.reservation_cd = sa.reservation_cd'.
-	/*
-						' LEFT  JOIN '.$wpdb->prefix.'salon_staff st2'.
-						' ON sa.staff_cd = st2.staff_cd '.
-	*/
 						' WHERE rs.reservation_cd = %d ';
 		$result = $wpdb->get_results($wpdb->prepare($sql,$reservation_cd),ARRAY_A);
 		if ($result === false ) {
@@ -511,7 +547,7 @@ abstract class Salon_Data {
 		if ($result === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
-		$save_id = mysql_insert_id();
+		$save_id = $wpdb->insert_id;
 		if ((defined ( 'SALON_DEMO' ) && SALON_DEMO   ) || ($this->config['SALON_CONFIG_LOG'] == Salon_Config::LOG_NEED )) {
 			$this->_writeLog($exec_sql);
 		}
@@ -577,7 +613,7 @@ abstract class Salon_Data {
 		return true;
 	}
 
-	public function getUserName($user_login){
+	public function getUserName($user_login=""){
 		if (empty($user_login) ) {
 			$user_login = $this->getUserLogin();
 		}
@@ -589,10 +625,10 @@ abstract class Salon_Data {
 		}
 		global $wpdb;
 		$sql = 	' SELECT concat('.$name_order.') as name '.
-				' FROM '.$wpdb->prefix.'users us  '.
-				' INNER JOIN '.$wpdb->prefix.'usermeta um1  '.
+				' FROM '.$wpdb->users.' us  '.
+				' INNER JOIN '.$wpdb->usermeta.' um1  '.
 				'       ON    us.ID = um1.user_id AND um1.meta_key ="first_name" '.
-				' INNER JOIN '.$wpdb->prefix.'usermeta um2  '.
+				' INNER JOIN '.$wpdb->usermeta.' um2  '.
 				'       ON    us.ID = um2.user_id AND um2.meta_key ="last_name" '.
 				' WHERE us.user_login = %s ';
 		$result = $wpdb->get_results($wpdb->prepare($sql,$user_login),ARRAY_A);
@@ -631,12 +667,21 @@ abstract class Salon_Data {
 			return '';
 		}
 		global $wpdb;
-		$sql = ' SELECT branch_cd FROM '.$wpdb->prefix.'salon_staff '.
-				' WHERE user_login = %s ';
-		$result = $wpdb->get_results($wpdb->prepare($sql,$user_login),ARRAY_A);
-		if ($result === false ) {
+		if (defined( 'MULTISITE' ) && is_super_admin() ) {
+			$sql = ' SELECT branch_cd FROM '.$wpdb->prefix.'salon_branch '.
+					' WHERE delete_flg <> '.Salon_Reservation_Status::DELETED;
+		}
+		else {
+			$sql = $wpdb->prepare(' SELECT branch_cd FROM '.$wpdb->prefix.'salon_staff '.
+					' WHERE user_login = %s ',$user_login);
+		}
+		if ($wpdb->query($sql) === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+
 		return $result[0]['branch_cd'];
 	}
 
@@ -644,6 +689,11 @@ abstract class Salon_Data {
 
 	public function isSalonAdmin($user_login,&$role = false){	
 		if (!is_null($this->isAdmin)) return  $this->isAdmin;
+		if (defined( 'MULTISITE' ) && is_super_admin() ) {
+			$this->isAdmin = true;
+			$this->isPromotion = true;
+			return true;
+		}
 
 		$this->isAdmin = false;
 		$this->isStaff = false;
@@ -720,7 +770,7 @@ abstract class Salon_Data {
 			$user_login  = $user_datas['user_login'];
 			
 			$sql = $wpdb->prepare('SELECT count(*) as cnt'.
-					' FROM '.$wpdb->prefix.'users '.
+					' FROM '.$wpdb->users.' users '.
 					' WHERE user_login = %s ',$user_login);
 
 			if ($wpdb->query($sql) === false ) {
@@ -967,8 +1017,8 @@ abstract class Salon_Data {
 		}
 	
 		$sql = 'SELECT us.user_login,us.user_email,um.* '.
-				' FROM '.$wpdb->prefix.'users us  '.
-				' INNER JOIN '.$wpdb->prefix.'usermeta um  '.
+				' FROM '.$wpdb->users.' us  '.
+				' INNER JOIN '.$wpdb->usermeta.' um  '.
 				'       ON    us.ID = um.user_id '.
 				' WHERE us.user_login = %s ';
 		$result = $wpdb->get_results($wpdb->prepare($sql,$user_login),ARRAY_A);
@@ -984,8 +1034,8 @@ abstract class Salon_Data {
 	public function getUserAllInf(){
 		global $wpdb;
 		$sql = 'SELECT ID,user_login,user_email,meta_key,meta_value '.
-				' FROM '.$wpdb->prefix.'users us  '.
-				' INNER JOIN '.$wpdb->prefix.'usermeta um  '.
+				' FROM '.$wpdb->users.' us  '.
+				' INNER JOIN '.$wpdb->usermeta.' um  '.
 				'       ON    us.ID = um.user_id '.
 				' WHERE '.
 				'      (meta_key = "first_name" OR '.
@@ -1023,8 +1073,9 @@ abstract class Salon_Data {
 						'   WHERE ((time_from < %s AND %s <= time_to )'.
 						'		OR (time_from <= %s AND %s < time_to ) )'.
 						$where.
-						'     AND delete_flg <> %d ',
-						$out_time,$out_time,$in_time,$in_time,Salon_Reservation_Status::DELETED);
+						'     AND delete_flg <> %d '.
+						'     AND status <> %d ',
+						$out_time,$out_time,$in_time,$in_time,Salon_Reservation_Status::DELETED,Salon_Reservation_Status::DELETED);
 		}
 		else {
 			$exec_sql =	$wpdb->prepare(
@@ -1035,8 +1086,9 @@ abstract class Salon_Data {
 						'		OR (time_from <= %s AND %s < time_to ) )'.
 						$where.
 						'     AND delete_flg <> %d '.
-						'     AND reservation_cd <> %d ',
-						$out_time,$out_time,$in_time,$in_time,Salon_Reservation_Status::DELETED,$reservation_cd);
+						'     AND reservation_cd <> %d '.
+						'     AND status <> %d ',
+						$out_time,$out_time,$in_time,$in_time,Salon_Reservation_Status::DELETED,$reservation_cd,Salon_Reservation_Status::DELETED);
 		}
 		$result = $wpdb->get_results($exec_sql,ARRAY_A);
 		if ($result === false ) {
@@ -1338,7 +1390,8 @@ abstract class Salon_Data {
 				}
 				$sql = $wpdb->prepare('SELECT  COUNT(*) as cnt'.
 						' FROM '.$wpdb->prefix.'salon_reservation '.
-						' WHERE delete_flg <> '.Salon_Reservation_Status::COMPLETE.
+						' WHERE delete_flg <> '.Salon_Reservation_Status::DELETED.
+						' AND status = '.Salon_Reservation_Status::COMPLETE.
 						$where.
 						' AND   coupon = %s '.
 						' AND   non_regist_email = %s ',$setData['coupon'],$setData['non_regist_email']);

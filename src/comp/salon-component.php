@@ -124,6 +124,12 @@ class Salon_Default {
 	const BRANCH_CD = 1;
 }
 
+class Salon_Week {
+	const SUNDAY = 0;
+	const MONDAY = 1;
+	
+}
+
 class Salon_Component {
 	
 	private $version = '1.0';
@@ -190,7 +196,12 @@ class Salon_Component {
 				$result[$k1]['rstatus'] = __('tentative',SL_DOMAIN);
 			}
 			else {
-				$result[$k1]['rstatus'] = __('completed',SL_DOMAIN);
+				if($result[$k1]['rstatus_cd'] == Salon_Reservation_Status::DELETED) {
+					$result[$k1]['rstatus'] = __('canceled',SL_DOMAIN);
+				}
+				else {
+					$result[$k1]['rstatus'] = __('completed',SL_DOMAIN);
+				}
 			}
 			
 			$items = explode( ',',$d1['item_cds_bef']);
@@ -235,7 +246,7 @@ class Salon_Component {
 		
 		$reservation_cd = '';
 		if ( $_POST['type'] == 'updated'    ) $reservation_cd = $set_data['reservation_cd'];
-		if ( ($_POST['type'] != 'deleted') ) {
+		if ( ($_POST['type'] != 'deleted')&&($_POST['type'] != 'cancel') ) {
 			//[2014/08/06]
 			if (!$datas->isSalonAdmin("")){
 				//fromは指定分以降より後
@@ -255,8 +266,9 @@ class Salon_Component {
 						'   WHERE %s > time_from '.
 						'      AND time_to > %s   '.
 						'      AND user_login = %s '.
-						'      AND delete_flg <> %d ';
-				$sql  = $wpdb->prepare($sql,$set_data['time_to'],$set_data['time_from'],$set_data['user_login'],Salon_Reservation_Status::DELETED);
+						'      AND delete_flg <> %d '.
+						'      AND status <> %d ';
+				$sql  = $wpdb->prepare($sql,$set_data['time_to'],$set_data['time_from'],$set_data['user_login'],Salon_Reservation_Status::DELETED,Salon_Reservation_Status::DELETED);
 				if ( $_POST['type'] == 'updated'    ) $sql .= ' AND reservation_cd <> '. $set_data['reservation_cd'];
 				if ($wpdb->query($sql) === false ) {
 					$datas->_dbAccessAbnormalEnd();
@@ -392,7 +404,7 @@ class Salon_Component {
 			}
 			$possible_cnt += $result[0]['staff_cnt'] + $result[0]['duplicate_cnt'];
 			$cnt = $datas->countReservation('',$set_data['time_from'],$set_data['time_to'],$reservation_cd);
-			if ($cnt >= $possible_cnt ) {
+			if ($cnt > $possible_cnt ) {
 				throw new Exception(self::getMsg('W002',array(__('branch',SL_DOMAIN), $possible_cnt)),1);
 			}
 			//[2014/08/25]Ver 1.4.8　クーポンのチェック
@@ -400,15 +412,17 @@ class Salon_Component {
 				//クーポンを扱えるスタッフは期限切れ回数等は無視して何を設定してもよい。
 			}
 			else {
-				$result_promotion = $datas->getPromotionData($set_data['branch_cd'],null,$set_data['coupon']);
-				
-				if (count($result_promotion) == 0 ) {
-					throw new Exception(self::getMsg('E301'),1);
-				}
-				$add_char = "";
-				
-				if (!$datas->checkCustomerPromotion($set_data,$result_promotion[0],$add_char,$reservation_cd  ) ) {
-					throw new Exception(self::getMsg('E302',$add_char),1);
+				if (isset($set_data['coupon']) && !empty($set_data['coupon']) ) {
+					$result_promotion = $datas->getPromotionData($set_data['branch_cd'],null,$set_data['coupon']);
+					
+					if (count($result_promotion) == 0 ) {
+						throw new Exception(self::getMsg('E301'),1);
+					}
+					$add_char = "";
+					
+					if (!$datas->checkCustomerPromotion($set_data,$result_promotion[0],$add_char,$reservation_cd  ) ) {
+						throw new Exception(self::getMsg('E302',$add_char),1);
+					}
 				}
 			}
 			//[2014/08/25]Ver 1.4.8
@@ -478,6 +492,9 @@ class Salon_Component {
 				break;
 			case 'E011':
 				$err_msg = sprintf(__("This reservation has expired. [%s]",SL_DOMAIN),$add_char);
+				break;	
+			case 'E012':
+				$err_msg = sprintf(__("This reservation updated. [%s]",SL_DOMAIN),$add_char);
 				break;	
 			case 'E201':
 				$err_msg = sprintf(__("%s required[%s]",SL_DOMAIN),$err_cd,$add_char);
@@ -700,6 +717,8 @@ class Salon_Component {
 		}
 		$target_name = strtolower ($class_name_array[0]);
 		if ( $target_name == 'booking' || $target_name == 'confirm' ) return;
+		//マルチサイトでネットワークユーザならOK
+		if (defined( 'MULTISITE' ) && is_super_admin() ) return;
 		global $current_user;
 		get_currentuserinfo();
 		$user_roles = $current_user->roles;

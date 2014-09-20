@@ -50,7 +50,7 @@ class Reservation_Control extends Salon_Control  {
 
 			$this->pages->set_current_user_branch_cd($branch_cd);
 			$this->pages->set_branch_datas($this->datas->getBranchData($branch_cd));
-			$this->pages->set_item_datas($this->datas->getTargetItemData($branch_cd));
+			$this->pages->set_item_datas($this->datas->getTargetItemData($branch_cd,true,true));
 			$this->pages->set_staff_datas($this->datas->getTargetStaffData($branch_cd));
 			$this->pages->set_config_datas($this->datas->getConfigData());
 
@@ -71,6 +71,10 @@ class Reservation_Control extends Salon_Control  {
 			}
 			elseif ($_POST['type'] == 'deleted' ) {
 				$this->datas->deleteTable( $res);
+			}
+			elseif ($_POST['type'] == 'cancel' ) {
+				$this->datas->cancelTable( $res);
+				$reservation_cd = $res['reservation_cd'];
 			}
 			if ($_POST['type'] != 'deleted' ) {
 				$table_data = $this->datas->getTargetSalesData($reservation_cd);

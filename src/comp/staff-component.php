@@ -69,10 +69,25 @@ class Staff_Component {
 		$current_user = wp_get_current_user();
 		global $wpdb;
 		foreach ( $edit as $k1 => $d1 ) {
+			if (defined( 'MULTISITE' ) ) {
+				if (!isset($d1[$wpdb->prefix.'capabilities']) ) {
+					continue;
+				}
+			}
 			$role = unserialize($d1[$wpdb->prefix.'capabilities']) ;
 			//顧客は「購読者」のみで、スタッフは「購読者」以外
 //			if ( ! array_key_exists('subscriber',$role) ){
-			if ( $this->_is_TargetUser($role,$current_user->roles[0]) ){
+			//後からマルチサイトでネットワークアドミンの場合を追加
+			
+			$check_role = false;
+			if ( (defined( 'MULTISITE' ) && is_super_admin() ) ) {
+				$check_role = $this->_is_TargetUser($role,'administrator');
+			}
+			else {
+				$check_role = $this->_is_TargetUser($role,$current_user->roles[0]);
+			}
+
+			if ($check_role) {
 				$result_after[$index]['ID'] = $d1['ID'];
 				$result_after[$index]['staff_cd'] = $d1['staff_cd'];
 				$result_after[$index]['user_login'] = $d1['user_login'];
@@ -213,7 +228,8 @@ class Staff_Component {
 			$set_data['employed_day'] = '';
 			if (!empty($_POST['employed_day'])) $set_data['employed_day'] = Salon_Component::editRequestYmdForDb($_POST['employed_day']);
 			$set_data['leaved_day'] = '';
-			if (!empty($_POST['leaved_day'])) $set_data['leaved_day'] = Salon_Component::editRequestYmdForDb($_POST['leaved_day']);
+			if (empty($_POST['leaved_day'])) $set_data['leaved_day'] = '2099-12-28 00:03:00';
+			else $set_data['leaved_day'] = Salon_Component::editRequestYmdForDb($_POST['leaved_day']);
 			//[2014/06/22]
 			$set_data['in_items'] = stripslashes($_POST['item_cds']);
 		}

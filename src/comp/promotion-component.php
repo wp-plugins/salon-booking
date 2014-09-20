@@ -47,11 +47,13 @@ class Promotion_Component {
 	}
 	
 	public function serverCheck($set_data) {
-		$to = strtotime($set_data['valid_to']);
-		$limit_time = new DateTime(date_i18n('Y-m-d'));
-		//今日より前は登録できない
-		if ($limit_time->getTimestamp() > $to ) {
-			throw new Exception(Salon_Component::getMsg('E305',$set_data['set_code']),1);
+		if (substr($set_data['valid_to'],0,4) != '2099' ) {
+			$to = strtotime($set_data['valid_to']);
+			$limit_time = new DateTime(date_i18n('Y-m-d'));
+			//今日より前は登録できない
+			if ($limit_time->getTimestamp() > $to ) {
+				throw new Exception(Salon_Component::getMsg('E305',$set_data['set_code']),1);
+			}
 		}
 		$result = $this->datas->getPromotionData($set_data['branch_cd'],null,$set_data['set_code'],true);
 		if (($_POST['type'] == 'updated' && $result[0]['promotion_cd'] != $set_data['promotion_cd'] ) || ($_POST['type'] == 'inserted' && count($result) > 0 )){

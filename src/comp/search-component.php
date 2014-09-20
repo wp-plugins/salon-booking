@@ -25,6 +25,11 @@ class Search_Component {
 		global $wpdb;
 		foreach ($datas as $k1 => $d1 ) {
 			$is_exist = false;
+			if (defined( 'MULTISITE' ) ) {
+				if (!isset($d1[$wpdb->prefix.'capabilities']) ) {
+					continue;
+				}
+			}
 			if (strstr($d1[$wpdb->prefix.'capabilities'],'subscriber') ) {
 				$tr = '';
 				if ($this->datas->getConfigData('SALON_CONFIG_NAME_ORDER') == Salon_Config::NAME_ORDER_JAPAN ) {

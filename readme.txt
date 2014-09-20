@@ -2,8 +2,8 @@
 Contributors: kuu(Tanaka Hisao)
 Tags: hair salon,salon,appointment,booking,beauty apps,reservation,dental clinic,hospital,mutilingual,散髪予約,美容院予約,美容室予約,サロン予約,エステ予約,予約システム,予約管理
 Requires at least: 3.8
-Tested up to: 3.8.1
-Stable tag: 1.4.8
+Tested up to: 4.0
+Stable tag: 1.4.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -95,10 +95,18 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 
 == Installation ==
 
-1. Upload `salon-booking` to the `/wp-content/plugins/` directory.
-2. Activate the plugin through the 'Plugins' menu in WordPress.
+1. New installation
+* Upload `salon-booking` to the `/wp-content/plugins/` directory.
+* Activate the plugin through the 'Plugins' menu in WordPress.
 
-3. Already Installed,input mail text again.
+2. Upgrade the plugin through the 'Plugins' menu in WordPress
+* Click "update now" of the plugin.
+* Deactivate the plugin.
+* Activate the plugin.
+  
+* ＜注意＞  
+プラグイン画面から更新した場合、  
+一度「無効化」→「有効化」してください。 
 
 
 == Frequently Asked Questions ==
@@ -114,128 +122,10 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 5. 管理画面（出退勤）
 
 == Changelog ==
-= 1.4.8 =
-* Added: function of "Promotion".
-* Fixed: CSS of "month tab".
-* Changed: "lang" directory to "language" directory.
-
-= 1.4.7 =
-* Added: "Deadline of reservations" at the screen of "configuration setting".
-
-
-= 1.4.6 =
-* Added: the screen of "mail".
-* Fixed: and so on.
-
-= 1.4.5 =
-* Added: Display a self-introduce of staff member at the screen of "Reservation(PC)".
-* Fixed: and so on.
-
-= 1.4.4 =
-* Changed: When a customer login,"name","tel" or "mail" can't be changed.
-* Added: Check direct address input by customer login id.
-* Fixed: After remove the staff member,same name regist again.
-* Fixed: Working data can't delete.
-
-= 1.4.3 =
-* Added: Check of staff and menu at the server side of the application.
-* Changed: Staff member can update or delete temporary reservation.
-
-= 1.4.2 =
-* Fixed: UserId evised an updated bug.
-+ Added: At the screen of "Reservation",select default load tab.
-
-
-= 1.4.1 =
-* Added: New items of the screen of "Menu".
-
-= 1.3.10 =
-* Fixed: 
-
-= 1.3.9 =
-* Changed: When staff member,show admin menu button at the screen of "Reservation".
-
-= 1.3.8 =
-* Added: At the screen of "Reservation Regist",add "status" items.
-* Fixed: At the screen of "Reservation Regist",wrong display fields.
-
-= 1.3.7 =
-* Added: New screen for smart phone.
-* Fixed: At the screen of "Booking",missing the display of "month" scr ....
-
-= 1.3.6 =
-* Added: The ability to set "From" and "Return-path" fields of mail header.
-
-= 1.3.5 =
-* Fixed: booking call wrong parameters.
-
-= 1.3.4 =
-* Changed: Upload Photo directory.
-* Changed: When uninsatll mbstring module.
-
-= 1.3.3 =
-* Changed: Maitenance staff can't change position.
-* Changed: Upload Photo area's css
-* Fixed:   After staff postion changed ,the position role is not available.
-
-= 1.3.2 =
-* Changed: At the screen of "Staff Setting",staff can change the sequence.
-* Changed: At the screen of "Environment Setting",add the option that maintenance staffs is not shop staff member.
-* Changed: After install,"plural shops" is default select.
-
-= 1.3.1 =
-* Fixed:   htmlspecialchars(javascript)
-* Changed: At the screen of "Menu Setting",menu can change the sequence.
-* Changed: At the screen of "Reservation",display menu items changed.
-* Changed: At the screen of "Performance",display deleted menu and deleted staff member.
-
-= 1.2.2 =
-* Fixed: use split function changed explode function.
-* Fixed: missing updated photo data.
-* Fixed: missing screen when no closed.
-* Changed: display "*" on required items.
-* Changed: datepicker's default value.
-
-= 1.2.1 =
-* Changed: Two or more staff photo setup was enabled.
-
-= 1.1.2 =
-* Fixed: At the screen of "Environment Setting",style broken in InternetExplorer.
-* Fixed: missing check of "Performance Regist".
-* Fixed: missing diplay of "Reservation Regist".
-
-= 1.1.1 =
-* Fixed: missing check of "Reservation Regist".
-* Fixed: missing display of "Basic Information".
-* Changed: At the screen of "Booking",after input password,automaticaly login.
-
-= 1.1.0 =
-* Added: At the screen of "Reservation Regist" and "Performance Regist", "ID" of registered newly clients displayed.
-* Changed: At the screen of "Booking",maintenance staff display.
-
-= 1.0.0 =
-* Added: Administrator can view log.
-* Fixed:missing no write of the "Config" log.
-* Changed: Default values of "Config".
-
-= 0.4.0 =
-* Fixed: At the screen of "Search",selected header line don't filled in.
-* Fixed: At the screen of "Search",missing the sequence of Sur name and Given name.
-* Fixed: missig the display name of non registerd staff.
-
-= 0.3.0 =
-* Fixed: At the screen of "Reservation Detail",staff member  can use the function of search.
-* Fixed: Button's display changed "display details" -> "show details".
-
-= 0.2.0 =
-* Changed: Staff member can regist without mail-input.
-* Changed: If today is holiday ,init display is next day.
-* Changed: "Number of the Shops" is "plural shops" as a default.
-
-= 0.1.0 =
-* alpha version first release. 
-
-
-== Upgrade Notice ==
-
-
+= 1.4.9 =
+* バグ: クーポンなしでの登録エラー  
+* バグ: 保守管理者なし指定での、スタッフセレクトの表示  
+* バグ: 予約のステータスの矛盾など・・・
+* 変更: 管理画面でのキャンセルと削除の区別  
+* 変更: フロント画面でのキャンセルの扱い  
+* 変更: AUTO_INCREMENTの取得をwpdbから  

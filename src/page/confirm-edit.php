@@ -36,13 +36,16 @@ class Confirm_Edit extends Salon_Page {
 	
 	public function check_request() {
 		if (wp_verify_nonce($_POST['nonce'],session_id()) === false) {
-			throw new Exception(Salon_Component::getMsg('E005',__LINE__ ) );
+			throw new Exception(Salon_Component::getMsg('E012',basename(__FILE__).':'.__LINE__),1 );
 		}
 		if ( empty($_POST['target']) || ( $_POST['type'] !== 'exec' && $_POST['type'] !== 'cancel' ) ) {
 			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
 		}
-		if ( count($this->datas) == 0  ||  $this->datas['non_regist_activate_key'] !== $this->activation_key ) {
+		if ( count($this->datas) == 0   ) {
 			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
+		}
+		if ( $this->datas['non_regist_activate_key'] !== $this->activation_key ) {
+			throw new Exception(Salon_Component::getMsg('E012',basename(__FILE__).':'.__LINE__),1 );
 		}
 		$now =  date_i18n("YmdHi");
 		if ($this->datas['check_day'] < $now )  {

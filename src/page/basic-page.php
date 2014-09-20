@@ -158,13 +158,16 @@ class Basic_Page extends Salon_Page {
 
 			if ( ! sts  ) return false;
 			
+			var edit_date = $j("#sp_date").val();
+			var date_array = edit_date.split("/");
+			edit_date = <?php _e('date_array[2] + "/" + date_array[0] + "/" + date_array[1]',SL_DOMAIN); ?>;
 			$j.ajax({
 				 	type: "post",
 					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slbasic",
 					dataType : "json",
 					data: {
 						"type":"inserted",
-						"target_date":$j("#sp_date").val(),
+						"target_date":edit_date,
 						"status":$j("input[name=\"sp_date_radio\"]:checked").val(),
 						"target_branch_cd":<?php echo $this->current_user_branch_cd; ?>,
 						"nonce":"<?php echo $this->nonce; ?>",

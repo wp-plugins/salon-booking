@@ -49,7 +49,7 @@ class Booking_Control extends Salon_Control  {
 		if ($this->action_class == 'BookingFront_Page' ) {
 			
 			$this->pages->set_branch_datas($this->datas->getBranchData($this->branch_cd));
-			$this->pages->set_item_datas($this->datas->getTargetItemData($this->branch_cd));
+			$this->pages->set_item_datas($this->datas->getTargetItemData($this->branch_cd,true,true));
 
 			$this->pages->set_staff_datas($this->comp->getTargetStaffData($this->branch_cd));
 			$this->pages->set_config_datas($this->datas->getConfigData());
@@ -67,7 +67,7 @@ class Booking_Control extends Salon_Control  {
 		elseif ($this->action_class == 'Booking_Get_Event' ) {
 			$this->branch_cd = $this->pages->get_branch_cd();
 			$this->pages->set_reservation_datas($this->datas->getAllEventData($this->pages->get_target_day($this->datas->getConfigData('SALON_CONFIG_BEFORE_DAY')),$this->branch_cd));
-			$this->pages->set_item_datas($this->datas->getTargetItemData($this->branch_cd));
+			$this->pages->set_item_datas($this->datas->getTargetItemData($this->branch_cd,true,true));
 			$this->pages->set_user_login($user_login);
 			
 		}
@@ -76,7 +76,7 @@ class Booking_Control extends Salon_Control  {
 			$this->pages->set_config_datas($this->datas->getConfigData());
 			if ($this->pages->check_request() ) {
 				$this->pages->set_reservation_datas($this->datas->getAllEventData($this->pages->get_target_day(),$this->branch_cd,true));
-				$this->pages->set_item_datas($this->datas->getTargetItemData($this->branch_cd));
+				$this->pages->set_item_datas($this->datas->getTargetItemData($this->branch_cd,true,true));
 				$this->pages->set_user_login($user_login);
 			}
 			

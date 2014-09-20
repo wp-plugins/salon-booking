@@ -154,14 +154,9 @@ EOT;
 				},
 				fnRowCallback: function( nRow, aData, iDisplayIndex, iDataIndex ) {	
 					<?php  parent::echoDataTableSelecter("set_code",false); ?>
-					if (aData.status == <?php echo Salon_Reservation_Status::SALES_REGISTERD; ?> ) {
-						element.append(sel_box);
-					}
-					else {
-						element.empty();
-						element.append(sel_box);
-						element.append(del_box);
-					}
+					element.empty();
+					element.append(sel_box);
+					element.append(del_box);
 				}
 			});
 

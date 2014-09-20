@@ -40,7 +40,7 @@ class Confirm_Page extends Salon_Page {
 		}
 
 		if ($this->datas['non_regist_activate_key'] !== $this->activation_key) {
-			$this->error_msg = Salon_Component::getMsg('E005',__LINE__);
+			$this->error_msg = Salon_Component::getMsg('E012',__LINE__);
 		}
 				
 		$now =  date_i18n("YmdHi");
@@ -80,13 +80,13 @@ class Confirm_Page extends Salon_Page {
 		</div>
 <?php		
 		if ($this->datas['status'] == Salon_Reservation_Status::TEMPORARY) {
-			$echo_data_exec = '<input id="button_exec" type="button" value="'.__('Reservation Completed',SL_DOMAIN).'" class="sl_button"/>';
-			$echo_data_cancel = '<input id="button_cancel" type="button" value="'.__('Reservation Cancel',SL_DOMAIN).'" class="sl_button"/>';
+			$echo_data_exec = '<input id="button_exec" type="button" value="'.__('Create Reservation',SL_DOMAIN).'" class="sl_button"/>';
+			$echo_data_cancel = '<input id="button_cancel" type="button" value="'.__('Cancel Reservation',SL_DOMAIN).'" class="sl_button"/>';
 			$echo_data_exec_event = '$j("#button_exec").click(function(){if (!_checkNow() ) return;if (confirm("'.__('Reservation Completed ?',SL_DOMAIN).'") == false) return;fnFixReservation("exec");});';
 		}
-		else {
+		elseif ($this->datas['status'] == Salon_Reservation_Status::COMPLETE) {
 			$echo_data_exec = '';
-			$echo_data_cancel = '<input id="button_cancel" type="button" value="'.__('Reservated Cancel',SL_DOMAIN).'" class="sl_button"/>';
+			$echo_data_cancel = '<input id="button_cancel" type="button" value="'.__('Cancel Reservation',SL_DOMAIN).'" class="sl_button"/>';
 			$echo_data_exec_event = '';
 		}
 ?>		
@@ -99,7 +99,7 @@ class Confirm_Page extends Salon_Page {
 			$j("#button_cancel").click(function(){
 				
 				if (!_checkNow() ) return;
-				if (confirm("<?php _e('reservation cancel ok',SL_DOMAIN); ?>") == false) return;
+				if (confirm("<?php _e('Cancel a reservation ?',SL_DOMAIN); ?>") == false) return;
 				fnFixReservation("cancel");
 			});
 			<?php echo $echo_data_exec_event; ?>
@@ -125,7 +125,7 @@ class Confirm_Page extends Salon_Page {
 								return false;
 							}
 							$j("#status_name").text(data.set_data["status_name"]);
-							$j("#button_cancel").val("<?php _e('Reservated Cancel',SL_DOMAIN); ?>");
+							$j("#button_cancel").val("<?php _e('Cancel Reservation',SL_DOMAIN); ?>");
 							$j("#button_exec").remove();
 						}
 						,error:  function(XMLHttpRequest, textStatus){

@@ -8,6 +8,7 @@ class Sales_Init extends Salon_Page {
 	private $init_datas =  null;
 	private $target_day_from = '';
 	private $target_day_to = '';
+	private $sub_menu = '';
 	
 	public function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch);
@@ -22,7 +23,9 @@ class Sales_Init extends Salon_Page {
 			$this->target_day_from  = $today;
 			$this->target_day_to  = $target_day;
 		}
-		
+		if (!empty($_POST['sub_menu']) && $_POST['sub_menu'] == 'reserve' ) {
+			$this->sub_menu = 'reserve';
+		}
 		
 	}
 
@@ -44,6 +47,10 @@ class Sales_Init extends Salon_Page {
 	
 	public function get_target_branch_cd() {
 		return $_POST['target_branch_cd'];
+	}
+
+	public function get_sub_menu() {
+		return $this->sub_menu;
 	}
 
 	public function show_page() {

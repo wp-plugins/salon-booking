@@ -190,6 +190,15 @@
 					fnUpdateEndTime();
 				}
 			});
+
+			$j("#item_cds input[type=checkbox]").click(function(){
+				fnUpdateEndTime();
+			});
+			
+			$j("#coupon").change(function () {
+					fnUpdateEndTime();
+			});
+			
 			
 			<?php //[2014/06/22]スタッフコードにより選択を変更 ?>
 			$j("#staff_cd").change(function(){
@@ -208,30 +217,29 @@
 					var staff_cd = $j(this).val();
 					$j("#item_cds input").attr("disabled",true);
 					$j("#item_cds input").parent().hide();
-					var item_array = staff_items[staff_cd].split(",");
-					var max_loop = item_array.length;
-					for	 (var i = 0 ; i < max_loop; i++) {
-						<?php //メニューの有効期間を判定する　?>
-						if (item_fromto[+item_array[i]].f <= checkday && checkday <= item_fromto[+item_array[i]].t) {
-							$j("#item_cds #slm_chk_"+item_array[i]).attr("disabled",false);
-							$j("#item_cds #slm_chk_"+item_array[i]).parent().show();
+					if (staff_cd) {
+						var item_array = staff_items[staff_cd].split(",");
+						var max_loop = item_array.length;
+						for	 (var i = 0 ; i < max_loop; i++) {
+							<?php //メニューの有効期間を判定する　?>
+							if (item_fromto[+item_array[i]].f <= checkday && checkday <= item_fromto[+item_array[i]].t) {
+								$j("#item_cds #slm_chk_"+item_array[i]).attr("disabled",false);
+								$j("#item_cds #slm_chk_"+item_array[i]).parent().show();
+							}
 						}
+						$j("#item_cds :checkbox").each(function(){
+							if($j(this).attr("disabled") ){
+								$j(this).attr("checked",false);
+							}
+						})
+						<?php //値段を再計算する ?>
+						fnUpdateEndTime();
 					}
-					$j("#item_cds :checkbox").each(function(){
-						if($j(this).attr("disabled") ){
-							$j(this).attr("checked",false);
-						}
-					})
-					<?php //値段を再計算する ?>
-					fnUpdateEndTime();
-					
 				}
 			});
 			<?php //[2014/06/22]スタッフコードにより選択を変更 ?>
 			
-			$j("#item_cds input[type=checkbox]").click(function(){
-				fnUpdateEndTime();
-			});
+			
 
 			$j(document).on('click','.slm_on_business',function(){
 				var tmp_val = $j(this.children).text();
@@ -292,6 +300,7 @@
 			$j("#slm_page_main").hide();
 			$j("#slm_page_regist").show();
 			$j("#slm_exec_delete").hide();
+			$j('#slm_exec_regist').text("<?php _e('Create Reservation',SL_DOMAIN); ?>");
 			$j("#slm_target_day").text($j("#slm_searchdate").val()); 
 			target_day_from = _fnDateConvert($j("#slm_searchdate").val() );
 			if (startHour) { 
@@ -375,7 +384,7 @@
 			}
 <?php //couponの組立 ?>
 			if (isNeedToCheckPromotionDate ) {
-				$j("#coupon").remove();
+				$j("#coupon option").remove();
 				var target = yyyymmdd;
 				var cn = '<select id="coupon" name="coupon" class="slm_sel"><option value="">'+"<?php _e('select please',SL_DOMAIN); ?>"+'</option>';
 				for(var id in promotions) {
@@ -388,7 +397,7 @@
 						}
 					}
 				}
-				$j("#coupon_wrap").prepend(cn);
+				
 			}
 			
 
@@ -438,6 +447,7 @@
 									$j("#slm_page_main").hide();
 									$j("#slm_page_regist").show();
 									$j("#slm_exec_delete").show();
+									$j("#slm_exec_regist").text("<?php _e('Update Reservation',SL_DOMAIN); ?>");
 									var ids = this.id.split("_");
 									save_id = ids[3];
 									var ev_tmp = slmSchedule._events[save_id];
@@ -609,6 +619,17 @@
 					minute += +$j(this).next().next().val();
 				}
 			});
+			if ($j("#coupon") && coupons[$j("#coupon").val()]) {
+				var coupon = coupons[$j("#coupon").val()];
+				if (coupon.discount_patern_cd == <?php echo Salon_Discount::PERCENTAGE; ?> ) {
+					price = (1 - coupon.discount/100) * price;
+				}
+				else {
+					price -= coupon.discount;
+				}
+			}
+			if (price < 0 ) price = 0;
+			
 			$j("#slm_price").text(price);
 			target_day_to = new Date(target_day_from.getTime());
 			target_day_to.setMinutes(target_day_to.getMinutes() + minute);				
@@ -799,8 +820,8 @@ EOT;
         <div id="slm_footer_r3" class="slm_line">
             <ul>
             <li><a data-role="button" class="slm_tran_button" id="slm_mainpage_regist" href="#slm-page-main"><?php _e('Close',SL_DOMAIN); ?></a></li>
-            <li><a data-role="button" class="slm_tran_button" id="slm_exec_delete"  href="javascript:void(0)" ><?php _e('Delete',SL_DOMAIN); ?></a></li>
-            <li><a data-role="button" class="slm_tran_button" id="slm_exec_regist"  href="javascript:void(0)" ><?php _e('Booking',SL_DOMAIN); ?></a></li>
+            <li><a data-role="button" class="slm_tran_button" id="slm_exec_delete"  href="javascript:void(0)" ><?php _e('Cancel Reservation',SL_DOMAIN); ?></a></li>
+            <li><a data-role="button" class="slm_tran_button" id="slm_exec_regist"  href="javascript:void(0)" ><?php _e('Create Reservation',SL_DOMAIN); ?></a></li>
             </ul>
             
         </div>

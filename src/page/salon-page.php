@@ -1,11 +1,10 @@
 <?php
 $set_lang = false;
-if (defined ( 'WPLANG' )  ) {
-	$file_name = SL_PLUGIN_DIR.'/languages/salon-page-'.WPLANG.'.php';
-	if ( file_exists($file_name) ) {
-		require_once($file_name);
-		$set_lang = true;
-	}
+$lang = get_locale();
+$file_name = SL_PLUGIN_DIR.'/languages/salon-page-'.$lang.'.php';
+if ( file_exists($file_name) ) {
+	require_once($file_name);
+	$set_lang = true;
 }
 if (! $set_lang ) {
 	$file_name = SL_PLUGIN_DIR.'/languages/salon-page-com.php';
@@ -835,11 +834,13 @@ EOT;
 							if (+data.cnt > 0 ) {
 								\$j("#sl_search_result tr").click(function(event) {
 									if (this.children[0].innerHTML == "{$check_char}" ) return;
-									\$j("#name").val(this.children[1].innerHTML);
+									var name = this.children[1].innerHTML;
+									\$j("#name").val(name);
 									var tel = this.children[2].innerHTML;
 									if (! tel) tel = this.children[3].innerHTML;
 									\$j("#tel").val(tel);
 									\$j("#mail").val(this.children[4].innerHTML);
+									save_name = name;
 									save_tel = tel;
 									save_mail = this.children[4].innerHTML;
 									save_user_login = \$j(this).find("input").val();
@@ -1122,7 +1123,7 @@ EOT;
 					weekHeader: "'.__('week',SL_DOMAIN).'",
 					dateFormat: "'.__('mm/dd/yy',SL_DOMAIN).'",
 					changeMonth: true,
-					firstDay: 0,
+					firstDay: 1,
 					isRTL: false,
 					showMonthAfterYear: true,
 					showButtonPanel: true,
@@ -1986,13 +1987,13 @@ EOT2;
 		 ,'class'	=>array()
 		 ,'check' => array('chk_required')
 		 ,'label' => __('User Login',SL_DOMAIN)
-		 ,'tips' => __('plese enter your loginid',SL_DOMAIN));
+		 ,'tips' => __('please enter your loginid',SL_DOMAIN));
 
 		$item_contents['booking_user_password'] =array('id'=>'login_password'
 		 ,'class'	=>array()
 		 ,'check' => array('chk_required')
 		 ,'label' => __('Password',SL_DOMAIN)
-		 ,'tips' => __('plese enter your password',SL_DOMAIN));
+		 ,'tips' => __('please enter your password',SL_DOMAIN));
 
 		$item_contents['time_from'] =array('id'=>'start_date'
 		 ,'class'	=>array()
@@ -2870,12 +2871,12 @@ EOT;
 			}
 		}
 		
-
 		//同一スタッフでの重複をチェック->予約済みのDIVの高さを求める分母として使用
-		//k1は日付単位。現状、１日だが複数日も可能にしとく
+		//k1は日付単位。現状、１日単位にしかデータが設定されないが複数日も可能にしとく
 		if(count($dayStaff) >  0 ) {
 			foreach($dayStaff as $k1 => $d1 ) {
 				//k2はスタッフコード単位
+				//d2は予約が配列で格納
 				$set_array = array();
 				foreach($d1 as $k2 => $d2) {
 					//複数ある場合のみチェック
@@ -2883,14 +2884,17 @@ EOT;
 					//添字は階層を意味する
 					$dup_table[0][] = $d2[0];
 					$set_cnt = 1;
+					
 					if (count($d2) > 1 ) {
 						$max_dup = 0;
 						for ($i = 1 ; $i < count($d2) ; $i++  ) {
 							$dup_flg = false;
 							//階層の中で重複しない
 							for($j = 0 ;  $j <= $max_dup ;$j++ ) {
+								//k3はただのINDEX
 								foreach ($dup_table[$j]  as $k3 => $d3 ){
-									//重複したら次の階層へ
+									//d3上のデータと重複したら次の階層へ
+									//重複しないのはd3上の開始よりd2の終了が前かd3上の終了よりd2の開始が後の場合のみ
 									if ($d2[$i]['e'] <= $d3['s'] || $d3['e'] <= $d2[$i]['s'] ) {
 									}
 									else {
@@ -2901,7 +2905,7 @@ EOT;
 								//ここにきたら重複はない
 								$dup_table[$j][] = $d2[$i];
 								$dup_flg = false;
-								break 2;
+								break 1;
 							}
 							//新しい階層をつくる場合
 							if ($dup_flg) {

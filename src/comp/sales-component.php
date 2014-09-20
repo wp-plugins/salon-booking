@@ -12,7 +12,7 @@ class Sales_Component {
 	
 	public function editShowData($branch_cd,$result) {
 		
-		Salon_Component::editSalesData($this->datas->getTargetItemData($branch_cd,false),$this->datas->getTargetStaffData($branch_cd,true),$result,$this->datas->getPromotionData($branch_cd));
+		Salon_Component::editSalesData($this->datas->getTargetItemData($branch_cd,false),$this->datas->getTargetStaffData($branch_cd,true),$result,$this->datas->getPromotionData($branch_cd,false,false,true));
 		return $result;
 	}
 		

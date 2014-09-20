@@ -14,6 +14,7 @@
 		var save_user_login = "";
 		var save_mail = "";
 		var save_tel = "";
+		var save_name = "";
 		var item_name = new Array();
 		
 		
@@ -529,6 +530,7 @@ EOT3;
 					price -= coupon.discount;
 				}
 			}
+			if (price < 0 ) price = 0;
 			
 			$j("#price").text(price);
 			target_day_to = new Date(target_day_from.getTime());
@@ -546,12 +548,12 @@ EOT3;
 				target_day_from = new Date(ev.start_date.getTime());
 				$j("#item_cds input").attr("checked",false);
 				if (ev.type) {
-					$j("#button_insert").val("<?php _e('Add',SL_DOMAIN); ?>");
+					$j("#button_insert").val("<?php _e('Create Reservation',SL_DOMAIN); ?>");
 					$j("#button_delete").hide();
 					<?php	if ($this->isSalonAdmin() ) 	echo '$j("#button_search").show();'; ?>
 				}
 				else {
-					$j("#button_insert").val("<?php _e('Update',SL_DOMAIN); ?>");
+					$j("#button_insert").val("<?php _e('Update Reservation',SL_DOMAIN); ?>");
 					$j("#button_delete").show();
 					<?php	if ($this->isSalonAdmin() ) echo '$j("#button_search").hide();'; ?>
 				}
@@ -777,6 +779,9 @@ EOT3;
 							var label = $j("#start_time").prev().children(".small" );
 							label.text("<?php _e('your reservation is duplicated',SL_DOMAIN); ?>")
 							label.addClass("error small");
+							var label = $j("#name").prev().children(".small" );
+							label.text("<?php _e('your reservation is duplicated',SL_DOMAIN); ?>")
+							label.addClass("error small");
 						}
 						return false;
 					}
@@ -819,6 +824,15 @@ EOT3;
 				}
 			<?php endif; ?>
 			if ( ! checkStaffHoliday(ev,target_day_from,target_day_to) ) return false;
+			<?php	
+			//ここでuser_loginを入れておく。そうしないとここのチェックを正常になった後で、
+			//onEventAddedの中のcheckDuplicatedでエラーになり
+			//eventが消されてしまい後続処理ができない 
+			//新規で検索した後に名前などを一部変更した場合は、userloginをクリアする
+			?>
+			if (ev.type && ev.type == 'new' && save_name != $j("#name").val() || save_tel !=  $j("#tel").val() || save_mail != $j("#mail").val() ) 
+				save_user_login = "";
+			ev.user_login =	save_user_login;
 			if ( ! checkDuplicate(ev,target_day_from,target_day_to) ) return false;
 			if (!_checkDeadline(target_day_from) ) return false;
 
@@ -831,7 +845,6 @@ EOT3;
 			ev.staff_cd = $j("#staff_cd").val();
 			ev.item_cds = save_item_cds;
 			ev.remark = $j("#remark").val();
-			ev.user_login =	save_user_login;
 			ev.coupon = $j("#coupon").val();
 			scheduler.endLightbox(true, $j("#data_detail").get(0));
 
@@ -890,7 +903,7 @@ EOT3;
 				<input type="text" id="login_username" value="" />
 				<input type="password" id="login_password" value="" />
 				<label  >&nbsp;</label>
-				<input type="button" value="<?php _e('Log in',SL_DOMAIN); ?>" id="button_login"  >
+				<input type="button" value="<?php _e('Log in',SL_DOMAIN); ?>" id="button_login" class="sl_button"  >
 		<?php endif; ?>
 			<div class="spacer"></div>
 		</div>
@@ -943,8 +956,8 @@ EOT3;
 		<div class="spacer"></div>
 		<div id="booking_button_div" >
 			<input type="button" value="<?php _e('Close',SL_DOMAIN); ?>" id="button_close"  >
-			<input type="button" value="<?php _e('Delete',SL_DOMAIN); ?>" id="button_delete"  >
-			<input type="button" value="<?php _e('Add',SL_DOMAIN); ?>" id="button_insert"  >
+			<input type="button" value="<?php _e('Cancel Reservation',SL_DOMAIN); ?>" id="button_delete"  >
+			<input type="button" value="<?php _e('Create Reservation',SL_DOMAIN); ?>" id="button_insert"  >
 		</div>			
 	</div>
 <?php if ($this->isSalonAdmin() ) : ?>

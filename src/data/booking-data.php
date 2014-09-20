@@ -157,12 +157,20 @@ class Booking_Data extends Salon_Data {
 	
 
 	public function deleteTable ($table_data){
-		$set_string = 	' delete_flg = %d, update_time = %s  ';
-		$set_data_temp = array(Salon_Reservation_Status::DELETED,
-						date_i18n('Y-m-d H:i:s'),
-						$table_data['reservation_cd']);
+		//bookingの削除では削除扱いはしない
+		$set_string = 	' status = %d  '.
+						' ,update_time = %s ';
+												
+		if ( is_user_logged_in() )	{
+			$name = $this->getUserName();
+			$set_string .= 	' ,remark = concat(remark,"'.sprintf(__("\nCanceled by %s. ",SL_DOMAIN),$name).'") ';
+		}
+
+		$set_data_temp = array(
+						$table_data['status']
+						,date_i18n('Y-m-d H:i:s')
+						,$table_data['reservation_cd']);
 		$where_string = ' reservation_cd = %d ';
-		
 		if ( $this->updateSql(self::TABLE_NAME,$set_string,$where_string,$set_data_temp) === false) {
 			$this->_dbAccessAbnormalEnd();
 		}

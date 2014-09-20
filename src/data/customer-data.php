@@ -91,11 +91,10 @@ class Customer_Data extends Salon_Data {
 		else {
 			$join = ' AND cu.delete_flg <> '.Salon_Reservation_Status::DELETED;
 		}
-
 		$sql = 'SELECT us.ID,us.user_login,um.* ,us.user_email,'.
 				'        cu.customer_cd,cu.branch_cd,cu.remark,cu.memo,cu.notes,cu.delete_flg ,cu.rank_patern_cd'.
-				' FROM '.$wpdb->prefix.'users us  '.
-				' INNER JOIN '.$wpdb->prefix.'usermeta um  '.
+				' FROM '.$wpdb->users.' us  '.
+				' INNER JOIN '.$wpdb->usermeta.' um  '.
 				'       ON    us.ID = um.user_id '.
 				' LEFT  JOIN '.$wpdb->prefix.'salon_customer cu  '.
 				'       ON    us.user_login = cu.user_login '.

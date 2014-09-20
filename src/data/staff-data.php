@@ -122,7 +122,6 @@ class Staff_Data extends Salon_Data {
 	
 	
 	
-	
 	public function getStaffDataByStaffcd($staff_cd = "") {
 		global $wpdb;
 		$join = '';
@@ -140,22 +139,26 @@ class Staff_Data extends Salon_Data {
 				'        DATE_FORMAT(st.employed_day, "'.__("%m/%d/%Y",SL_DOMAIN).'")  as employed_day,'.
 				'        DATE_FORMAT(st.leaved_day, "'.__("%m/%d/%Y",SL_DOMAIN).'")  as leaved_day ,display_sequence,'.
 				'        in_items '.
-				' FROM '.$wpdb->prefix.'users us  '.
-				' INNER JOIN '.$wpdb->prefix.'usermeta um  '.
+				' FROM '.$wpdb->users.' us  '.
+				' INNER JOIN '.$wpdb->usermeta.' um  '.
 				'       ON    us.ID = um.user_id '.
 				' LEFT  JOIN '.$wpdb->prefix.'salon_staff st  '.
 				'       ON    us.user_login = st.user_login '.
 				$join.
 				$where.
 				' ORDER BY st.branch_cd,display_sequence,ID';
-		$result = $wpdb->get_results($sql,ARRAY_A);
-		if ($result === false ) {
+
+		if ($wpdb->query($sql) === false ) {
 			$this->_dbAccessAbnormalEnd();
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
 		}
 		if ($result){
 			foreach ($result as $k1 => $d1 ) {
 				if (str_replace('/','',$d1['employed_day']) == '00000000' ) $result[$k1]['employed_day'] = '';
-				if (str_replace('/','',$d1['leaved_day']) == '00000000' ) $result[$k1]['leaved_day'] = '';
+				if (substr($d1['leaved_day'],0,4) == '2099' ) $result[$k1]['leaved_day'] = '';
+
 
 			}
 		}
@@ -170,8 +173,8 @@ class Staff_Data extends Salon_Data {
 		$sql = 'SELECT us.ID,us.user_login,um.* ,us.user_email,'.
 				'        "" AS staff_cd,"" AS branch_cd,"" AS position_cd,"" AS remark,"" AS memo,"" AS notes,"" AS photo, 0 AS duplicate_cnt, '.
 				'        "" AS employed_day,"" AS  leaved_day ,0 AS display_sequence,"" AS in_items '.
-				' FROM (SELECT * FROM '.$wpdb->prefix.'users WHERE user_login = %s ) us '.
-				' INNER JOIN '.$wpdb->prefix.'usermeta um  '.
+				' FROM (SELECT * FROM '.$wpdb->users.' us WHERE user_login = %s ) us '.
+				' INNER JOIN '.$wpdb->usermeta.' um  '.
 				'       ON    us.ID = um.user_id ';
 		$sql = $wpdb->prepare($sql,$user_login);
 

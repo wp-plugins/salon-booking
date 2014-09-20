@@ -39,7 +39,13 @@ class Customer_Component {
 		$result_after = array();
 		$index = 0;
 		global $wpdb;
+//var_export($edit);
 		foreach ( $edit as $k1 => $d1 ) {
+			if (defined( 'MULTISITE' ) ) {
+				if (!isset($d1[$wpdb->prefix.'capabilities']) ) {
+					continue;
+				}
+			}
 			$role = unserialize($d1[$wpdb->prefix.'capabilities']) ;
 			//顧客は「購読者」のみ
 			if ( array_key_exists('subscriber',$role) ){

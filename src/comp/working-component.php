@@ -12,6 +12,7 @@ class Working_Component {
 	}
 
 	public function editInitData($branch_cd,$user_login=null) {
+		//branch_cdが空なのは個別ユーザって前提
 		if (empty($branch_cd) )
 			$result = $this->datas->getTargetStaffDataByUserlogin($user_login);
 		else 

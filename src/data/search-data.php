@@ -14,8 +14,8 @@ class Search_Data extends Salon_Data {
 	function getSearchCustomerData($keys){	
 		global $wpdb;
 		$sql = 'SELECT ID,user_login,user_email,meta_key,meta_value '.
-				' FROM '.$wpdb->prefix.'users us  '.
-				' INNER JOIN '.$wpdb->prefix.'usermeta um  '.
+				' FROM '.$wpdb->users.' us  '.
+				' INNER JOIN '.$wpdb->usermeta.' um  '.
 				'       ON    us.ID = um.user_id '.
 				' WHERE '.
 //				'      (user_email =  %s ) OR '.

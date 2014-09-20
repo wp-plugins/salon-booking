@@ -20,8 +20,12 @@ class Reservation_Component {
 	
 	public function editTableData () {
 		
-		if ( $_POST['type'] == 'deleted' ) {
+		if ( $_POST['type'] == 'deleted') {
 			$set_data['reservation_cd'] = intval($_POST['reservation_cd']);
+		}
+		elseif ($_POST['type'] == 'cancel') {
+			$set_data['reservation_cd'] = intval($_POST['reservation_cd']);
+			$set_data['branch_cd'] = intval($_POST['branch_cd']);
 		}
 		else {
 			if ($_POST['type'] == 'updated' ) 	$set_data['reservation_cd'] = intval($_POST['reservation_cd']);

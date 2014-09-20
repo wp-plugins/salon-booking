@@ -214,7 +214,7 @@ EOT;
 			target = $j("#lists").dataTable({
 				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slsales",
 				<?php parent::echoDataTableLang(); ?>
-				<?php parent::echoTableItem(array('reserved_time','customer_name','rstatus','remark')); //for only_branch?>
+				<?php parent::echoTableItem(array('reserved_time','customer_name','rstatus','remark'),false,true,'200px'); //for only_branch?>
 
 
 				"fnServerParams": function ( aoData ) {
@@ -223,6 +223,7 @@ EOT;
 				  aoData.push( { "name": "target_date_patern","value":$j("#target_date_patern").val() } );
 				  aoData.push( { "name": "target_date_zengo","value":"after" } );
 				  aoData.push( { "name": "target_branch_cd","value":<?php echo $this->current_user_branch_cd; ?> } );
+				  aoData.push( { "name": "sub_menu","value":"reserve" } );
 				},
 				"fnDrawCallback": function () {
 					$j("#lists  tbody .sl_select").click(function(event) {
@@ -231,8 +232,25 @@ EOT;
 				},
 				fnRowCallback: function( nRow, aData, iDisplayIndex, iDataIndex ) {	
 					<?php  parent::echoDataTableSelecter("name",false); ?>
-					if (aData.status == <?php echo Salon_Reservation_Status::SALES_REGISTERD; ?> ) {
+					var cancel_box = $j("<input>")
+						.attr("type","button")
+						.attr("id","sl_cancel_btn_"+iDataIndex)
+						.attr("name","sl_cancel_"+iDataIndex)
+						.attr("class","sl_button sl_button_short")
+						.attr("value","<?php _e('Cancel Reservation',SL_DOMAIN); ?>")
+						.click(function(event) {
+							if (confirm(htmlspecialchars_decode(aData.name)+" <?php _e('Cancel Ok?',SL_DOMAIN); ?>") ) {
+								fnClickCancelRow(this.parentNode);
+							}
+						});
+					
+					if (aData.rstatus_cd == <?php echo Salon_Reservation_Status::COMPLETE; ?> ||
+						aData.rstatus_cd == <?php echo Salon_Reservation_Status::TEMPORARY; ?>
+					 ) {
+						element.empty();
 						element.append(sel_box);
+						element.append(cancel_box);
+						element.append(del_box);
 					}
 					else {
 						element.empty();
@@ -317,17 +335,30 @@ EOT;
 			}
 
 			$j("#coupon").val(setData['aoData'][position[0]]['_aData']['coupon']).change();
-
-			$j("#button_update").attr("disabled",false);
-			$j("#button_insert").attr("disabled",false);
+			
+			if (setData['aoData'][position[0]]['_aData']['rstatus_cd'] == 	 <?php echo Salon_Reservation_Status::COMPLETE; ?> ||
+				setData['aoData'][position[0]]['_aData']['rstatus_cd'] == 	 <?php echo Salon_Reservation_Status::TEMPORARY; ?> 
+			) {
+				$j("#button_update").attr("disabled",false);
+				$j("#button_insert").attr("disabled",false);
+				$j("#button_search").attr("disabled",false);
+				$j("#data_detail input,select,textarea").attr("readonly",false); 
+				$j("#data_detail input,select,textarea").attr("disabled",false); 
+				$j("#staff_cd").val(setData['aoData'][position[0]]['_aData']['staff_cd_bef']).change();
+			}
+			else {
+				$j("#button_update").attr("disabled",true);
+				$j("#button_insert").attr("disabled",true);
+				$j("#button_search").attr("disabled",true);
+				$j("#data_detail input,select,textarea").attr("readonly",true); 
+				$j("#data_detail input,select,textarea").attr("disabled",true); 
+			}
 			$j("#button_clear").attr("disabled",false);
-			$j("#button_search").attr("disabled",false);
 			
 			$j("#data_detail").show();
 
 			$j("#button_detail").val("<?php _e('Hide Details',SL_DOMAIN); ?>");
 
-			$j("#staff_cd").val(setData['aoData'][position[0]]['_aData']['staff_cd_bef']).change();
 		}
 
 		<?php parent::echoDataTableDeleteRow("reservation","reservation",true,'"p2":setData["aoData"][position[0]]["_aData"]["non_regist_activate_key"],'); ?>
@@ -423,8 +454,42 @@ EOT;
 			 });			
 		}
 
+		function fnClickCancelRow(target_col) {
+			var position = target.fnGetPosition( target_col );
+			var setData = target.fnSettings();
+
+			var target_cd = setData['aoData'][position[0]]['_aData']['reservation_cd']; 				
+			 $j.ajax({
+					type: "post",
+					url:  "<?php echo get_bloginfo( 'wpurl' ).'/wp-admin/admin-ajax.php?action=slreservation'; ?>", 
+					dataType : "json",
+					data: 	{
+						"p2":setData["aoData"][position[0]]["_aData"]["non_regist_activate_key"],
+						"reservation_cd":target_cd,
+						"branch_cd": <?php echo $this->current_user_branch_cd; ?>,
+						"type":"cancel",
+						"nonce":"<?php echo wp_create_nonce(session_id()); ?>",
+						"menu_func":"Reservation_Edit"
+					}, 
+					success: function(data) {
+						if (data === null || data.status == "Error" ) {
+							if (data) alert(data.message);
+						}
+						else {
+							target.fnUpdate( data.set_data ,position[0] );
+						}
+					},
+					error:  function(XMLHttpRequest, textStatus){
+						alert (textStatus);
+					}
+			 });			
+		}
 		
 		function fnDetailInit( ) {
+			$j("#data_detail input,select,textarea").attr("readonly",false); 
+			$j("#data_detail input,select,textarea").attr("disabled",false); 
+			$j("#button_insert").attr("disabled",false);
+			
 			$j("#data_detail input[type=\"text\"]").val("");
 			$j("#data_detail textarea").val("");
 			$j("#item_cds input").attr("checked",false);
@@ -513,7 +578,11 @@ EOT;
 			</div>
 		</div>
 		
-		<?php parent::echoStaffSelect("staff_cd",$this->staff_datas,true); ?>
+		<?php 
+			$anyone = true;
+			if ($this->config_datas['SALON_CONFIG_NO_PREFERENCE'] == Salon_Config::NO_PREFERNCE_NG) $anyone = false;
+			parent::echoStaffSelect("staff_cd",$this->staff_datas,$anyone); 
+		?>
 		<?php parent::echoItemInputCheckTable($this->item_datas); ?>
 		<?php parent::echoCouponSelect("coupon",$this->promotion_datas); ?>
 		<textarea id="remark"  ></textarea>
