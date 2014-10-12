@@ -468,6 +468,7 @@ class Staff_Page extends Salon_Page {
 
 			$j("#button_update").attr("disabled", true);
 			$j("#button_insert").attr("disabled", false);
+			$j("#position_cd").attr("disabled",false);
 			
 			$j("#duplicate_cnt").val("0");
 			

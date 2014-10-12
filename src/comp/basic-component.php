@@ -21,20 +21,23 @@ class Basic_Component {
 			$set_data['branch_cd'] = intval($_POST['target_branch_cd']);
 			$set_data['duplicate_cnt'] = intval($_POST['duplicate_cnt']);
 			//[2014/10/01]半休対応
-			$tmp_array = explode(";",$_POST['memo']);
-			$tmp_result = array();
-			foreach ($tmp_array as  $d1 ) {
-				$frto = explode(",",$d1);
-				$tmp_frto = array();
-				$from = Salon_Component::replaceTimeToDb($frto[0]);
-				if (+$from <  +$set_data['open_time']) $from = $set_data['open_time'];
-				$tmp_frto[] = $from;
-				$to = Salon_Component::replaceTimeToDb($frto[1]);
-				if (+$to >  +$set_data['close_time']) $to = $set_data['close_time'];
-				$tmp_frto[] = $to;
-				$tmp_result[] = implode(",",$tmp_frto);
+			$set_data['memo'] = "";
+			if (isset($_POST['memo'])&& !empty($_POST['memo']) ) {
+				$tmp_array = explode(";",$_POST['memo']);
+				$tmp_result = array();
+				foreach ($tmp_array as  $d1 ) {
+					$frto = explode(",",$d1);
+					$tmp_frto = array();
+					$from = Salon_Component::replaceTimeToDb($frto[0]);
+					if (+$from <  +$set_data['open_time']) $from = $set_data['open_time'];
+					$tmp_frto[] = $from;
+					$to = Salon_Component::replaceTimeToDb($frto[1]);
+					if (+$to >  +$set_data['close_time']) $to = $set_data['close_time'];
+					$tmp_frto[] = $to;
+					$tmp_result[] = implode(",",$tmp_frto);
+				}
+				$set_data['memo'] = implode(";",$tmp_result);
 			}
-			$set_data['memo'] = implode(";",$tmp_result);
 		}
 		else {
 			$set_data['branch_cd'] = intval($_POST['target_branch_cd']);

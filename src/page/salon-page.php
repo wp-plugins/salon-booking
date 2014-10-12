@@ -1284,35 +1284,38 @@ EOT2;
 				//詳細と休みの順番は一致している前提
 				$set_days_array = explode(',',$branch_datas['closed']);
 				if ($branch_datas['memo'] == "MEMO") $branch_datas['memo'] = "";
-				$set_days_detail_array = explode(';',$branch_datas['memo']);
-				foreach ($set_days_array as $k1 => $d1) {
-					$set_day = $d1;
-					$time_array = array();
-					if (count($set_days_detail_array) > 0 &&  !empty($set_days_detail_array[$k1]) ) 
-						$time_array = explode(',',$set_days_detail_array[$k1]);
-					else 
-						$time_array = array($branch_datas['open_time'],$branch_datas['close_time']);
-					$frto = array();
-					$frto[] = substr($time_array[0],0,2);
-					$frto[] = substr($time_array[0],-2);
-					$frto[] = substr($time_array[1],0,2);
-					$frto[] = substr($time_array[1],-2);
-					
-					$zones = (+$frto[0]*60+$frto[1]).','.(+$frto[2]*60+$frto[3]);
-					if($time_array[0] <= $branch_datas['open_time'] && $branch_datas['close_time']  <= $time_array[1] ) {
-						$zones = "\"fullday\"";
-					}
-					echo <<<EOT
-					var options = {
-						days:{$set_day},
-						zones:[{$zones}],
-						type: "{$block}", 
-						css: "holiday",
-						html: "{$set_html}"
-					};
-					scheduler.addMarkedTimespan(options);
+				//ここは0のみがはいっていることはないのでemptyで
+				if (!empty($branch_datas['memo']) ) {
+					$set_days_detail_array = explode(';',$branch_datas['memo']);
+					foreach ($set_days_array as $k1 => $d1) {
+						$set_day = $d1;
+						$time_array = array();
+						if (count($set_days_detail_array) > 0 &&  !empty($set_days_detail_array[$k1]) ) 
+							$time_array = explode(',',$set_days_detail_array[$k1]);
+						else 
+							$time_array = array($branch_datas['open_time'],$branch_datas['close_time']);
+						$frto = array();
+						$frto[] = substr($time_array[0],0,2);
+						$frto[] = substr($time_array[0],-2);
+						$frto[] = substr($time_array[1],0,2);
+						$frto[] = substr($time_array[1],-2);
+						
+						$zones = (+$frto[0]*60+$frto[1]).','.(+$frto[2]*60+$frto[3]);
+						if($time_array[0] <= $branch_datas['open_time'] && $branch_datas['close_time']  <= $time_array[1] ) {
+							$zones = "\"fullday\"";
+						}
+						echo <<<EOT
+						var options = {
+							days:{$set_day},
+							zones:[{$zones}],
+							type: "{$block}", 
+							css: "holiday",
+							html: "{$set_html}"
+						};
+						scheduler.addMarkedTimespan(options);
 EOT;
-					
+						
+					}
 				}
 				if (strpos($branch_datas['closed'],date_i18n('w') ) !== false ) $is_todayHoliday = true;
 				//特殊な日の設定（定休日だけど営業するor営業日だけど休むなど）
