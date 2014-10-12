@@ -247,6 +247,7 @@ EOT3;
 					scheduler._events[tid].edit_flg = xml_node.getAttribute("edit_flg");
 					scheduler._events[tid].name = xml_node.getAttribute("name");
 					scheduler._events[tid].text = _edit_text_name(xml_node.getAttribute("name"));
+					scheduler._events[tid].status = xml_node.getAttribute("status");
 					scheduler._events[tid].p2 = xml_node.getAttribute("p2");
 					var setAfterDate = scheduler.date.str_to_date(scheduler.config.xml_date,scheduler.config.server_utc);
 					scheduler._events[tid].end_date = setAfterDate(xml_node.getAttribute("end_date"));
@@ -301,7 +302,10 @@ EOT3;
 			<?php //ここがドラッグドロップ部分でのイベント ?>
 			scheduler.attachEvent("onBeforeEventChanged", function(ev, native_event, is_new){
 				if (!is_collision_err ) return;
-				if (!is_new && ev.status == <?php echo Salon_Reservation_Status::TEMPORARY; ?> ) return;
+				if (!is_new && ev.status == <?php echo Salon_Reservation_Status::TEMPORARY; ?> ) {
+					alert("<?php _e('This reservation is not completed.So you can not move',SL_DOMAIN); ?>");
+					return;
+				}
 				var is_check = true;
 				if (ev.staff_cd) {
 					is_check = checkStaffHolidayLogic(ev.staff_cd,ev.start_date,ev.end_date);
@@ -503,9 +507,11 @@ EOT3;
 			$j("#detail_out span").addClass("sl_detail_out");			
 			$j("#detail_out label").addClass("sl_detail_out");			
 
-			<?php if ($is_todayholiday) : ?>
-				scheduler.setCurrentView(scheduler.date.add( scheduler.date[scheduler._mode+"_start"](scheduler._date),(1),scheduler._mode)); 
-			<?php endif; ?>
+			<?php // if ($is_todayholiday) : ?>
+<?php //[2014/10/01
+//				scheduler.setCurrentView(scheduler.date.add( scheduler.date[scheduler._mode+"_start"](scheduler._date),(1),scheduler._mode)); 
+?>
+			<?php // endif;  */ ?>
 
 
 		});
@@ -580,7 +586,7 @@ EOT3;
 					if (ev.tel) $j("#tel").attr("readonly", true);
 					$j("#staff_cd").focus();			
 				<?php endif; ?>
-				$j("#start_time").val(ev.start_date.getHours()+":"+(ev.start_date.getMinutes()<10?'0':'')+ev.start_date.getMinutes());
+				$j("#start_time").val(('0'+ev.start_date.getHours()).slice(-2)+":"+('0'+ev.start_date.getMinutes()).slice(-2));
 				save_target_event = scheduler._lame_clone(ev);
 				fnUpdateEndTime();
 				
@@ -659,29 +665,56 @@ EOT3;
 				if (global[t_sd.valueOf()]["dhx_time_block"]) return false;	//特別な休み
 				if (global[t_sd.valueOf()]["default"]) return true;			//特別な営業日
 			}
-			if ( global[from.getDay()] && global[from.getDay()]["dhx_time_block"]) return false;
+<?php //[2014/10/01]半休対応 曜日で判定すると全部NGになるのでコメント 
+//			if ( global[from.getDay()] && global[from.getDay()]["dhx_time_block"]) return false;
+?>
 			if ( global[from.valueOf()] && global[from.valueOf()]["dhx_time_block"]) return false;
 		}
+		
+<?php //[2014/10/01]半休対応 ?>
+		function checkHolidayZone (from,to) {
+			var global = scheduler._marked_timespans.global;
+			if ( !global[from.getDay()] ) return true;
 
+			var t_sd = scheduler.date.date_part(new Date(from));
+			if ( global[t_sd.valueOf()] ) {
+				if (global[t_sd.valueOf()]["dhx_time_block"]) return false;	//特別な休み
+				if (global[t_sd.valueOf()]["default"]) return true;			//特別な営業日
+			}
+			
+			var fromZone = from.getHours() * 60 + from.getMinutes();
+			var toZone = to.getHours() * 60 + to.getMinutes();
+			if ( toZone <= global[from.getDay()].dhx_time_block[0]["zones"][0] || global[from.getDay()].dhx_time_block[0]["zones"][1] <= fromZone ) {
+			}
+			else {
+				return false;
+			}
+			return true;
+		}
 		function checkStaffHolidayLogic(staff_cd,from,to) {
 			if (staff_cd) {
 				var timeline = scheduler._marked_timespans.timeline;
 				var tmp_st = scheduler.date.date_part(new Date(from));
 			<?php if ($this->_is_staffSetNormal() ) : ?>
 				if (timeline && timeline[staff_cd]) {
+					<?php //日付単位　?>
 					var tmp_working = timeline[staff_cd][tmp_st.valueOf()];
 					if (tmp_working) {
-						var tmp_working = tmp_working["dhx_time_block"];
-						var zones = tmp_working[0].zones;
-						if (zones) {
-							for (var k=0; k<zones.length; k += 2) {
-								var zone_start = zones[k];
-								var zone_end = zones[k+1];
-								
-								var start_date = new Date(+tmp_working[0].days + zone_start*60*1000);
-								var end_date = new Date(+tmp_working[0].days + zone_end*60*1000);
+						var tmp_working_detail = tmp_working["dhx_time_block"];
+						for(var l=0; l<tmp_working_detail.length; l++){
+
+							var zones = tmp_working_detail[l].zones;
+							if (zones) {
+								for (var k=0; k<zones.length; k += 2) {
+									var zone_start = zones[k];
+									var zone_end = zones[k+1];
+									
+									var start_date = new Date(+tmp_working_detail[l].days + zone_start*60*1000);
+									var end_date = new Date(+tmp_working_detail[l].days + zone_end*60*1000);
+								}
+								if (from <= to && start_date <= from && from <= end_date && start_date <= to && to <= end_date ) return false;
 							}
-							if (from <= to && start_date <= from && from <= end_date && start_date <= to && to <= end_date ) return false;
+
 						}
 					}
 				}
@@ -823,6 +856,11 @@ EOT3;
 					if (!confirm("<?php _e('This is temporary reservation.\nIf you will update,this reservation is completed.\nContinue?',SL_DOMAIN); ?>") ) return false;
 				}
 			<?php endif; ?>
+			<?php //ドラッグでの移動チェックはサーバ側にまかせる。こちらはチェックを入れる。そうしないとまた再入力になってしまう） ?>
+			if (! checkHolidayZone(target_day_from,target_day_to) ) {
+				alert("<?php _e("This time zones can not be reserved",SL_DOMAIN); ?>");
+				return false;
+			}
 			if ( ! checkStaffHoliday(ev,target_day_from,target_day_to) ) return false;
 			<?php	
 			//ここでuser_loginを入れておく。そうしないとここのチェックを正常になった後で、

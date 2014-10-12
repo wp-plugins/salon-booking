@@ -67,6 +67,7 @@ class Branch_Edit extends Salon_Page {
 			$res['close_time'] = $this->table_data['close_time'];
 			$res['time_step'] = $this->table_data['time_step'];
 			$res['closed'] = $this->table_data['closed'];
+			$res['memo'] = $this->table_data['memo'];
 			$res['shortcode'] = '[salon-booking branch_cd='.$this->table_data['branch_cd'].']';
 
 		}		

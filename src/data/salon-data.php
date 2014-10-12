@@ -47,7 +47,6 @@ abstract class Salon_Data {
 		if (empty($result['SALON_CONFIG_SEND_MAIL_TEXT']) ) $result['SALON_CONFIG_SEND_MAIL_TEXT'] = __("Mr/Ms {X-TO_NAME} \nPlease confirm this reservation.Click the following URL\n{X-URL}\n\n{X-SHOP_NAME}\n{X-SHOP_ADDRESS}\n{X-SHOP_TEL}\n{X-SHOP_MAIL}",SL_DOMAIN);		
 		if (empty($result['SALON_CONFIG_SEND_MAIL_TEXT_USER']) ) $result['SALON_CONFIG_SEND_MAIL_TEXT_USER'] = __("Mr/Ms {X-TO_NAME} \nThank you for the registration.\nyour User_id is {X-USER_ID},\nyour initial password is {X-PASSWORD}\n\n{X-SHOP_NAME}\n{X-SHOP_ADDRESS}\n{X-SHOP_TEL}\n{X-SHOP_MAIL}",SL_DOMAIN);
 		
-		
 		if (empty($result['SALON_CONFIG_SEND_MAIL_SUBJECT']) ) $result['SALON_CONFIG_SEND_MAIL_SUBJECT'] = __("Confirm Reservation",SL_DOMAIN);
 		if (empty($result['SALON_CONFIG_SEND_MAIL_SUBJECT_USER']) ) $result['SALON_CONFIG_SEND_MAIL_SUBJECT_USER'] = __("Your registration is completed",SL_DOMAIN);
 		
@@ -226,7 +225,6 @@ abstract class Salon_Data {
 			   ' AND branch_cd = %d  '.
 			   ' ORDER BY branch_cd,display_sequence,item_cd '
 			   ,$branch_cd);
-		
 		if ($wpdb->query($sql) === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
@@ -234,12 +232,17 @@ abstract class Salon_Data {
 			$result = $wpdb->get_results($sql,ARRAY_A);
 		}
 		//メニューは登録したけど誰も扱えない場合は、配列から消す
+		$edit_result = array();
 		if ($check_use_staff && count($result) > 0) {
 			$sql = $wpdb->prepare(' SELECT in_items '.
 			   ' FROM '.$wpdb->prefix.'salon_staff '.
 			   ' WHERE  delete_flg <> '.Salon_Reservation_Status::DELETED.
 			   ' AND branch_cd = %d  '
 			   ,$branch_cd);
+			if ( $this->config['SALON_CONFIG_MAINTENANCE_INCLUDE_STAFF'] ==  Salon_Config::MAINTENANCE_NOT_INCLUDE_STAFF) {
+				$sql .= " AND position_cd <> ".Salon_Position::MAINTENANCE;
+			}
+			
 			if ($wpdb->query($sql) === false ) {
 				$this->_dbAccessAbnormalEnd();
 			}
@@ -256,14 +259,17 @@ abstract class Salon_Data {
 					}
 				}
 			}
+			//配列のキーを消すと表示で順番がずれるのでなおす
 			foreach ($result as $k1 => $d1 ) {
-				if (!array_key_exists($d1['item_cd'],$check_array) ) {
-					unset($result[$k1]);
+				if (array_key_exists($d1['item_cd'],$check_array) ) {
+					$edit_result[] = $d1;
 				}
 			}
 		}
-		
-		return $result;
+		else {
+			$edit_result = $result;
+		}
+		return $edit_result;
 	}
 	
 	//[2014/08/06]
@@ -281,7 +287,8 @@ abstract class Salon_Data {
 			$result = $wpdb->get_results($sql,ARRAY_A);
 		}
 		$from = new DateTime($startTime);
-		$from->add(new DateInterval("PT".$result[0]['min']."M"));
+//		$from->add(new DateInterval("PT".$result[0]['min']."M"));
+		$from->modify("+".$result[0]['min']." min");
 		return $from->format('Y-m-d H:i');
 	}
 
@@ -950,12 +957,14 @@ abstract class Salon_Data {
 		$header = $this->getConfigData('SALON_CONFIG_SEND_MAIL_FROM');	
 		if (!empty($header))	$header = "from:".$header."\n";
 
-		if (function_exists( 'mb_internal_encoding' )) {
-			$header .= 'Content-Type:text/html; charset="'.mb_internal_encoding().'"';
-		}
-		else {
-			$header .= 'Content-Type:text/html;';
-		}
+//		if (function_exists( 'mb_internal_encoding' )) {
+//			$header .= 'Content-Type:text/html; charset="'.mb_internal_encoding().'"';
+//		}
+//		else {
+//			$header .= 'Content-Type:text/html;';
+//		}
+
+//		$header .= 'Content-Type: text/html\n';
 
 		add_action( 'phpmailer_init', array( &$this,'setReturnPath') );
 
@@ -982,7 +991,7 @@ abstract class Salon_Data {
 		
 
 
-		$body = '<body>'.$send_mail_text.'</body>';
+		$body = $send_mail_text;
 
 
 		$body = str_replace('{X-TO_NAME}',htmlspecialchars($name,ENT_QUOTES),$body);
@@ -995,7 +1004,8 @@ abstract class Salon_Data {
 		$body = str_replace('{X-SHOP_TEL}',htmlspecialchars($branch_datas['tel'],ENT_QUOTES),$body);
 		$body = str_replace('{X-SHOP_MAIL}',htmlspecialchars($branch_datas['mail'],ENT_QUOTES),$body);
 		
-		$body = Salon_Component::writeMailHeader().nl2br($body);
+//		$body = Salon_Component::writeMailHeader().nl2br($body);
+//		$body = nl2br($body);
 
 		return $body;
 	}

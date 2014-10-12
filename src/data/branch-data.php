@@ -13,7 +13,7 @@ class Branch_Data extends Salon_Data {
 	
 
 	public function insertTable ($table_data){
-		$branch_cd = $this->insertSql(self::TABLE_NAME,$table_data,'%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d,%s');
+		$branch_cd = $this->insertSql(self::TABLE_NAME,$table_data,'%s,%s,%s,%s,%s,%s,%d,%s,%s,%s,%d,%s,%s');
 		if ($branch_cd === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
@@ -33,6 +33,7 @@ class Branch_Data extends Salon_Data {
 						' close_time = %s , '.
 						' time_step = %d , '.
 						' closed = %s , '.
+						' memo = %s , '.
 						' update_time = %s ';
 												
 		$set_data_temp = array($table_data['name'],
@@ -46,6 +47,7 @@ class Branch_Data extends Salon_Data {
 						$table_data['close_time'],
 						$table_data['time_step'],
 						$table_data['closed'],
+						$table_data['memo'],
 						date_i18n('Y-m-d H:i:s'),
 						$table_data['branch_cd']);
 		$where_string = ' branch_cd = %d ';

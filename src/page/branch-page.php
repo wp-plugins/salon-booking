@@ -37,21 +37,14 @@ class Branch_Page extends Salon_Page {
 		var target;
 		var save_k1 = "";
 		var save_closed = "";
+		var save_closed_detail = "";
 		
 		<?php parent::echoClientItem($this->set_items); //for only_branch?>	
 		<?php Salon_Country::echoZipTable(); //for only_branch?>	
 
 		$j(document).ready(function() {
+			<?php parent::echoClosedDetail($this->branch_datas[0]['closed'],"closed_day"); ?>
 			
-			$j("#closed_day_check input[type=checkbox]").click(function(){
-				var tmp = new Array();  
-				$j("#closed_day_check input[type=checkbox]").each(function (){
-					if ( $j(this).is(":checked") ) {
-						tmp.push( $j(this).val() );
-					}
-				});
-				save_closed = tmp.join(",");
-			});
 
 			<?php parent::echoSetItemLabel(); ?>	
 			<?php Salon_Country::echoZipFunc("zip","address");	?>
@@ -79,6 +72,9 @@ class Branch_Page extends Salon_Page {
 				if ($j("#data_detail").is(":visible") ) $j("#button_detail").val("<?php _e('Hide Details',SL_DOMAIN);?>")
 				else $j("#button_detail").val("<?php _e('show detail',SL_DOMAIN); ?>");
 			});
+
+
+			<?php parent::echoClosedDetail('',"closed_day"); ?>
 
 			target = $j("#lists").dataTable({
 				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slbranch",
@@ -125,17 +121,35 @@ class Branch_Page extends Salon_Page {
 			$j("#tel").val(setData['aoData'][position[0]]['_aData']['tel']);	
 			$j("#mail").val(setData['aoData'][position[0]]['_aData']['mail']);	
 			$j("#remark").val(htmlspecialchars_decode(setData['aoData'][position[0]]['_aData']['remark']));	
-			$j("#open_time").val(setData['aoData'][position[0]]['_aData']['open_time']);
-			$j("#close_time").val(setData['aoData'][position[0]]['_aData']['close_time']);
+			$j("#open_time").val(setData['aoData'][position[0]]['_aData']['open_time']).trigger("change");
+			$j("#close_time").val(setData['aoData'][position[0]]['_aData']['close_time']).trigger("change");
 			$j("#time_step").val(setData['aoData'][position[0]]['_aData']['time_step']);
 			$j("#duplicate_cnt").val(setData['aoData'][position[0]]['_aData']['duplicate_cnt']);
 			//
 			save_closed = setData['aoData'][position[0]]['_aData']['closed'];
 			var tmp = setData['aoData'][position[0]]['_aData']['closed'].split(",");
 			$j("#closed_day_check input").attr("checked",false);
+			<?php //[2014/10/01]半休対応 ?>			
+			save_closed_detail = setData['aoData'][position[0]]['_aData']['memo'];
+			if (save_closed_detail == "MEMO" ) save_closed_detail = "";
+			var tmp_detail = save_closed_detail.split(";");
+
 			for (var i=0; i < tmp.length; i++) {
 				$j("#closed_day_"+tmp[i]).attr("checked",true);
+				var tmp_time_array = Array();
+				if (tmp_detail[i]) {
+					tmp_time_array = tmp_detail[i].split(",");
+				}
+				else {
+					tmp_time_array[0] = "<?php echo $this->branch_datas[0]['open_time']; ?>";
+					tmp_time_array[1] = "<?php echo $this->branch_datas[0]['close_time']; ?>";
+				}
+				$j("#closed_day_"+tmp[i]+"_fr").val(tmp_time_array[0].slice(0,2)+":"+tmp_time_array[0].slice(-2));
+				$j("#closed_day_"+tmp[i]+"_to").val(tmp_time_array[1].slice(0,2)+":"+tmp_time_array[1].slice(-2));
+				$j("#sl_holiday_detail_wrap_"+tmp[i]).show();
+				
 			}
+			
 			
 			$j("#display_shortcode").val(setData['aoData'][position[0]]['_aData']['shortcode']);
 			
@@ -158,6 +172,9 @@ class Branch_Page extends Salon_Page {
 			var cl = $j("#close_time").val();
 			if (!_fnCheckTimeStep(+$j("#time_step").val(),cl.slice(-2) ) ) return false;
 
+			<?php //半休対応　?>
+			if (!_fnCheckClosedDetail(+$j("#time_step").val()) ) return false;
+			$j(".sl_from").triggerHandler("change");
 
 			var item_cd = "";
 			var branch_cd = "";
@@ -166,7 +183,10 @@ class Branch_Page extends Salon_Page {
 				branch_cd = setData['aoData'][save_k1]['_aData']['branch_cd']; 				
 			}
 			var closed = "";
-<?php //グローバル変数 target はどうにかならん？ ?>
+
+
+
+
 			 $j.ajax({
 				 	type: "post",
 					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slbranch", 
@@ -187,6 +207,7 @@ class Branch_Page extends Salon_Page {
 						"time_step":$j("#time_step").val(),
 						"closed":save_closed,
 						"remark":$j("#remark").val(),
+						"memo":save_closed_detail,
 						"menu_func":"Branch_Edit",
 						"nonce":"<?php echo $this->nonce; ?>",
 						"duplicate_cnt":$j("#duplicate_cnt").val()
@@ -235,7 +256,7 @@ class Branch_Page extends Salon_Page {
 
 	<?php parent::echoCheckClinet(array('chk_required','zenkaku','chkZip','chkTel','chkMail','chkTime','chkDate','lenmax','range','reqCheck','num')); ?>		
 	<?php parent::echoColumnCheck(array('chk_required','lenmax')); ?>		
-
+	<?php parent::echoClosedDetailCheck(); ?>
 	
 	</script>
 

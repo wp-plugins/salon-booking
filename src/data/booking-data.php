@@ -26,7 +26,7 @@ class Booking_Data extends Salon_Data {
 				'     AND in_time <= %s '.
 				'     AND st.branch_cd = %d '.
 				'     AND st.staff_cd = wk.staff_cd '.
-				' ORDER BY in_time,wk.staff_cd ';
+				' ORDER BY wk.staff_cd,in_time ';
 		$result = $wpdb->get_results(
 					$wpdb->prepare($sql,$day_from,$day_to,$target_branch_cd),ARRAY_A);
 		if ($result === false ) {

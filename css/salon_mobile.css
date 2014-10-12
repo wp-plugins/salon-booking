@@ -34,6 +34,8 @@
 		padding:12px 0 8px 0;
 		text-align:center;
 		text-decoration:none;
+		z-index:9999;
+		
 	}
 	
 	.slm_tran_button {
@@ -71,8 +73,8 @@
 	}
 	
 	.slm_main_line img 	{
-		height:50px;
-		width:50px;
+		height:auto;
+		width:auto;
 	}
 	
 	.slm_main_line li {
@@ -89,15 +91,19 @@
 	}
 	
 	.slm_first_li {
+		margin:0px;
+		padding:0px;
 		width:50px;
 	}
 	
+	.slm_time_li {
+		margin:0px;
+		padding:0px;
+	}
 	.slm_noimg {
 		display:block;
 		font-size:9px;
-		height:46px;
 		text-align:center;
-		width:46px;
 	}
 	
 	

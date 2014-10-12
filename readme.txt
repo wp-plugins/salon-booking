@@ -3,7 +3,7 @@ Contributors: kuu(Tanaka Hisao)
 Tags: hair salon,salon,appointment,booking,beauty apps,reservation,dental clinic,hospital,mutilingual,散髪予約,美容院予約,美容室予約,サロン予約,エステ予約,予約システム,予約管理
 Requires at least: 3.8
 Tested up to: 4.0
-Stable tag: 1.4.9
+Stable tag: 1.4.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,6 +122,18 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 5. 管理画面（出退勤）
 
 == Changelog ==
+= 1.4.10 =
+* バグ: 誰も扱えないメニューを一覧から消す論理の誤り  
+* バグ: スマートフォン画面でのクーポン選択の不具合  
+* バグ: メールのタイトルが変更できない  
+* 変更: 実績画面で一覧にスタッフ名を表示  
+* 変更: 出退勤の変則勤務時間をBOOKINGの登録に反映  
+* 変更: UPLOADディレクトリを755へ  
+* 変更: メニューの所要時間を10分単位に10分から240分までに  
+* 変更: date.getTimeStamp,addをやめ  
+* 変更: メールをtext形式に  
+
+
 = 1.4.9 =
 * バグ: クーポンなしでの登録エラー  
 * バグ: 保守管理者なし指定での、スタッフセレクトの表示  

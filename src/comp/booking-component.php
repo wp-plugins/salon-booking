@@ -52,7 +52,7 @@ class Booking_Component {
 		}
 		return $edit_result;
 	}
-	public function editWorkingData($branch_cd) {
+	public function editWorkingData($branch_cd, $branch_datas)  {
 		$day_from = Salon_Component::computeDate(-1 * $this->datas->getConfigData('SALON_CONFIG_BEFORE_DAY'));
 		$day_to = Salon_Component::computeDate( $this->datas->getConfigData('SALON_CONFIG_AFTER_DAY'));
 		$result = $this->datas->getWorkingDataByBranchCd($branch_cd ,$day_from,$day_to);
@@ -65,7 +65,31 @@ class Booking_Component {
 			$working_cds = explode( ',',$d1['working_cds']);
 			if ($is_normal_patern ) {
 				if (in_array(Salon_Working::DAY_OFF,$working_cds) ){
-					$result_after[$d1['day']][$d1['staff_cd']] = $d1;
+//					$result_after[$d1['day']][$d1['staff_cd']] = $d1;
+					$result_after[$d1['day']][] = $d1;
+				}
+				elseif ( in_array(Salon_Working::USUALLY,$working_cds) ||
+						in_array(Salon_Working::HOLIDAY_WORK,$working_cds)  ||
+						in_array(Salon_Working::LATE_IN,$working_cds)  ||
+						in_array(Salon_Working::EARLY_OUT,$working_cds)	) {
+					//開店時間より前に出勤するや閉店時間より後に退勤する場合
+					$op = +substr($branch_datas['open_time'],-4);
+					$cl = +substr($branch_datas['close_time'],-4);
+					$fr = +substr($d1['in_time'],-4);
+					$to = +substr($d1['out_time'],-4);
+					if ($fr > $op ) {
+						$tmp_1 = $d1;
+						$tmp_1['out_time'] = $tmp_1['in_time'];
+						$tmp_1['in_time'] = $tmp_1['day'].$branch_datas['open_time'];
+						$result_after[$d1['day']][] = $tmp_1;
+					}
+					if ($to <  $cl ) {
+						$tmp_2 = $d1;
+						$tmp_2['in_time'] = $tmp_2['out_time'];
+						$tmp_2['out_time'] = $tmp_1['day'].$branch_datas['close_time'];
+						$result_after[$d1['day']][] = $tmp_2;
+					}
+
 				}
 			}
 			else {
@@ -151,12 +175,13 @@ class Booking_Component {
 			if (!empty($header))	$header = "from:".$header."\n";
 
 			
-			if (function_exists( 'mb_internal_encoding' )) {
-				$header .= 'Content-Type:text/html; charset="'.mb_internal_encoding().'"';
-			}
-			else {
-				$header .= 'Content-Type:text/html;';
-			}
+//			if (function_exists( 'mb_internal_encoding' )) {
+//				$header .= 'Content-Type:text/html; charset="'.mb_internal_encoding().'"';
+//			}
+//			else {
+//				$header .= 'Content-Type:text/html;';
+//			}
+//			$header .= 'Content-Type: text/html\n';
 
 			add_action( 'phpmailer_init', array( &$this,'setReturnPath') );
 			
@@ -180,9 +205,11 @@ class Booking_Component {
 		$page = get_option('salon_confirm_page_id');
 		$send_mail_text = $this->datas->getConfigData('SALON_CONFIG_SEND_MAIL_TEXT');
 		
-		$body = '<body>'.$send_mail_text.'</body>';
+//		$body = '<body>'.$send_mail_text.'</body>';
+		$body = $send_mail_text;
 
-		$url = sprintf('<a href="%s/?page_id=%d&P1=%d&P2=%s" >'.__('to confirmed reservation form',SL_DOMAIN).'</a>',$url,intval($page),intval($reservation_cd),$activate_key);
+//		$url = sprintf('<a href="%s/?page_id=%d&P1=%d&P2=%s" >'.__('to confirmed reservation form',SL_DOMAIN).'</a>',$url,intval($page),intval($reservation_cd),$activate_key);
+		$url = sprintf('%s/?page_id=%d&P1=%d&P2=%s',$url,intval($page),intval($reservation_cd),$activate_key);
 
 
 		$body = str_replace('{X-TO_NAME}',htmlspecialchars($name,ENT_QUOTES),$body);
@@ -194,7 +221,8 @@ class Booking_Component {
 		$body = str_replace('{X-SHOP_TEL}',htmlspecialchars($branch_datas['tel'],ENT_QUOTES),$body);
 		$body = str_replace('{X-SHOP_MAIL}',htmlspecialchars($branch_datas['mail'],ENT_QUOTES),$body);
 		
-		$body = Salon_Component::writeMailHeader().nl2br($body);
+//		$body = Salon_Component::writeMailHeader().nl2br($body);
+//		$body = nl2br($body);
 		
 		return $body;
 

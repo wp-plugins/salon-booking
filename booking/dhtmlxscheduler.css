@@ -462,6 +462,10 @@ div.dhx_modal_cover {
 /*[hisa]*/
 	line-height:1.71429;
 }
+.dhx_cal_event .dhx_body {
+/*[hisa]*/
+	box-sizing:unset;
+}
 .dhx_resize_denied, .dhx_resize_denied .dhx_event_resize {
 	cursor:default !important;
 }
@@ -1578,6 +1582,7 @@ input.dhx_repeat_checkbox {
 	text-align: center;
 	font-size: 24px;
 	color: #e2b8ac;
+	overflow : hidden;
 }
 .on_business {
 	background-color: #669966;

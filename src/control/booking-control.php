@@ -47,13 +47,13 @@ class Booking_Control extends Salon_Control  {
 		$this->pages->set_isSalonAdmin($this->datas->isSalonAdmin($user_login,$role));
 
 		if ($this->action_class == 'BookingFront_Page' ) {
-			
-			$this->pages->set_branch_datas($this->datas->getBranchData($this->branch_cd));
+			$branch_datas = $this->datas->getBranchData($this->branch_cd);
+			$this->pages->set_branch_datas($branch_datas);
 			$this->pages->set_item_datas($this->datas->getTargetItemData($this->branch_cd,true,true));
 
 			$this->pages->set_staff_datas($this->comp->getTargetStaffData($this->branch_cd));
 			$this->pages->set_config_datas($this->datas->getConfigData());
-			$this->pages->set_working_datas($this->comp->editWorkingData($this->branch_cd));
+			$this->pages->set_working_datas($this->comp->editWorkingData($this->branch_cd,$branch_datas));
 			$this->pages->set_role($role);
 			
 			$this->pages->set_promotion_datas($this->comp->editPromotionData($this->branch_cd));

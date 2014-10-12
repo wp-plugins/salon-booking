@@ -51,7 +51,8 @@ class Promotion_Component {
 			$to = strtotime($set_data['valid_to']);
 			$limit_time = new DateTime(date_i18n('Y-m-d'));
 			//今日より前は登録できない
-			if ($limit_time->getTimestamp() > $to ) {
+//			if ($limit_time->getTimestamp() > $to ) {
+			if (+$limit_time->format('U') > $to ) {
 				throw new Exception(Salon_Component::getMsg('E305',$set_data['set_code']),1);
 			}
 		}

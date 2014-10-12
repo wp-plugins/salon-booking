@@ -39,7 +39,8 @@ class Basic_Page extends Salon_Page {
 		var $j = jQuery
 		var is_show_detail = true;
 		var save_closed = "<?php echo $this->branch_datas['closed']; ?>";
-		
+		var save_closed_detail = "<?php echo $this->branch_datas['memo']; ?>";
+		if (save_closed_detail == "MEMO" ) save_closed_detail = "";
 
 		var target;
 		
@@ -47,7 +48,9 @@ class Basic_Page extends Salon_Page {
 		<?php parent::set_datepicker_date($this->current_user_branch_cd,null ,unserialize($this->branch_datas['sp_dates'])); ?>
 
 		$j(document).ready(function() {
-			
+			<?php //initより前で。トリガーがきかない ?>
+			<?php parent::echoClosedDetail($this->branch_datas['closed'],"closed_day"); ?>
+
 			$j("#salon_button_div input[type=button]").addClass("sl_button");
 			<?php parent::echoSetItemLabel(); ?>	
 
@@ -72,15 +75,6 @@ class Basic_Page extends Salon_Page {
 
 			});
 
-			$j("#closed_day_check input[type=checkbox]").click(function(){
-				var tmp = new Array();  
-				$j("#closed_day_check input[type=checkbox]").each(function (){
-					if ( $j(this).is(":checked") ) {
-						tmp.push( $j(this).val() );
-					}
-				});
-				save_closed = tmp.join(",");
-			});
 
 			$j("#button_redisplay").click(function() {
 				target.fnClearTable();					
@@ -89,7 +83,6 @@ class Basic_Page extends Salon_Page {
 				fnDetailInit();	
 			});
 
-	
 
 			
 			target = $j("#lists").dataTable({
@@ -193,6 +186,7 @@ class Basic_Page extends Salon_Page {
 		}
 		
 		<?php parent::echoTime25Check(); ?>		
+		<?php parent::echoClosedDetailCheck(); ?>
 		
 		function fnClickUpdate() {
 <?php			//sp_dateはここではチェックしない。他の画面とはちとちがう ?>
@@ -203,7 +197,10 @@ class Basic_Page extends Salon_Page {
 			var cl = $j("#close_time").val();
 			if (!_fnCheckTimeStep(+$j("#time_step").val(),cl.slice(-2) ) ) return false;
 						
-			
+			<?php //半休対応　?>
+			if (!_fnCheckClosedDetail(+$j("#time_step").val()) ) return false;
+			$j(".sl_from").triggerHandler("change");
+
 			$j.ajax({
 				 	type: "post",
 					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slbasic",
@@ -216,17 +213,21 @@ class Basic_Page extends Salon_Page {
 						"time_step":$j("#time_step").val(),
 						"target_branch_cd":<?php echo $this->current_user_branch_cd; ?>,
 						"duplicate_cnt":$j("#duplicate_cnt").val(),
+						"memo":save_closed_detail,
 						"nonce":"<?php echo $this->nonce; ?>",
 						"menu_func":"Basic_Edit"
 					},
 
 					success: function(data) {
-						fnDetailInit(true);
+						
 						if (data.status == "Error" ) {
+							fnDetailInit(true);
 							alert(data.message);
 							return false;
 						}
 						else {
+							save_closed_detail = data.set_data.memo;
+							fnDetailInit(true);
 							alert(data.message);
 						}
 					},
@@ -250,7 +251,29 @@ class Basic_Page extends Salon_Page {
 			}
 			$j("#button_update").attr("disabled", false);
 			$j("#sp_date_radio_close").attr("checked","checked");
+			<?php //[2014/10/01]半休対応 ?>			
+			var tmp = save_closed.split(",");
+			var tmp_detail = save_closed_detail.split(";");
+			$j("#closed_day_check input").attr("checked",false);
+			for (var i=0; i < tmp.length; i++) {
+				$j("#closed_day_"+tmp[i]).attr("checked",true);
+				var tmp_time_array = Array();
+				if (tmp_detail[i]) {
+					tmp_time_array = tmp_detail[i].split(",");
+				}
+				else {
+					tmp_time_array[0] = "<?php echo $this->branch_datas['open_time']; ?>";
+					tmp_time_array[1] = "<?php echo $this->branch_datas['close_time']; ?>";
+				}
+				$j("#closed_day_"+tmp[i]+"_fr").val(tmp_time_array[0].slice(0,2)+":"+tmp_time_array[0].slice(-2));
+				$j("#closed_day_"+tmp[i]+"_to").val(tmp_time_array[1].slice(0,2)+":"+tmp_time_array[1].slice(-2));
+				
+				$j("#sl_holiday_detail_wrap_"+tmp[i]).show();
+			}
+
 			<?php parent::echo_clear_error(); ?>
+			
+			
 
 		}
 

@@ -38,6 +38,7 @@ class Basic_Data extends Salon_Data {
 						' time_step = %d , '.
 						' closed = %s , '.
 						' duplicate_cnt = %d , '.
+						' memo = %s , '.
 						' update_time = %s ';
 												
 		$set_data_temp = array(
@@ -46,6 +47,7 @@ class Basic_Data extends Salon_Data {
 						$table_data['time_step'],
 						$table_data['closed'],
 						$table_data['duplicate_cnt'],
+						$table_data['memo'],
 						date_i18n('Y-m-d H:i:s'),
 						$table_data['branch_cd']);
 		$where_string = ' branch_cd = %d ';

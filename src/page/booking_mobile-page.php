@@ -25,7 +25,7 @@
 				$tmp='<sapn class="slm_noimg" >'.htmlspecialchars($d1['name'],ENT_QUOTES).'</span>';
 			}
 			else {
-				$tmp = "<img src='".$d1['photo_result'][0]['photo_resize_path']."' alt='' /></a>";
+				$tmp = "<img src='".$d1['photo_result'][0]['photo_resize_path']."'  /></a>";
 				$url = site_url();
 				$url = substr($url,strpos($url,':')+1);
 				$url = str_replace('/','\/',$url);
@@ -113,13 +113,6 @@
 
 			<?php parent::echoSetHolidayMobile($this->branch_datas,$this->working_datas,$this->target_year,$this->first_hour);	?>
 			
-			$j("#slm_page_login").hide();
-			$j("#slm_page_regist").hide();
-			var top = 	$j("#slm_main_data").outerHeight()	- $j("#slm_holiday").css("font-size").toLowerCase().replace("px","");
-			$j("#slm_holiday").css("padding-top",top / 2 + "px");
-			$j("#slm_holiday").height($j("#slm_main_data").outerHeight()- (top/2));			
-			$j("#slm_holiday").width($j("#slm_main_data").outerWidth());	
-			$j("#slm_holiday").hide();
 			
 			$j("#slm_exec_login").click(function(){
 				
@@ -256,12 +249,17 @@
 				}
 			?>
 
+
+
 			AutoFontSize();
 			<?php /*?>ヘッダがどんなかわからないのでいちづけとく<?php */?>
 			top_pos = $j("#slm_main").offset().top;
 			bottom_pos = top_pos + $j("#slm_main").height();
 			$j("html,body").animate({ scrollTop: top_pos }, 'fast');
 			
+			$j("#slm_page_login").hide();
+			$j("#slm_page_regist").hide();
+			$j("#slm_holiday").hide();
 			setDayData(today);
 			
 		});
@@ -353,27 +351,50 @@
 			$j(".slm_staff_holiday").remove();
 			
 			$j("#slm_searchdays").text(slmSchedule.config.day_full[tmpDate.getDay()]);
+
+<?php			//予約の部分でも使用 ?>
+			var each5 = $j("#slm_main_data ul li:nth-child(2)").outerWidth()/12;
+				<?php //marginとline分として2加算　?>
+			var left_start = $j("#slm_main_data ul li:first-child").outerWidth()+2;
+
+<?php			//各liの幅が異なるので配列で ?>
+
+			var tmp_width = Array();
+			$j("#slm_main_data ul:nth-child(1) li.slm_time_li").each(function(){
+				tmp_width.push($j(this).outerWidth());
+			});
+			var setWidth = tmp_width.join(",");
+			slmSchedule.setWidth(setWidth);
+
 <?php			//休みだったら ?>
 			if (slmSchedule.chkHoliday(tmpDate) ) {
+				var top = 	$j("#slm_main_data").outerHeight()	- $j("#slm_holiday").css("font-size").toLowerCase().replace("px","");
+				$j("#slm_holiday").css("padding-top",top / 2 + "px");
+				$j("#slm_holiday").height($j("#slm_main_data").outerHeight()- (top/2));			
+				$j("#slm_holiday").css("left",slmSchedule.getLeft(tmpDate,left_start,each5));	
+				$j("#slm_holiday").width(slmSchedule.getWidth(tmpDate,each5));	
 				$j("#slm_holiday").show();
-				$j("#slm_regist_button").hide();
-				return;
+				if (slmSchedule.chkFullHoliday(tmpDate) ) {
+					$j("#slm_regist_button").hide();
+					return;
+				}
+				else {
+					$j("#slm_regist_button").show();
+				}
 			}
 			else {
 				$j("#slm_holiday").hide();
 				$j("#slm_regist_button").show();
 			}
-			//予約の部分でも使用
-			var each15 = $j("#slm_main_data ul li:nth-child(2)").outerWidth()/4;
-			var left_start = $j("#slm_main_data ul li:first-child").outerWidth();
 						
-			//スタッフの出退勤
+<?php			//スタッフの出退勤 ?>
 			if (slmSchedule.config.staff_holidays[yyyymmdd] ) {
 				for(var staff_cd_h in slmSchedule.config.staff_holidays[yyyymmdd]) {
 					var tmpH = slmSchedule.config.staff_holidays[yyyymmdd][staff_cd_h];
 					for(var seqH in tmpH ) {
-						var left =  Math.floor(each15 * tmpH[seqH][0] + left_start);
-						var width = Math.floor(each15 * tmpH[seqH][1]);
+						var left =  Math.floor(each5 * tmpH[seqH][0] + left_start);
+						//var width = Math.floor(each5 * tmpH[seqH][1]);
+						var width = slmSchedule.calcWidthBase(tmpH[seqH][0] ,tmpH[seqH][1]);
 						var height = $j("#slm_st_" + staff_cd_h).outerHeight();
 						var fromH = tmpH[seqH][2].substr(0,2);
 						var setH = '<div class="<?php echo $staff_holiday_class; ?> slm_staff_holiday" style="position:absolute; top:0px; height: '+height+'px; left:'+left+'px; width:'+width+'px;"><?php echo $staff_holiday_set; ?><div style="display:none">'+staff_cd_h+':'+fromH+'</div></div>';
@@ -384,7 +405,7 @@
 			}
 <?php //couponの組立 ?>
 			if (isNeedToCheckPromotionDate ) {
-				$j("#coupon option").remove();
+				$j("#coupon").remove();
 				var target = yyyymmdd;
 				var cn = '<select id="coupon" name="coupon" class="slm_sel"><option value="">'+"<?php _e('select please',SL_DOMAIN); ?>"+'</option>';
 				for(var id in promotions) {
@@ -397,6 +418,10 @@
 						}
 					}
 				}
+				$j("#coupon_wrap").html(cn);
+				$j("#coupon").change(function () {
+					fnUpdateEndTime();
+				});
 				
 			}
 			
@@ -413,7 +438,6 @@
 				return;		//抜けてデータを取ってきたらもう一度
 			}
 
-
 			for(var seq0 in slmSchedule._daysStaff[yyyymmdd]["d"]){
 				for(var staff_cd in slmSchedule._daysStaff[yyyymmdd]["d"][seq0]){
 					var base=+slmSchedule._daysStaff[yyyymmdd]["d"][seq0][staff_cd]["s"];
@@ -423,8 +447,8 @@
 						for(var level in slmSchedule._daysStaff[yyyymmdd]["d"][seq0][staff_cd]["d"][seq1]) {
 							var tmpb = slmSchedule._daysStaff[yyyymmdd]["d"][seq0][staff_cd]["d"][seq1][level]["b"];
 							var tmpd = slmSchedule._daysStaff[yyyymmdd]["d"][seq0][staff_cd]["d"][seq1][level]["d"];
-							var left =  Math.floor(each15 * tmpb[0] + left_start);
-							var width = Math.floor(each15 * tmpb[1]);
+							var left =  Math.floor(each5 * tmpb[0] + left_start);
+							var width = Math.floor(each5 * tmpb[1]);
 							var top = (+level) * height;
 							var eid = 'slm_event_'+staff_cd+'_'+tmpb[2];
 							slmSchedule._events[tmpb[2]]={"staff_cd":staff_cd,"from":tmpb[3],"to":tmpb[4]};
@@ -497,15 +521,21 @@
 
 
 		function AutoFontSize(){
+<?php 	//小さくする場合に必要	?>
 			var each = $j("#slm_main_data ul li:nth-child(2)").outerWidth();
-<?php /*?>//each=9;<?php */?>		
-			var fpar = Math.floor(each/<?php echo ($this->last_hour-$this->first_hour) +1  ?> /2*100);
-<?php /*?>			
-			//12pxでCSSを定義しているので
-			//var fpar = (Math.floor((wpx)/(1500/100)));// 横幅px ÷ (最少幅px/100)
-<?php */?>
-			$j(".slm_main_line li").css("font-size",fpar+"%");
-			$j(".slm_main_line li:first-child").css("font-size","100%");
+			var fpar = Math.floor(each/<?php echo ($this->last_hour-$this->first_hour) +1 ?> /2*100);
+<?php			//12pxでCSSを定義している。縮小のみ拡大するとずれる？ ?>
+			if (fpar < 100 ) 
+				$j(".slm_main_line li.slm_time_li").css("font-size",fpar+"%");
+
+			$j(".slm_first_li").each(function(){
+				if ($j(this).height() < $j(this).width()) {
+					$j(this).height($j(this).width());
+				}
+			});
+
+
+//			$j(".slm_main_line li:first-child").css("font-size","100%");
 		}
 
 		function _GetEvent(targetDay) {
@@ -684,7 +714,8 @@
         <div id="slm_main_data" class="slm_line slm_main_line">
             <?php
             foreach ($edit_staff as $k1 => $d1) {
-                echo "<ul id=\"slm_st_{$k1}\"><li class=\"slm_first_li\">".$d1['img'].'</li>';
+
+                echo "<ul id=\"slm_st_{$k1}\"><li class=\"slm_first_li\"  >".$d1['img'].'</li>';
                 for($i = +$this->first_hour ; $i < $this->last_hour ; $i++ ) {
                     
                     echo '<li class="slm_time_li"><span>'.sprintf("%02d",$i).'</span></li>';

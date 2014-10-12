@@ -16,6 +16,8 @@ class Mail_Component {
 	public function editTableData () {
 		$set_data['SALON_CONFIG_SEND_MAIL_TEXT'] = stripslashes($_POST['config_mail_text']);
 		$set_data['SALON_CONFIG_SEND_MAIL_TEXT_USER'] = stripslashes($_POST['config_mail_text_user']);
+		$set_data['SALON_CONFIG_SEND_MAIL_SUBJECT'] = stripslashes($_POST['config_mail_subject']);
+		$set_data['SALON_CONFIG_SEND_MAIL_SUBJECT_USER'] = stripslashes($_POST['config_mail_subject_user']);
 		$set_data['SALON_CONFIG_SEND_MAIL_FROM'] = stripslashes($_POST['config_mail_from']);
 		$set_data['SALON_CONFIG_SEND_MAIL_RETURN_PATH'] = stripslashes($_POST['config_mail_returnPath']);
 

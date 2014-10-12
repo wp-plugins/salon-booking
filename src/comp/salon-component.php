@@ -252,8 +252,10 @@ class Salon_Component {
 				//fromは指定分以降より後
 				$from = strtotime($set_data['time_from']);
 				$limit_time = new DateTime(date_i18n('Y-m-d H:i'));
-				$limit_time->add(new DateInterval("PT".$datas->getConfigData('SALON_CONFIG_RESERVE_DEADLINE')."M"));
-				if ($limit_time->getTimestamp() > $from) {
+//				$limit_time->add(new DateInterval("PT".$datas->getConfigData('SALON_CONFIG_RESERVE_DEADLINE')."M"));
+				$limit_time->modify("+".$datas->getConfigData('SALON_CONFIG_RESERVE_DEADLINE')." min");
+//				if ($limit_time->getTimestamp() > $from) {
+				if (+$limit_time->format('U') > $from) {
 					throw new Exception(self::getMsg('E901', basename(__FILE__).':'.__LINE__),1);
 				}
 			}
@@ -283,7 +285,7 @@ class Salon_Component {
 			$result_branch = $wpdb->get_results(
 						$wpdb->prepare(
 							' SELECT  '.
-							' duplicate_cnt,closed,sp_dates '.
+							' duplicate_cnt,closed,sp_dates,memo,open_time,close_time '.
 							' FROM '.$wpdb->prefix.'salon_branch '.
 							'   WHERE branch_cd = %d  ',
 							$set_data['branch_cd']
@@ -303,45 +305,102 @@ class Salon_Component {
 			}
 			else {
 				$holidays = explode(',',$result_branch[0]['closed']);
-				if (in_array(salon_component::getDayOfWeek($set_data['time_from']),$holidays) ) {
-					throw new Exception(self::getMsg('E901',basename(__FILE__).':'.__LINE__),1);
-				}
-			}
-			if  ($set_data['staff_cd'] !=  Salon_Default::NO_PREFERENCE ) {
-				//スタッフの休みのチェック 該当時間のスタッフの状態を取得
-				$sql =	' SELECT working_cds '.
-						' FROM '.$wpdb->prefix.'salon_working wk '.
-						'   WHERE ((in_time <= %s AND %s <= out_time ) '.
-						'     OR   (in_time <= %s AND %s <= out_time ) )'.
-						'     AND staff_cd = %d ';
-				$sql  = $wpdb->prepare($sql,$set_data['time_from'],$set_data['time_from'],$set_data['time_to'],$set_data['time_to'],$set_data['staff_cd']);
-				if ($wpdb->query($sql) === false ) {
-					$datas->_dbAccessAbnormalEnd();
-				}
-				else {
-					$result = $wpdb->get_results($sql,ARRAY_A);					
-				}
-				if (count($result) > 0 ) {
-					$working_cds = explode( ',',$result[0]['working_cds']);
-					if ($datas->getConfigData('SALON_CONFIG_STAFF_HOLIDAY_SET') == Salon_Config::SET_STAFF_NORMAL ) {
-						if (in_array(Salon_Working::DAY_OFF,$working_cds) ) {
-							throw new Exception(__('today this staff can not be reserved ',SL_DOMAIN),1);
-						}
+				$holidays_detail = explode(';',$result_branch[0]['memo']);
+				
+				$set_holiday = salon_component::getDayOfWeek($set_data['time_from']);
+				
+				if (in_array($set_holiday,$holidays)  ) {
+					$idx = array_search($set_holiday,$holidays);
+					if ($idx === false) {
+						throw new Exception(self::getMsg('E901',basename(__FILE__).':'.__LINE__));
+					}
+					$holiday_time = explode(",",$holidays_detail[$idx]);
+					$holiday_in_time = +str_replace(':','',$holiday_time[0]);
+					$holiday_out_time = +str_replace(':','',$holiday_time[1]);
+					
+					$in_time = +str_replace(':','',substr($set_data['time_from'],-5));
+					$out_time = +str_replace(':','',substr($set_data['time_to'],-5));
+					//休みの時間の中にはいっていてはいけない
+					if ($out_time <= $holiday_in_time || $holiday_out_time <= $in_time ) {
 					}
 					else {
+						throw new Exception(self::getMsg('E213',basename(__FILE__).':'.__LINE__),1);
+					}
+				}
+			}
+			//予約が営業時間内に収まっているか？
+			$in_time = +str_replace(':','',substr($set_data['time_from'],-5));
+			$out_time = +str_replace(':','',substr($set_data['time_to'],-5));
+			if (+$result_branch[0]['open_time'] > $in_time  ||  $out_time > +$result_branch[0]['close_time'] ) {
+				throw new Exception(self::getMsg('E213',basename(__FILE__).':'.__LINE__),1);
+			}
+			
+			if  ($set_data['staff_cd'] !=  Salon_Default::NO_PREFERENCE ) {
+				if ($datas->getConfigData('SALON_CONFIG_STAFF_HOLIDAY_SET') == Salon_Config::SET_STAFF_NORMAL ) {
+					//スタッフの休みのチェック その日のスタッフの全データを取得
+					$sql =	' SELECT working_cds, '.
+							' DATE_FORMAT(in_time,"%%H%%i") as in_time,'.
+							' DATE_FORMAT(out_time,"%%H%%i") as out_time '.
+							' FROM '.$wpdb->prefix.'salon_working wk '.
+							'   WHERE %s <= in_time   AND  out_time <= %s '.
+							'     AND staff_cd = %d ';
+					$sql  = $wpdb->prepare($sql,substr($set_data['time_from'],0,10),substr($set_data['time_from'],0,10)." 23:59",$set_data['staff_cd']);
+					if ($wpdb->query($sql) === false ) {
+						$datas->_dbAccessAbnormalEnd();
+					}
+					else {
+						$result = $wpdb->get_results($sql,ARRAY_A);					
+					}
+					if (count($result) > 0 ) {
+						$in_time = +str_replace(':','',substr($set_data['time_from'],-5));
+						$out_time = +str_replace(':','',substr($set_data['time_to'],-5));
+						foreach($result as $k1 => $d1 ) {
+							$working_cds = explode( ',',$d1['working_cds']);
+							//休みの場合は、指定時間が休みの時間に入っていてはいけない
+							if (in_array(Salon_Working::DAY_OFF,$working_cds) ) {
+								if ($out_time > +$result[0]['in_time'] && +$result[0]['out_time'] >  $in_time  ){
+									throw new Exception(__('this staff can not be reserved in this time range',SL_DOMAIN),__LINE__);
+								}
+							}
+							//逆に勤務状態だったら時間帯に入っていること。早退・遅刻でも通常かHOLIDAYはworking登録時に設定
+							elseif ( in_array(Salon_Working::USUALLY,$working_cds) ||
+									in_array(Salon_Working::HOLIDAY_WORK,$working_cds) 	) {
+								if (+$result[0]['in_time'] > $in_time || $out_time > +$result[0]['out_time'] ) {
+									throw new Exception(__('this staff can not be reserved in this time range',SL_DOMAIN),__LINE__);
+								}
+							}
+						}
+					}
+				}
+				else {
+					//スタッフの休みのチェック 該当時間のスタッフの状態を取得
+					$sql =	' SELECT working_cds, '.
+							' DATE_FORMAT(in_time,"%%H%%i") as in_time,'.
+							' DATE_FORMAT(out_time,"%%H%%i") as out_time '.
+							' FROM '.$wpdb->prefix.'salon_working wk '.
+							'   WHERE ((in_time <= %s AND %s <= out_time ) '.
+							'     OR   (in_time <= %s AND %s <= out_time ) )'.
+							'     AND staff_cd = %d ';
+					$sql  = $wpdb->prepare($sql,$set_data['time_from'],$set_data['time_from'],$set_data['time_to'],$set_data['time_to'],$set_data['staff_cd']);
+					if ($wpdb->query($sql) === false ) {
+						$datas->_dbAccessAbnormalEnd();
+					}
+					else {
+						$result = $wpdb->get_results($sql,ARRAY_A);					
+					}
+					if (count($result) > 0 ) {
+						$working_cds = explode( ',',$result[0]['working_cds']);
 						//出勤時間ならＯＫ
 						if ( ! in_array(Salon_Working::USUALLY,$working_cds) &&
 							! in_array(Salon_Working::HOLIDAY_WORK,$working_cds)){
-							throw new Exception(__('this staff can not be reserved in this time range',SL_DOMAIN),1);
+							throw new Exception(__('this staff can not be reserved in this time range',SL_DOMAIN),__LINE__);
 						}
 					}
-				}
-				else {
-					if ($datas->getConfigData('SALON_CONFIG_STAFF_HOLIDAY_SET') == Salon_Config::SET_STAFF_REVERSE ) {
-							throw new Exception(__('this staff can not be reserved in this time range',SL_DOMAIN),1);
+					else {
+						throw new Exception(__('this staff can not be reserved in this time range',SL_DOMAIN),__LINE__);
 					}
 				}
-
+				
 				$sql = 	$wpdb->prepare(
 								' SELECT  '.
 								' duplicate_cnt,in_items '.
@@ -433,25 +492,26 @@ class Salon_Component {
 
 	}
 	static function writeMailHeader() {
-		$charset = '';
-		if (function_exists( 'mb_internal_encoding' )) {
-			$charset = 'charset="'.mb_internal_encoding().'"';
-		}
-		return '<!DOCTYPE HTML PUBLIC
-			 "-//W3C//DTD HTML 4.01 Transitional//EN">
-			<html lang="ja">
-			<head>
-			  <meta http-equiv="Content-Language"
-				content="ja">
-			  <meta http-equiv="Content-Type"
-				content="text/html; '.$charset.'>
-			  <title></title>
-			  <meta http-equiv="Content-Style-Type"
-				content="text/css">
-			  <style type="text/css"><!--
-				body{margin:0;padding:0;}
-			  --></style>
-			</head>	';
+		return "";
+//		$charset = '';
+//		if (function_exists( 'mb_internal_encoding' )) {
+//			$charset = 'charset="'.mb_internal_encoding().'"';
+//		}
+//		return '<!DOCTYPE HTML PUBLIC
+//			 "-//W3C//DTD HTML 4.01 Transitional//EN">
+//			<html lang="ja">
+//			<head>
+//			  <meta http-equiv="Content-Language"
+//				content="ja">
+//			  <meta http-equiv="Content-Type"
+//				content="text/html; '.$charset.'>
+//			  <title></title>
+//			  <meta http-equiv="Content-Style-Type"
+//				content="text/css">
+//			  <style type="text/css"><!--
+//				body{margin:0;padding:0;}
+//			  --></style>
+//			</head>	';
 	}
 
 	static function getMsg($err_cd, $add_char = '') {
@@ -531,6 +591,9 @@ class Salon_Component {
 				break;	
 			case 'E212':
 				$err_msg = $err_cd.' '.__("your reservation is duplicated",SL_DOMAIN);
+				break;	
+			case 'E213':
+				$err_msg = $err_cd.' '.__("This time zones can not be reserved",SL_DOMAIN);
 				break;	
 			case 'E301':
 				$err_msg = $err_cd.' '.__("This coupon is invalid now.",SL_DOMAIN);
@@ -675,7 +738,6 @@ class Salon_Component {
 	}
 	
 	static function isMobile($checkRequest = true){
-
 		$result =  unserialize(get_option( 'SALON_CONFIG'));
 		if (!empty($result['SALON_CONFIG_MOBILE_USE']) && ($result['SALON_CONFIG_MOBILE_USE'] == Salon_Config::MOBILE_USE_NO )) return false;
 

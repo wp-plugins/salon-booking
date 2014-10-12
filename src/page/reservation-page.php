@@ -161,7 +161,7 @@ EOT;
 //				var checkday = $j("#target_day").val();
 //				checkday = checkday.replace(/\//g,"");
 				var dt = _fnDateConvert($j("#target_day").val() );
-				var checkday = dt.getFullYear() + ("0"+(dt.getMonth()+1)).slice(-2)+dt.getDate();
+				var checkday = dt.getFullYear() + ("0"+(dt.getMonth()+1)).slice(-2)+("0"+dt.getDate()).slice(-2);
 				if (!$j(this).val()  ) {
 					$j("#item_cds input").attr("disabled",true);
 				}
@@ -214,7 +214,7 @@ EOT;
 			target = $j("#lists").dataTable({
 				"sAjaxSource": "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slsales",
 				<?php parent::echoDataTableLang(); ?>
-				<?php parent::echoTableItem(array('reserved_time','customer_name','rstatus','remark'),false,true,'200px'); //for only_branch?>
+				<?php parent::echoTableItem(array('reserved_time','customer_name','rstatus','remark'),false,true,'210px'); //for only_branch?>
 
 
 				"fnServerParams": function ( aoData ) {

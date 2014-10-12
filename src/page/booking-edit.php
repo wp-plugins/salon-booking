@@ -53,7 +53,8 @@ class Booking_Edit extends Salon_Page {
 		//ログインしていないときは、更新はできないようにする
 		$edit_flg = Salon_Edit::NG;
 		$type = htmlspecialchars($_POST['type']);
-		$ID = floatval($_POST['id']);
+//		$ID = floatval($_POST['id']);
+		$ID = $_POST['id'];
 		$status = '';
 		$time_to = '';
 		if (is_user_logged_in()	) {

@@ -599,8 +599,88 @@ EOT;
 			echo '<input type="checkbox" id="'.$tag_id.'_'.$i.'" value="'.$i.'" '.($closed[$i] ? 'checked="checked"' :'').'/><label for="'.$tag_id.'_'.$i.'">&nbsp;'.$week[$i].'</label>';
 		}
 		echo '</div>';
+		echo '<div id="sl_holiday_wrap" >';
+		$week_long = explode(',',__('"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"',SL_DOMAIN));
+		for ( $i = 0 ; $i < 7 ; $i++ ) {		
+			echo '<div id="sl_holiday_detail_wrap_'.$i.'" class="sl_holiday_detail_wrap" >';
+			echo '<label>'.__("Holiday detail",SL_DOMAIN).$week_long[$i].'</label><input type="text" id="'.$tag_id.'_'.$i.'_fr" class="sl_from sl_nocheck"/><label class="sl_holiday_in_label">-</label><input type="text" id="'.$tag_id.'_'.$i.'_to" class="sl_to sl_nocheck" /><label class="sl_holiday_in_label">'.__('is on Holiday',SL_DOMAIN).'</label>';
+			echo '</div>';
+		}
+		echo '</div>';
+			
 	}
 
+
+	static function echoClosedDetail($closed_day,$tag_id) {
+		echo <<<EOT
+			\$j("#closed_day_check input[type=checkbox]").click(function(){
+				\$j(".sl_holiday_detail_wrap").hide();
+				var tmp = new Array();  
+				var tmp_detail = new Array();
+				var tmp_closed_array = save_closed.split(",")
+				var tmp_closed_detail_array = save_closed_detail.split(";");
+				\$j("#closed_day_check input[type=checkbox]").each(function (){
+					if ( \$j(this).is(":checked") ) {
+						var idx  = \$j(this).val();
+						tmp.push( idx );
+						tmp_detail.push(\$j("#{$tag_id}_"+idx+"_fr").val()+","+\$j("#{$tag_id}_"+idx+"_to").val());
+						\$j("#sl_holiday_detail_wrap_"+idx).show();
+					}
+				});
+				for( var i = 0; i < tmp.length ; i++ ) {
+					var idx = tmp[i];
+					var set_index =  tmp_closed_array.indexOf(idx);
+					if (set_index == -1 ) {
+						\$j("#{$tag_id}_"+idx+"_fr").val(\$j("#open_time").val());
+						\$j("#{$tag_id}_"+idx+"_to").val(\$j("#close_time").val());
+					}
+					else {
+						var each_array = tmp_closed_detail_array[set_index].split(",");
+						if (!each_array[0] ) each_array[0] = \$j("#open_time").val();
+						if (!each_array[1] ) each_array[1] = \$j("#close_time").val();
+						\$j("#{$tag_id}_"+idx+"_fr").val(each_array[0]);
+						\$j("#{$tag_id}_"+idx+"_to").val(each_array[1]);
+					}
+				}
+
+				save_closed = tmp.join(",");
+				save_closed_detail = tmp_detail.join(";");
+			});
+			\$j("#open_time").change(function() {
+				for ( var i = 0 ; i < 7 ; i++ ) {
+					\$j("#{$tag_id}_"+i+"_fr").val(\$j(this).val());
+				}
+			});
+			\$j("#close_time").change(function() {
+				for ( var i = 0 ; i < 7 ; i++ ) {		
+					\$j("#{$tag_id}_"+i+"_to").val(\$j(this).val());
+				}
+			});
+			\$j(".sl_from,.sl_to").change(function() {
+				var tmp = new Array();  
+				\$j("#closed_day_check input[type=checkbox]").each(function (){
+					if ( \$j(this).is(":checked") ) {
+						var id=\$j(this).val();
+						tmp.push(\$j("#{$tag_id}_"+id+"_fr").val()+","+\$j("#{$tag_id}_"+id+"_to").val());
+					}
+					
+				});
+				save_closed_detail = tmp.join(";");
+			});
+			
+			for ( var i = 0 ; i < 7 ; i++ ) {		
+				\$j("#sl_holiday_detail_wrap_"+i).hide();
+			}
+			
+			
+EOT;
+		$datas = explode(',',$closed_day);
+		foreach ($datas as $d1 ) {
+			echo '$j("#sl_holiday_detail_wrap_'.$d1.'").show();';
+		}
+
+	}
+	
 	static function echo_clear_error() {		
 	//[TODO]IEだとくずれてしまうのでmargin1加算
 		$default_margin = self::INPUT_BOTTOM_MARGIN;
@@ -777,7 +857,7 @@ EOT;
 	static function echoTimeStepSelect($id,$is_noEcho = false) {	
 	
 		$echo_data =  '<select name="'.$id.'" id="'.$id.'">';
-		$datas = array(15,30,60);
+		$datas = array(10,15,30,60);
 		foreach ($datas as  $d1) {
 			$echo_data .=  '<option value="'.$d1.'">'.$d1.'</option>';
 		}
@@ -791,7 +871,7 @@ EOT;
 	static function echoMinuteSelect($id,$is_noEcho = false) {	
 	
 		$echo_data =  '<select name="'.$id.'" id="'.$id.'">';
-		$datas = array(30,60,90,120,150);
+		$datas = array(10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240);
 		foreach ($datas as  $d1) {
 			$echo_data .=  '<option value="'.$d1.'">'.$d1.'</option>';
 		}
@@ -1133,14 +1213,15 @@ EOT;
 		
 	}
 
-	static function set_datepicker ($tag_id,$select_ok = false,$closed_data = null){
+	static function set_datepicker ($tag_id,$select_ok = false,$closed_data = null,$addcode="",$display_month = 1){
 		$tmp_status = Salon_Status::OPEN;
 		if ($select_ok) $tmp_select = 'true';
 		else $tmp_select = 'false';
 		
 		echo 
 				'$j("#'.$tag_id.'").datepicker({
-					beforeShowDay: function(day) {
+					numberOfMonths: '.$display_month.'
+					,beforeShowDay: function(day) {
 					  var result = [true,"",""];
 					  var holiday = holidays[$j.format.date(day, "yyyyMMdd")]
 					  var sp_date = sp_dates[$j.format.date(day, "yyyyMMdd")]
@@ -1187,6 +1268,7 @@ EOT;
 					  } 
 					  return result;
 					}
+					{$addcode}
 				});
 EOT2;
 	}
@@ -1195,20 +1277,43 @@ EOT2;
 	static function echoSetHoliday($branch_datas,$target_year,$is_block = true) {
 			$is_todayHoliday = false;
 			if (!empty($branch_datas['closed']) || $branch_datas['closed']==0 ) {
-				$set_days = '['.$branch_datas['closed'].']';
+				//[2014/10/01]半休対応
 				$set_html = __('Holiday',SL_DOMAIN);
 				$block = 'dhx_time_block';
-				if (!$is_block ) $block = '';
-				echo <<<EOT
-				var options = {
-					days:{$set_days},
-					zones:"fullday",
-					type: "{$block}", 
-					css: "holiday",
-					html: "{$set_html}"
-				};
-				scheduler.addMarkedTimespan(options);
+				if (!$is_block ) $block = '';	//workingではブロックしない
+				//詳細と休みの順番は一致している前提
+				$set_days_array = explode(',',$branch_datas['closed']);
+				if ($branch_datas['memo'] == "MEMO") $branch_datas['memo'] = "";
+				$set_days_detail_array = explode(';',$branch_datas['memo']);
+				foreach ($set_days_array as $k1 => $d1) {
+					$set_day = $d1;
+					$time_array = array();
+					if (count($set_days_detail_array) > 0 &&  !empty($set_days_detail_array[$k1]) ) 
+						$time_array = explode(',',$set_days_detail_array[$k1]);
+					else 
+						$time_array = array($branch_datas['open_time'],$branch_datas['close_time']);
+					$frto = array();
+					$frto[] = substr($time_array[0],0,2);
+					$frto[] = substr($time_array[0],-2);
+					$frto[] = substr($time_array[1],0,2);
+					$frto[] = substr($time_array[1],-2);
+					
+					$zones = (+$frto[0]*60+$frto[1]).','.(+$frto[2]*60+$frto[3]);
+					if($time_array[0] <= $branch_datas['open_time'] && $branch_datas['close_time']  <= $time_array[1] ) {
+						$zones = "\"fullday\"";
+					}
+					echo <<<EOT
+					var options = {
+						days:{$set_day},
+						zones:[{$zones}],
+						type: "{$block}", 
+						css: "holiday",
+						html: "{$set_html}"
+					};
+					scheduler.addMarkedTimespan(options);
 EOT;
+					
+				}
 				if (strpos($branch_datas['closed'],date_i18n('w') ) !== false ) $is_todayHoliday = true;
 				//特殊な日の設定（定休日だけど営業するor営業日だけど休むなど）
 				$sp_dates = unserialize($branch_datas['sp_dates']);
@@ -1291,6 +1396,7 @@ EOT2;
 					}
 				}
 				\$j("#"+target).find("input[type=text],textarea,select,.sl_checkbox").each(function(){
+					if (\$j(this).hasClass("sl_nocheck") ) return;
 					var id = \$j(this).attr("id");
 					if (except) {
 						for(var i=0;i<tmp_excepts.length;i++){
@@ -1616,6 +1722,19 @@ EOT2;
 		 ,'label' => __('Name',SL_DOMAIN)
 		 ,'tips' => __('space input between first-name and last-name',SL_DOMAIN)
 		 ,'table' => array(  'class'=>'sl_editable'
+							,'width'=>self::LONG_WIDTH
+							,'sort'=>'true'
+							,'search'=>'true'
+							,'visible'=>'true' ));
+
+
+
+		$item_contents['staff_name_aft'] =array('id'=>'staff_name_aft'
+		 ,'class' => array()
+		 ,'check' => array()
+		 ,'label' => __('Staff',SL_DOMAIN)
+		 ,'tips' => ''
+		 ,'table' => array(  'class'=>''
 							,'width'=>self::LONG_WIDTH
 							,'sort'=>'true'
 							,'search'=>'true'
@@ -2920,9 +3039,9 @@ EOT;
 					foreach ($dup_table as  $k4 => $d4 ) {
 						//d5は実際の時間
 						foreach ($d4 as $k5 => $d5 ) {
-							//15分単位で左と幅を算出$this->branch_datas['time_step']を使う？								
-							$left = salon_component::calcMinute($first_hour.'00',$d5['s'])/15;
-							$width = salon_component::calcMinute($d5['s'], $d5['e'])/15;
+							//5分単位で左と幅を算出$this->branch_datas['time_step']を使う？								
+							$left = salon_component::calcMinute($first_hour.'00',$d5['s'])/5;
+							$width = salon_component::calcMinute($d5['s'], $d5['e'])/5;
 							if ($d5['st'] == Salon_Edit::OK) {
 								$set_time[] = array($k4=>array("b"=>array($left,$width,$d5['ev'],$d5['s'],$d5['e'],$d5['st']),
 																"d"=>array($d5['it']
@@ -2961,11 +3080,30 @@ EOT;
 
 			echo 'slmSchedule.config.days = ['.$branch_datas['closed'].'];';
 
-
+			//[2014/10/01]半休対応
+			if ($branch_datas['memo'] ) {
+				$tmp_detail_array = array();
+				$days_detail_array = explode(";",$branch_datas['memo']);
+				foreach($days_detail_array as $k1 => $d1 ) {
+					$time_array = explode(",",$d1);
+					
+					$from = str_replace(":","",$time_array[0]);
+					$to = str_replace(":","",$time_array[1]);
+					
+					$left = salon_component::calcMinute($first_hour.'00',$from)/5;
+					$width = salon_component::calcMinute($from,$to)/5;
+					$tmp_detail_array[] = array($left,$width,$from,$to);
+				}
+				echo 'slmSchedule.config.days_detail = '.json_encode($tmp_detail_array).';';
+			}
+			echo 'slmSchedule.config.open_position = '.salon_component::calcMinute($first_hour.'00',$branch_datas['open_time'])/5 .';';
+			echo 'slmSchedule.config.close_width = '.salon_component::calcMinute($branch_datas['open_time'],$branch_datas['close_time'])/5 .';';
+			
 			//特殊な日の設定（定休日だけど営業するor営業日だけど休むなど）
 			$sp_dates = unserialize($branch_datas['sp_dates']);
 			$on_business_array = array();
 			$holiday_array = array();
+//			$holiday_check_array = array();
 			$today_check_array = array();
 			for ($i=0;$i<2;$i++) {	//指定年と＋１(年末のことを考えて）
 				$tmp_year = intval($target_year) + $i;
@@ -2979,12 +3117,17 @@ EOT;
 						}
 						elseif ($d1== Salon_Status::CLOSE ) {
 							$holiday_array[] = $tmp;
+//							$holiday_check_array[] = $tmp_year.substr($k1,4,2).substr($k1,6,2);
 						}
 					}
 				}
 			}
 			echo 'slmSchedule.config.on_business = [ '.implode(',',$on_business_array).' ];';
 			echo 'slmSchedule.config.holidays = [ '.implode(',',$holiday_array).' ];';
+//			echo 'slmSchedule.config.chkHolidays = Array();'; 
+//			foreach($holiday_check_array as $d1 ) {
+//				echo 'slmSchedule.config.chkHolidays["'.$d1.'"]="";';
+//			}
 			
 		}
 			
@@ -2998,15 +3141,22 @@ EOT;
 				$tmp_time_array = array();
 				$staff_cd = "";
 				//k2は休日パターンの場合はスタッフコードだが、出勤パターンの場合は通番
+				//→k2は通番に
+				$save_staff_cd = $d1[0]['staff_cd'];
 				foreach ($d1 as $k2 => $d2 ) {
 					$staff_cd = $d2['staff_cd'];
-					$from = substr($d2['in_time'],8,4);
-					$to = substr($d2['out_time'],8,4);
-					$left = salon_component::calcMinute($first_hour.'00',$from)/15;
-					$width = salon_component::calcMinute($from,$to)/15;
-					$tmp_time_array[] = array($left,$width,substr($d2['in_time'],8,4),substr($d2['out_time'],8,4));
+					if ($staff_cd <> $save_staff_cd) {
+						echo 'slmSchedule.config.staff_holidays["'.$k1.'"]["'.$save_staff_cd.'"] = '.json_encode($tmp_time_array).';'; 
+						$tmp_time_array = array();
+					}
+					$from = substr($d2['in_time'],-4);
+					$to = substr($d2['out_time'],-4);
+					$left = salon_component::calcMinute($first_hour.'00',$from)/5;
+					$width = salon_component::calcMinute($from,$to)/5;
+					$tmp_time_array[] = array($left,$width,substr($d2['in_time'],-4),substr($d2['out_time'],-4));
+					$save_staff_cd = $staff_cd;
 				}
-				echo 'slmSchedule.config.staff_holidays["'.$k1.'"]["'.$staff_cd.'"] = '.json_encode($tmp_time_array).';'; 
+				echo 'slmSchedule.config.staff_holidays["'.$k1.'"]["'.$save_staff_cd.'"] = '.json_encode($tmp_time_array).';'; 
 			}
 		}
 	}
@@ -3124,7 +3274,7 @@ EOT;
 	}
 	
 	static function echoTime25Check() {
-		$msg =  __('Time step is wrong ?');
+		$msg =  __('Time step is wrong ?',SL_DOMAIN);
 		echo <<<EOT
 		function _fnCheckTimeStep(step,targetMin){
 			if ( targetMin%step === 0 ) return true;
@@ -3133,6 +3283,43 @@ EOT;
 		}
 EOT;
 	}
+
+	static function echoClosedDetailCheck() {
+		$msg1 = __('please HH:MM or HHMM format',SL_DOMAIN);
+		$msg2 = __('Hour is max 24',SL_DOMAIN);
+		echo <<<EOT
+
+		function _fnCheckClosedDetail(step) {
+			var rtn = true; 
+			\$j(".sl_to,.sl_from").each(function (){
+				var err_msg = "";
+				var val = \$j(this).val();
+				if (val) {
+					if( ! val.match(/^(?:[ ]?\d{1,2}:\d{1,2})$|^(?:\d{4})$/)  ){
+						err_msg ="{$msg1}";
+					}
+					else if (+val.slice(0,2) > 24 ) {
+						err_msg ="{$msg2}";
+					}
+					else if (!_fnCheckTimeStep(step,val.slice(-2) ) ) {
+						\$j(this).focus();
+						rtn = false;
+						return false;
+					}
+					if (err_msg != "" ) {
+						\$j(this).focus();
+						alert(err_msg);
+						rtn = false;
+						return false;
+					}
+				}
+			});
+			return rtn;
+		}
+EOT;
+	}
+
+
 
 	static function echoRankPatern($customer_rank_datas) {
 		echo '<div id="rank_patern_wrap" >';

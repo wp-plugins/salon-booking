@@ -63,6 +63,10 @@ class Mail_Page extends Salon_Page {
 
 			$j("#send_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n', $this->config['SALON_CONFIG_SEND_MAIL_TEXT']); ?>");
 			$j("#regist_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n', $this->config['SALON_CONFIG_SEND_MAIL_TEXT_USER']); ?>");
+
+			$j("#send_mail_subject").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_SUBJECT']; ?>");
+			$j("#regist_mail_subject").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_SUBJECT_USER']; ?>");
+
 			$j("#mail_from").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_FROM']; ?>");
 			$j("#mail_returnPath").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_RETURN_PATH']; ?>");
 			
@@ -75,12 +79,6 @@ class Mail_Page extends Salon_Page {
 
 		function fnClickUpdate() {
 			if ( ! checkItem("data_detail") ) return false;
-			if ( $j("input[name=\"config_staff_holiday_set\"]:checked").val() == <?php echo Salon_Config::SET_STAFF_REVERSE;?> &&
-				$j("#config_is_no_preference").attr("checked") == "checked" ) {
-					alert("<?php _e('can\'t check \"No Designation of Staff\"',SL_DOMAIN); ?>");
-					return false;
-			}
-
 
 			$j.ajax({
 				 	type: "post",
@@ -89,6 +87,8 @@ class Mail_Page extends Salon_Page {
 					data: {
 						"config_mail_text":$j("#send_mail_text").val()						
 						,"config_mail_text_user":$j("#regist_mail_text").val()						
+						,"config_mail_subject":$j("#send_mail_subject").val()						
+						,"config_mail_subject_user":$j("#regist_mail_subject").val()						
 						,"config_mail_from":$j("#mail_from").val()	
 						,"config_mail_returnPath":$j("#mail_returnPath").val()	
 						,"nonce":"<?php echo $this->nonce; ?>"

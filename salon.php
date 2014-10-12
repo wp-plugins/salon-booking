@@ -3,7 +3,7 @@
 Plugin Name: Salon Booking 
 Plugin URI: http://salon.mallory.jp
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff member.
-Version: 1.4.9
+Version: 1.4.10
 Author: kuu
 Author URI: http://salon.mallory.jp
 Text Domain: salon-booking
@@ -116,7 +116,7 @@ class Salon_Booking {
 		}
 		
 		if(!file_exists(SALON_UPLOAD_DIR)){
-			mkdir(SALON_UPLOAD_DIR,0744,true);	
+			mkdir(SALON_UPLOAD_DIR,0755,true);	
 		}
 
 		add_action('admin_head',array( &$this, 'display_favicon'));
@@ -401,6 +401,11 @@ public function example_remove_dashboard_widgets() {
 		if (in_array('edit_working_all',$show_menu) ) $edit_menu[$this->management][] = 'edit_working';
 		if (in_array('edit_base',$show_menu) ) $edit_menu[$this->management][] = 'edit_base';
 		if (in_array('edit_promotion',$show_menu) ) $edit_menu[$this->management][] = 'edit_promotion';
+
+//[Ver1.4.11]
+//		$edit_menu[$this->management][] = 'edit_record';
+//[Ver1.4.11]
+
 		return $edit_menu;
 	}
 	
@@ -479,6 +484,13 @@ public function example_remove_dashboard_widgets() {
 				$my_admin_page = add_submenu_page( $this->management, __('Basic Information',SL_DOMAIN), __('Basic Information',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_base' ) );
 				add_action('load-'.$my_admin_page, array(&$this,'admin_add_help_base'));
 			}
+//[Ver1.4.11]
+//			if (in_array('edit_record',$show_menu[$this->management]) ) {
+//				$file = $show_menu[$this->management][0] == 'edit_record' ? $this->management : 'salon_recored';
+//				$my_admin_page = add_submenu_page( $this->management, __('Customer Record',SL_DOMAIN), __('Customer Record',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_record' ) );
+//				add_action('load-'.$my_admin_page, array(&$this,'admin_add_help_base'));
+//			}
+//[Ver1.4.11]
 		}
 
 		if (SALON_DEMO && strtolower($this->user_role) != 'administrator') {		
@@ -790,10 +802,14 @@ public function example_remove_dashboard_widgets() {
 	public function edit_mail() {
 		require_once( SL_PLUGIN_SRC_DIR.'/control/mail-control.php' );
 	}
-
 	public function edit_promotion() {
 		require_once( SL_PLUGIN_SRC_DIR.'/control/promotion-control.php' );
 	}
+//[Ver1.4.11]
+//	public function edit_record() {
+//		require_once( SL_PLUGIN_SRC_DIR.'/control/record-control.php' );
+//	}
+//[Ver1.4.11]
 
 	public function admin_javascript($hook_suffix) {
 		global $plugin_page;
@@ -811,6 +827,7 @@ public function example_remove_dashboard_widgets() {
 		wp_enqueue_style( 'thickbox' );
 		wp_enqueue_style('dataTables', SL_PLUGIN_URL.'css/dataTables.css');
 		wp_enqueue_style('salon', SL_PLUGIN_URL.'css/salon.css');
+		wp_enqueue_style('salon_date', SL_PLUGIN_URL.'css/salon_calendar_datepicker.css');
 		if ($plugin_page == 'salon_working' || $plugin_page == 'salon-management') {	//出退勤しかない場合の対処
 			wp_enqueue_script( 'dhtmlxscheduler', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler.js',array( 'jquery' ) );
 			wp_enqueue_script( 'dhtmlxscheduler_limit', SL_PLUGIN_URL.SALON_JS_DIR.'dhtmlxscheduler_limit.js',array( 'dhtmlxscheduler' ) );
@@ -977,21 +994,23 @@ public function example_remove_dashboard_widgets() {
 			`update_time`	DATETIME,
 			PRIMARY KEY (`promotion_cd`)
 		) ".$charset_collate);
-/*
-		$wpdb->query("	CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."salon_customer_extension (
-			`customer_cd`	INT,
-			`client_record`		TEXT,
-			`coupon`		TEXT,
-			`remark`		TEXT,
-			`memo`			TEXT,
-			`notes`			TEXT,
-			`delete_flg`	INT default 0,
-			`insert_time`	DATETIME,
-			`update_time`	DATETIME,
-			PRIMARY KEY (`customer_cd`)
-		) ".$charset_collate);
-*/
 
+//[Ver1.4.11]
+//		$wpdb->query("	CREATE TABLE IF NOT EXISTS ".$wpdb->prefix."salon_class (
+//			`class_cd`	INT not null AUTO_INCREMENT,
+//			`class_name`	TEXT,
+//			`target_table_id`	INT,
+//			`class_patern_cd`	INT,
+//			`class_key_value`	text,
+//			`remark`		TEXT,
+//			`memo`			TEXT,
+//			`notes`			TEXT,
+//			`delete_flg`	INT default 0,
+//			`insert_time`	DATETIME,
+//			`update_time`	DATETIME,
+//			PRIMARY KEY (`class_cd`)
+//		) ".$charset_collate);
+//[Ver1.4.11]
 
 
 		if (get_option('salon_installed') ) {
@@ -1067,7 +1086,18 @@ public function example_remove_dashboard_widgets() {
 			//[2014/09/12]Ver 1.4.9
 			$wpdb->query("ALTER TABLE ".$wpdb->prefix."salon_staff ALTER COLUMN `leaved_day` SET DEFAULT '2099-12-28 00:01:00' ");
 			$wpdb->query($wpdb->prepare("UPDATE ".$wpdb->prefix."salon_staff SET leaved_day = '2099-12-28 00:02:00',update_time = %s WHERE leaved_day = '0000-00-00 00:00:00' OR leaved_day IS NULL ",$current));
-			//
+//[Ver1.4.11]
+//			if (! $this->_isExixtColumn("salon_customer","birthday") ) {
+//				$wpdb->query("ALTER TABLE ".$wpdb->prefix."salon_customer ADD `birthday` DATETIME default null AFTER `rank_patern_cd` ");
+//			}
+//			if (! $this->_isExixtColumn("salon_customer","record") ) {
+//				$wpdb->query("ALTER TABLE ".$wpdb->prefix."salon_customer ADD `record` DATETIME default null AFTER `birthday` ");
+//			}
+//			if (! $this->_isExixtColumn("salon_customer","regist_flg") ) {
+//				//Salon_Regist_Customer::OKは１
+//				$wpdb->query("ALTER TABLE ".$wpdb->prefix."salon_customer ADD `regist_flg` INT default 1 AFTER `recored` ");
+//			}
+//[Ver1.4.11]
 		}
 		else {
 			//status 会員の場合は、Icomplete
@@ -1128,6 +1158,12 @@ public function example_remove_dashboard_widgets() {
 								`photo`			TEXT default null,
 								`is_send_mail`	INT default 1,
 								`rank_patern_cd`			INT default 1,
+
+/* //[Ver1.4.11]
+								`birthday`		DATETIME default null,
+								`record`			TEXT,
+								`regist_flg`		INT default 1,
+//[Ver1.4.11] */
 								`delete_flg`	INT default 0,
 								`insert_time`	DATETIME,
 								`update_time`	DATETIME,
@@ -1236,7 +1272,7 @@ public function example_remove_dashboard_widgets() {
 							) ".$charset_collate);
 	
 			
-			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_branch VALUES (".Salon_Default::BRANCH_CD.",'".__('SAMPLE SHOP NAME',SL_DOMAIN)."','100-0001','".__('SAMPLE SHOOP ADDRESS',SL_DOMAIN)."','223456789','mail@1.com','REMARK','MEMO','NOTES','1000','1900','2','',30,1,0,%s,%s);",$current,$current));
+			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_branch VALUES (".Salon_Default::BRANCH_CD.",'".__('SAMPLE SHOP NAME',SL_DOMAIN)."','100-0001','".__('SAMPLE SHOOP ADDRESS',SL_DOMAIN)."','223456789','mail@1.com','REMARK','','','1000','1900','2','',30,1,0,%s,%s);",$current,$current));
 			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_item VALUES (1,'".__('SAMPLE MENU CUT',SL_DOMAIN)."',".Salon_Default::BRANCH_CD.",'".__('SAMPLE MENU CUT',SL_DOMAIN)."',".__('30,50',SL_DOMAIN).",null,null,null,null,1,'0000-00-00 00:00:00','2099-12-30 00:00:00',1,0,%s,%s);",$current,$current));
 			$wpdb->query($wpdb->prepare("INSERT INTO ".$wpdb->prefix."salon_item VALUES (2,'".__('SAMPLE MENU PERM',SL_DOMAIN)."',".Salon_Default::BRANCH_CD.",'".__('SAMPLE MENU PERM',SL_DOMAIN)."',".__('90,100',SL_DOMAIN).",null,null,null,null,2,'0000-00-00 00:00:00','2099-12-30 00:00:00',1,0,%s,%s);",$current,$current));
 			//インストールしたユーザを割り当てる

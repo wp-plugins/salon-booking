@@ -269,6 +269,12 @@ class Staff_Page extends Salon_Page {
 			$j("#first_name").val(htmlspecialchars_decode(setData['aoData'][position[0]]['_aData']['first_name']));	
 			$j("#branch_cd").val(setData["aoData"][position[0]]["_aData"]["branch_cd"]).change();
 			$j("#position_cd").val(setData['aoData'][position[0]]['_aData']['position_cd']);	
+			
+			$j("#position_cd").attr("disabled",false);
+			if (setData['aoData'][position[0]]['_aData']['staff_cd']  == <?php echo get_option('salon_initial_user',1); ?> )  {
+				$j("#position_cd").attr("disabled",true);
+			}
+			
 			$j("#address").val(htmlspecialchars_decode(setData['aoData'][position[0]]['_aData']['address']));	
 			$j("#user_login").val(setData['aoData'][position[0]]['_aData']['user_login']);	
 			save_user_login_old = setData['aoData'][position[0]]['_aData']['user_login'];	

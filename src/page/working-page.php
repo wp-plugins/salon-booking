@@ -294,42 +294,8 @@ EOT;
 			});
 			
 			$j("#working_cds input[type=checkbox]").click(function(){
-				if ($j("#check_<?php echo Salon_Working::DAY_OFF; ?>").is(":checked") ) {
-					$j("#check_<?php echo Salon_Working::EARLY_OUT; ?>").attr("disabled",true);
-					$j("#check_<?php echo Salon_Working::LATE_IN; ?>").attr("disabled",true);
-					$j("#check_<?php echo Salon_Working::HOLIDAY_WORK; ?>").attr("disabled",true);
-					$j("#check_<?php echo Salon_Working::USUALLY; ?>").attr("disabled",true);
+				_setWorkingCds();
 
-					$j("#check_<?php echo Salon_Working::HOLIDAY_WORK; ?>").attr("checked",false);
-					$j("#check_<?php echo Salon_Working::USUALLY; ?>").attr("checked",false);
-
-
-					$j("#in_time").attr("disabled",true);
-					$j("#in_time").val("<?php echo substr($this->branch_datas['open_time'],0,2).":".substr($this->branch_datas['open_time'],2,2); ?>");
-					$j("#out_time").attr("disabled",true);
-					$j("#out_time").val("<?php echo substr($this->branch_datas['close_time'],0,2).":".substr($this->branch_datas['close_time'],2,2); ?>");
-					return;
-				}
-				else {
-					$j("#check_<?php echo Salon_Working::USUALLY; ?>").attr("disabled",false);
-					$j("#check_<?php echo Salon_Working::EARLY_OUT; ?>").attr("disabled",false);
-					$j("#check_<?php echo Salon_Working::LATE_IN; ?>").attr("disabled",false);
-					$j("#check_<?php echo Salon_Working::HOLIDAY_WORK; ?>").attr("disabled",false);
-					$j("#in_time").attr("disabled",false);
-					$j("#in_time").val(save_in_time);
-					$j("#out_time").attr("disabled",false);
-					$j("#out_time").val(save_out_time);
-				}
-				if ($j("#check_<?php echo Salon_Working::USUALLY; ?>").is(":checked") || 
-						$j("#check_<?php echo Salon_Working::HOLIDAY_WORK; ?>").is(":checked") || 
-						$j("#check_<?php echo Salon_Working::EARLY_OUT; ?>").is(":checked") ||
-						$j("#check_<?php echo Salon_Working::LATE_IN; ?>").is(":checked") 	){
-					$j("#check_<?php echo Salon_Working::DAY_OFF; ?>").attr("disabled",true);
-				}
-				else {
-					$j("#check_<?php echo Salon_Working::DAY_OFF; ?>").attr("disabled",false);
-				}
-					
 			});
 			
 			
@@ -379,9 +345,52 @@ EOT;
 			for	 (var i = 0 ; i<max_loop; i++) {
 				$j("#working_cds #check_"+working_array[i]).attr("checked",true);
 			}
-			
+			_setWorkingCds();
 			$j("#name").focus();			
 			<?php parent::echo_clear_error(); ?>
+		}
+		
+		function _setWorkingCds() {
+				
+			if ($j("#check_<?php echo Salon_Working::DAY_OFF; ?>").is(":checked") ) {
+				$j("#check_<?php echo Salon_Working::EARLY_OUT; ?>").attr("disabled",true);
+				$j("#check_<?php echo Salon_Working::LATE_IN; ?>").attr("disabled",true);
+				$j("#check_<?php echo Salon_Working::HOLIDAY_WORK; ?>").attr("disabled",true);
+				$j("#check_<?php echo Salon_Working::USUALLY; ?>").attr("disabled",true);
+
+				$j("#check_<?php echo Salon_Working::HOLIDAY_WORK; ?>").attr("checked",false);
+				$j("#check_<?php echo Salon_Working::USUALLY; ?>").attr("checked",false);
+
+
+				$j("#in_time").attr("disabled",true);
+				$j("#in_time").val("<?php echo substr($this->branch_datas['open_time'],0,2).":".substr($this->branch_datas['open_time'],2,2); ?>");
+				$j("#out_time").attr("disabled",true);
+				$j("#out_time").val("<?php echo substr($this->branch_datas['close_time'],0,2).":".substr($this->branch_datas['close_time'],2,2); ?>");
+				return;
+			}
+			else {
+				$j("#check_<?php echo Salon_Working::USUALLY; ?>").attr("disabled",false);
+				$j("#check_<?php echo Salon_Working::EARLY_OUT; ?>").attr("disabled",false);
+				$j("#check_<?php echo Salon_Working::LATE_IN; ?>").attr("disabled",false);
+				$j("#check_<?php echo Salon_Working::HOLIDAY_WORK; ?>").attr("disabled",false);
+				$j("#in_time").attr("disabled",false);
+				$j("#in_time").val(save_in_time);
+				$j("#out_time").attr("disabled",false);
+				$j("#out_time").val(save_out_time);
+			}
+			if ($j("#check_<?php echo Salon_Working::USUALLY; ?>").is(":checked") || 
+					$j("#check_<?php echo Salon_Working::HOLIDAY_WORK; ?>").is(":checked") || 
+					$j("#check_<?php echo Salon_Working::EARLY_OUT; ?>").is(":checked") ||
+					$j("#check_<?php echo Salon_Working::LATE_IN; ?>").is(":checked") 	){
+				$j("#check_<?php echo Salon_Working::DAY_OFF; ?>").attr("disabled",true);
+			}
+			else {
+				$j("#check_<?php echo Salon_Working::DAY_OFF; ?>").attr("disabled",false);
+			}
+			if ($j("#check_<?php echo Salon_Working::EARLY_OUT; ?>").is(":checked") ||
+				$j("#check_<?php echo Salon_Working::LATE_IN; ?>").is(":checked") ) {
+				$j("#check_<?php echo Salon_Working::USUALLY; ?>").attr("checked",true);
+			}
 		}
 
 		<?php parent::echoClientItem(array('in_time','out_time','working_cds','remark')); ?>	

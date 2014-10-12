@@ -26,7 +26,6 @@ class Branch_Init extends Salon_Page {
 			$this->init_datas[$k1]['remark'] = htmlspecialchars($d1['remark'],ENT_QUOTES);
 			$this->init_datas[$k1]['name'] = htmlspecialchars($d1['name'],ENT_QUOTES);
 			$this->init_datas[$k1]['address'] = htmlspecialchars($d1['address'],ENT_QUOTES);
-			unset($this->init_datas[$k1]['memo']);
 			unset($this->init_datas[$k1]['notes']);
 		}
 		parent::echoInitData($this->init_datas);
