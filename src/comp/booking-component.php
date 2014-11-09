@@ -86,7 +86,7 @@ class Booking_Component {
 					if ($to <  $cl ) {
 						$tmp_2 = $d1;
 						$tmp_2['in_time'] = $tmp_2['out_time'];
-						$tmp_2['out_time'] = $tmp_1['day'].$branch_datas['close_time'];
+						$tmp_2['out_time'] = $tmp_2['day'].$branch_datas['close_time'];
 						$result_after[$d1['day']][] = $tmp_2;
 					}
 

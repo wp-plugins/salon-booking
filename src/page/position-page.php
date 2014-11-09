@@ -164,7 +164,7 @@ class Position_Page extends Salon_Page {
 			$j("#data_detail textarea").val("");
 			$j("#button_update").attr("disabled", "disabled");
 			$j("#role input").attr("checked",false);
-			<?php if (get_locale() == 'ja' ) echo '$j("#data_detail .sl_role_table label").css("width","100px");'; ?>
+			<?php if (get_locale() == 'ja' ) echo '$j("#data_detail .sl_role_table label").css("width","150px");'; ?>
 			
 			save_k1 = "";
 			<?php parent::echo_clear_error(); ?>

@@ -44,8 +44,8 @@ abstract class Salon_Data {
 		if (empty($result['SALON_CONFIG_LOAD_TAB']) ) $result['SALON_CONFIG_LOAD_TAB']  = Salon_Config::LOAD_STAFF;
 		
 		//[2014/08/01]Ver1.4.6
-		if (empty($result['SALON_CONFIG_SEND_MAIL_TEXT']) ) $result['SALON_CONFIG_SEND_MAIL_TEXT'] = __("Mr/Ms {X-TO_NAME} \nPlease confirm this reservation.Click the following URL\n{X-URL}\n\n{X-SHOP_NAME}\n{X-SHOP_ADDRESS}\n{X-SHOP_TEL}\n{X-SHOP_MAIL}",SL_DOMAIN);		
-		if (empty($result['SALON_CONFIG_SEND_MAIL_TEXT_USER']) ) $result['SALON_CONFIG_SEND_MAIL_TEXT_USER'] = __("Mr/Ms {X-TO_NAME} \nThank you for the registration.\nyour User_id is {X-USER_ID},\nyour initial password is {X-PASSWORD}\n\n{X-SHOP_NAME}\n{X-SHOP_ADDRESS}\n{X-SHOP_TEL}\n{X-SHOP_MAIL}",SL_DOMAIN);
+		if (empty($result['SALON_CONFIG_SEND_MAIL_TEXT']) ) $result['SALON_CONFIG_SEND_MAIL_TEXT'] = __("Dear {X-TO_NAME} \nPlease confirm this reservation.Click the following URL\n{X-URL}\n\n{X-SHOP_NAME}\n{X-SHOP_ADDRESS}\n{X-SHOP_TEL}\n{X-SHOP_MAIL}",SL_DOMAIN);		
+		if (empty($result['SALON_CONFIG_SEND_MAIL_TEXT_USER']) ) $result['SALON_CONFIG_SEND_MAIL_TEXT_USER'] = __("Dear {X-TO_NAME} \nThank you for the registration.\nyour User_id is {X-USER_ID},\nyour initial password is {X-PASSWORD}\n\n{X-SHOP_NAME}\n{X-SHOP_ADDRESS}\n{X-SHOP_TEL}\n{X-SHOP_MAIL}",SL_DOMAIN);
 		
 		if (empty($result['SALON_CONFIG_SEND_MAIL_SUBJECT']) ) $result['SALON_CONFIG_SEND_MAIL_SUBJECT'] = __("Confirm Reservation",SL_DOMAIN);
 		if (empty($result['SALON_CONFIG_SEND_MAIL_SUBJECT_USER']) ) $result['SALON_CONFIG_SEND_MAIL_SUBJECT_USER'] = __("Your registration is completed",SL_DOMAIN);
@@ -53,7 +53,10 @@ abstract class Salon_Data {
 		if (empty($result['SALON_CONFIG_RESERVE_DEADLINE']) ) $result['SALON_CONFIG_RESERVE_DEADLINE'] =  Salon_Config::DEFALUT_RESERVE_DEADLINE;
 		if (empty($result['SALON_CONFIG_WEEK_FIRST']) ) $result['SALON_CONFIG_WEEK_FIRST'] =  Salon_Week::MONDAY;
 		
-		
+		//[2014/11/01]Ver1.5.1		
+		if (empty($result['SALON_CONFIG_SEND_MAIL_TEXT_INFORMATION']) ) $result['SALON_CONFIG_SEND_MAIL_TEXT_INFORMATION'] = __("Reservation has been from the customer.\nCustomer Name:{X-TO_NAME} \nStatus:{X-TO_STATUS} \nTime:{X-TO_TIME}\nStaff:{X-TO_STAFF}\nMenu:{X-TO_MENU}\nRemark:{X-TO_REMARK}",SL_DOMAIN);		
+		if (empty($result['SALON_CONFIG_SEND_MAIL_SUBJECT_INFORMATION']) ) $result['SALON_CONFIG_SEND_MAIL_SUBJECT_INFORMATION'] = __("Information of Reservation",SL_DOMAIN);
+		if (empty($result['SALON_CONFIG_SEND_MAIL_BCC']) ) $result['SALON_CONFIG_SEND_MAIL_BCC'] = "";
 		
 		
 				
@@ -94,7 +97,7 @@ abstract class Salon_Data {
 		else {
 			$result = $wpdb->get_results($sql,ARRAY_A);
 		}
-		if ((! $is_user) || (defined( 'MULTISITE' ) && is_super_admin() )  ) return $result;
+		if ((! $is_user) || (is_multisite() && is_super_admin() )  ) return $result;
 
 		$current_user = wp_get_current_user();
 		
@@ -424,7 +427,8 @@ abstract class Salon_Data {
 		$where = "";
 		$order = "";
 		if ($submenu != 'reserve' ) {
-			$where = ' AND status = '.Salon_Reservation_Status::COMPLETE;
+			$where = ' AND (status = '.Salon_Reservation_Status::COMPLETE
+					.'   OR status = '.Salon_Reservation_Status::DUMMY_RESERVED.' ) ';
 			$order = ' desc ';
 		}
 
@@ -527,6 +531,8 @@ abstract class Salon_Data {
 	
 	
 	}
+
+
 	
 
 	//テーブルにはひとつのキー項目がautoincrementで定義されている前提
@@ -674,7 +680,7 @@ abstract class Salon_Data {
 			return '';
 		}
 		global $wpdb;
-		if (defined( 'MULTISITE' ) && is_super_admin() ) {
+		if (is_multisite() && is_super_admin() ) {
 			$sql = ' SELECT branch_cd FROM '.$wpdb->prefix.'salon_branch '.
 					' WHERE delete_flg <> '.Salon_Reservation_Status::DELETED;
 		}
@@ -696,7 +702,7 @@ abstract class Salon_Data {
 
 	public function isSalonAdmin($user_login,&$role = false){	
 		if (!is_null($this->isAdmin)) return  $this->isAdmin;
-		if (defined( 'MULTISITE' ) && is_super_admin() ) {
+		if (is_multisite() && is_super_admin() ) {
 			$this->isAdmin = true;
 			$this->isPromotion = true;
 			return true;
@@ -1427,8 +1433,209 @@ abstract class Salon_Data {
 		}
 	}
 	//[2014/8/1]1.4.8
+	
+	//[2014/10/15]1.5.1
+	public function getCategoryDatas($table_id) {
+		global $wpdb;
+		$sql = $wpdb->prepare('SELECT  '.
+				' category_cd '.
+				' ,category_name '.
+				' ,category_patern '.
+				' ,category_values '.
+				' FROM '.$wpdb->prefix.'salon_category '.
+				' WHERE delete_flg <> '.Salon_Reservation_Status::DELETED.
+				' AND target_table_id = %d '.
+				' ORDER BY display_sequence,category_cd ',$table_id);
+		if ($wpdb->query($sql) === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+		return $result;
+	}
+	public function getAllCategoryData($key=null) {
+		global $wpdb;
+		$where = "";
+		if (!empty($key) ){
+			$where = ' AND category_cd = '.$key;
+		}
+		$sql = 'SELECT  '.
+				' category_cd '.
+				' ,category_name '.
+				' ,category_patern '.
+				' ,display_sequence '.
+				' ,target_table_id '.
+				' ,category_values '.
+				' FROM '.$wpdb->prefix.'salon_category '.
+				' WHERE delete_flg <> '.Salon_Reservation_Status::DELETED.
+				$where.
+				' ORDER BY display_sequence,category_cd ';
+		if ($wpdb->query($sql) === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+		return $result;
+	}
+	
 
+	public function getCategoryPatern(){
+		
+		$result = array();
+		$result[Salon_Category::RADIO] = __('Radio Button',SL_DOMAIN);
+		$result[Salon_Category::CHECK_BOX] = __('Check Box',SL_DOMAIN);
+		$result[Salon_Category::TEXT] = __('Text',SL_DOMAIN);
+		$result[Salon_Category::SELECT] = __('Select Box',SL_DOMAIN);
+		return $result;
+	}
 
+	public function getTagetTable(){
+		$result = array();
+		$result[Salon_Table_id::RECORD] = __('Record',SL_DOMAIN);
+		return $result;
+	}
+	
+	static function getOnlyReservatinData($reservation_cd){	
+		global $wpdb;
+		$where = '';
+		
+		$sql = $wpdb->prepare(
+						'SELECT '.
+						' reservation_cd ,'.
+						' non_regist_name as name,'.
+						' CONCAT (DATE_FORMAT(time_from,"'.__('%%m/%%d/%%Y',SL_DOMAIN).'")," ",DATE_FORMAT(time_from, "%%H:%%i"),"-",DATE_FORMAT(time_to, "%%H:%%i")) as reserved_time,'.
+						' branch_cd ,'.
+						' staff_cd ,'.
+						' item_cds ,'.
+						' remark ,'.
+						' status , '.
+						' coupon  '. 
+						' FROM '.$wpdb->prefix.'salon_reservation rs '.
+						' WHERE reservation_cd = %d ',$reservation_cd);
+
+		if ($wpdb->query($sql) === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+		
+		return $result[0];
+	
+	
+	}
+	
+	public function getStaffName($staff_cd){
+		global $wpdb;
+		if ($this->config['SALON_CONFIG_NAME_ORDER'] == Salon_Config::NAME_ORDER_JAPAN ) {
+			$name_order = 'um2.meta_value," " ,um1.meta_value';
+		}
+		else {
+			$name_order = 'um1.meta_value," " ,um2.meta_value';
+		}
+		
+		$sql = 	$wpdb->prepare(' SELECT concat('.$name_order.') as name '.
+				' FROM '.$wpdb->prefix.'salon_staff st  '.
+				' INNER JOIN '.$wpdb->users.' us  '.
+				'       ON    us.user_login = st.user_login '.
+				' INNER JOIN '.$wpdb->usermeta.' um1  '.
+				'       ON    us.ID = um1.user_id AND um1.meta_key ="first_name" '.
+				' INNER JOIN '.$wpdb->usermeta.' um2  '.
+				'       ON    us.ID = um2.user_id AND um2.meta_key ="last_name" '.
+				'WHERE staff_cd = %d ',$staff_cd);
+	
+		if ($wpdb->query($sql) === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+
+		return $result[0]['name'];
+	}
+
+	public function getItemsName($branch_cd,$items) {
+		global $wpdb;
+		
+		$sql = $wpdb->prepare(' SELECT item_cd , name '.
+			   ' FROM '.$wpdb->prefix.'salon_item  '.
+			   ' WHERE delete_flg <> '.Salon_Reservation_Status::DELETED.
+			   ' AND   branch_cd = %d ',$branch_cd);
+		if ($wpdb->query($sql) === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+		//一つの項目にまとめる
+		$edit_result = array();
+		if (count($result) > 0 ) {
+			foreach($result as $k1 => $d1) {
+				$edit_result[$d1['item_cd']] = $d1['name'];
+			}
+		}
+		$item_array =  explode(",",$items);
+		$name_array = array();
+		foreach($item_array as $d1 ) {
+			$name_array[] = $edit_result[$d1];
+		}
+		
+		return implode(',',$name_array);
+	}
+
+	public function sendInformationMail($reservation_cd) {
+		$to = $this->getConfigData('SALON_CONFIG_SEND_MAIL_BCC');
+		if (!empty($to)  ){
+			
+			$subject = $this->getConfigData('SALON_CONFIG_SEND_MAIL_SUBJECT_INFORMATION');
+			$header = $this->getConfigData('SALON_CONFIG_SEND_MAIL_FROM');	
+			if (!empty($header))	$header = "from:".$header."\n";
+			add_action( 'phpmailer_init', array( &$this,'setReturnPath') );
+			//
+			$result = $this->getOnlyReservatinData($reservation_cd);
+			
+			$send_mail_text = $this->getConfigData('SALON_CONFIG_SEND_MAIL_TEXT_INFORMATION');
+			
+			$body = $send_mail_text;
+			
+			$status = "";
+			if($result['status'] == Salon_Reservation_Status::TEMPORARY) {
+				$status  = __('tentative',SL_DOMAIN);
+			}
+			else {
+				if($result['status'] == Salon_Reservation_Status::DELETED) {
+					$status  = __('canceled',SL_DOMAIN);
+				}
+				else {
+					$status  = __('completed',SL_DOMAIN);
+				}
+			}
+			//
+			$type = $_POST['type'];
+			if ($type == "deleted" ) $type="canceled";
+			$status = sprintf(__('Action:%s Satus:%s',SL_DOMAIN),__($type,SL_DOMAIN),$status);		
+			
+			$body = str_replace('{X-TO_STATUS}',$status,$body);
+			$body = str_replace('{X-TO_NAME}',htmlspecialchars($result['name'],ENT_QUOTES),$body);
+			$body = str_replace('{X-TO_TIME}',$result['reserved_time'],$body);
+			$body = str_replace('{X-TO_REMARK}',htmlspecialchars($result['remark'],ENT_QUOTES),$body);
+
+			if (strpos( $send_mail_text, "X-TO_STAFF" ) !== false){
+				$body = str_replace('{X-TO_STAFF}',htmlspecialchars($this->getStaffName($result['staff_cd']),ENT_QUOTES),$body);
+			}
+			if (strpos( $send_mail_text, "X-TO_MENU" ) !== false){
+				$body = str_replace('{X-TO_MENU}',htmlspecialchars($this->getItemsName($result['branch_cd'],$result['item_cds']),ENT_QUOTES),$body);
+			}
+			if (wp_mail( $to,$subject, $body,$header ) === false ) {
+				error_log('mail error:'.__FILE__.__LINE__.' '.date_i18n('Y-m-d H:i:s')."\n", 3, ABSPATH.'/'.date('Y').'.txt');
+			}
+		}
+	}
+	
+
+	//[2014/10/15]1.5.1
 	public function getConfigData ($target = null) {
 		if (empty($target) ) return $this->config;
 		return @$this->config[$target];

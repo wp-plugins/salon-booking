@@ -41,7 +41,7 @@ class Customer_Component {
 		global $wpdb;
 //var_export($edit);
 		foreach ( $edit as $k1 => $d1 ) {
-			if (defined( 'MULTISITE' ) ) {
+			if (is_multisite() ) {
 				if (!isset($d1[$wpdb->prefix.'capabilities']) ) {
 					continue;
 				}

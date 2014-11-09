@@ -31,6 +31,17 @@ class Salon_Regist_Customer {
 	const NG = 0;
 }
 
+class Salon_Table_id {
+	const RECORD = 1;
+}
+
+class Salon_Category {
+	const RADIO = 1;
+	const CHECK_BOX = 2;
+	const TEXT = 3;
+	const SELECT = 4;
+}
+
 class Salon_Config {
 	const ONLY_BRANCH = 1;
 	const MULTI_BRANCH = 2;
@@ -74,6 +85,8 @@ class Salon_Config {
 	const DEFALUT_RESERVE_DEADLINE_UNIT_DAY = 1;
 	const DEFALUT_RESERVE_DEADLINE_UNIT_HOUR = 2;
 	const DEFALUT_RESERVE_DEADLINE_UNIT_MIN = 3;
+	//
+	const NO_REGISTED_CUSTOMER_CD = -1;
 	
 }
 
@@ -491,6 +504,17 @@ class Salon_Component {
 		return true;
 
 	}
+	
+	
+	//[2014/11/01]Ver1.5.1
+	static function dummy () {
+		$dummy = __('inserted',SL_DOMAIN);
+		$dummy = __('updated',SL_DOMAIN);
+		$dummy = __('deleted',SL_DOMAIN);
+		$dummy = __('cancel',SL_DOMAIN);
+		$dummy = __('exec',SL_DOMAIN);
+	}
+	
 	static function writeMailHeader() {
 		return "";
 //		$charset = '';
@@ -766,8 +790,13 @@ class Salon_Component {
 		//$from toはHHMM
 		if (strlen($from) == 3 ) $from = '0'.$from;
 		if (strlen($to) == 3 ) $to = '0'.$to;
+		//24時超え
+		$yyyymmdd = '2000/01/01 ';
+		if (intval($from) > intval($to) ) {
+			$yyyymmdd = '2000/01/02 '; 
+		}
 		$pasttime=strtotime('2000/01/01 '.sprintf("%s:%s:00",substr($from,0,2),substr($from,2,2)));
-		$thistime=strtotime('2000/01/01 '.sprintf("%s:%s:00",substr($to,0,2),substr($to,2,2)));
+		$thistime=strtotime($yyyymmdd.sprintf("%s:%s:00",substr($to,0,2),substr($to,2,2)));
 		$diff=$thistime-$pasttime;
 		return floor($diff/60);
 	}
@@ -780,7 +809,7 @@ class Salon_Component {
 		$target_name = strtolower ($class_name_array[0]);
 		if ( $target_name == 'booking' || $target_name == 'confirm' ) return;
 		//マルチサイトでネットワークユーザならOK
-		if (defined( 'MULTISITE' ) && is_super_admin() ) return;
+		if (is_multisite() && is_super_admin() ) return;
 		global $current_user;
 		get_currentuserinfo();
 		$user_roles = $current_user->roles;

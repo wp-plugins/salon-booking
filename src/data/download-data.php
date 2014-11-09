@@ -12,12 +12,13 @@ class Download_Data extends Salon_Data {
 	
 	public function getDownloadData($sql) {
 		global $wpdb;
-		$result = $wpdb->get_results($sql,ARRAY_A);
-		if ($result === false ) {
+		if ($wpdb->query($sql) === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
 		return $result;
-		
 	}
 	
 	public function writeCsvFile($file_name,$filedatas ) {

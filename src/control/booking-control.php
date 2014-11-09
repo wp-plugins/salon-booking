@@ -96,7 +96,9 @@ class Booking_Control extends Salon_Control  {
 				$this->datas->deleteTable($result);
 			}
 			$this->comp->sendMailForConfirm($this->pages->get_table_data());
+			$this->datas->sendInformationMail($this->pages->get_reservation_cd());
 		}
+		//booking_mobile_editはbooking_editを継承
 		elseif ($this->action_class == 'Booking_Mobile_Edit') { 
 			$this->pages->set_config_datas($this->datas->getConfigData());
 			if ($this->pages->check_request() ) {
@@ -118,6 +120,7 @@ class Booking_Control extends Salon_Control  {
 				$this->branch_cd = $this->pages->get_branch_cd();
 				$this->pages->set_branch_datas($this->datas->getBranchData($this->branch_cd));
 				$this->pages->set_reservation_datas($this->datas->getAllEventData($this->pages->get_target_day(),$this->branch_cd,true));
+				$this->datas->sendInformationMail($this->pages->get_reservation_cd());
 			}
 		}
 

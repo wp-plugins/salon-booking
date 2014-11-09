@@ -196,6 +196,11 @@
 			<?php //[2014/06/22]スタッフコードにより選択を変更 ?>
 			$j("#staff_cd").change(function(){
 				var checkday = +fnDayFormat(target_day_from,"%Y%m%d");
+				<?php //スタッフが１件の時は自動で設定する。
+				if (count($this->staff_datas) == 1 ) {
+					echo '$j("#staff_cd").val("'.$this->staff_datas[0]["staff_cd"].'");';
+				}
+				?>
 				if ($j(this).val() == <?php echo Salon_Default::NO_PREFERENCE; ?> ) {
 					$j("#item_cds input").parent().show();
 					$j("#item_cds input").attr("disabled",false);
@@ -704,7 +709,7 @@
         </div>
         <div id="slm_header_r3" class="slm_line">
             <ul>
-            	<li class="slm_li_3"><input type="input" id="slm_searchdate" name="slm_searchdate" placeholder="<?php _e('MM/DD/YYYY',SL_DOMAIN); ?>"></li>
+            	<li class="slm_li_4"><input type="input" id="slm_searchdate" name="slm_searchdate" placeholder="<?php _e('MM/DD/YYYY',SL_DOMAIN); ?>"></li>
                 <li class="slm_li_3"><span id="slm_searchdays"></span></li>
             </ul>
             <ul>

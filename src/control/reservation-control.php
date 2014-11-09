@@ -71,6 +71,7 @@ class Reservation_Control extends Salon_Control  {
 			}
 			elseif ($_POST['type'] == 'deleted' ) {
 				$this->datas->deleteTable( $res);
+				$reservation_cd = $res['reservation_cd'];
 			}
 			elseif ($_POST['type'] == 'cancel' ) {
 				$this->datas->cancelTable( $res);
@@ -81,6 +82,8 @@ class Reservation_Control extends Salon_Control  {
 				Salon_Component::editSalesData($this->datas->getTargetItemData($res['branch_cd']),$this->datas->getTargetStaffData($res['branch_cd']),$table_data);
 				$this->pages->set_table_data($table_data[0]);
 			}
+			$this->datas->sendInformationMail($reservation_cd);
+
 		}
 
 		$this->pages->show_page();

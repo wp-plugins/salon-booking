@@ -101,10 +101,23 @@
 			$timeline_array = array();
 			foreach ($this->working_datas as $k1 => $d1 ) {
 				$tmp = (string)(intval(substr($k1,0,4))).','.(string)(intval(substr($k1,4,2))-1).','.(string)(intval(substr($k1,6,2))+0);
+
+
+				$next_day  = new DateTime($k1);
+				$next_day->modify('+1 days');
+				$tmp_next = $next_day->format("Ymd");
+				$tmp_next = (string)(intval(substr($tmp_next,0,4))).','.(string)(intval(substr($tmp_next,4,2))-1).','.(string)(intval(substr($tmp_next,6,2))+0);
+
+
 				foreach ($d1 as $k2 => $d2 ) {
 					$start_time = ','.(string)(intval(substr($d2['in_time'],8,2))).','.(string)(intval(substr($d2['in_time'],10,2)));
 					$end_time = ','.(string)(intval(substr($d2['out_time'],8,2))).','.(string)(intval(substr($d2['out_time'],10,2)));
-					$tmp_timeline = '{ "start_date":new Date('.$tmp.$start_time.'),"end_date":new Date('.$tmp.$end_time.'),"staff_cd":"'.$d2['staff_cd'].'"}';
+					if (substr($d2['in_time'],0,8) == substr($d2['out_time'],0,8) ){
+						$tmp_timeline = '{ "start_date":new Date('.$tmp.$start_time.'),"end_date":new Date('.$tmp.$end_time.'),"staff_cd":"'.$d2['staff_cd'].'"}';
+					}
+					else {
+						$tmp_timeline = '{ "start_date":new Date('.$tmp.$start_time.'),"end_date":new Date('.$tmp_next.$end_time.'),"staff_cd":"'.$d2['staff_cd'].'"}';
+					}
 					$timeline_array[] = $tmp_timeline;
 				}
 			}
@@ -464,6 +477,11 @@ EOT3;
 
 			<?php //[2014/06/22]スタッフコードにより選択を変更 ?>
 			$j("#staff_cd").change(function(){
+				<?php //スタッフが１件の時は自動で設定する。
+				if (count($this->staff_datas) == 1 ) {
+					echo '$j("#staff_cd").val("'.$this->staff_datas[0]["staff_cd"].'");';
+				}
+				?>
 				var checkday = +fnDayFormat(target_day_from,"%Y%m%d");
 				if (!$j(this).val()  ) {
 					$j("#item_cds input").attr("disabled",true);

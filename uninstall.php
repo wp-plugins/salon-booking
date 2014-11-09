@@ -12,7 +12,7 @@ if ( !defined('SALON_UPLOAD_DIR') ){
 
 function salon_delete_plugin() {
 	
-//	if (defined( 'MULTISITE' ) ) {
+//	if (is_multisite() ) {
 //		$sites = wp_get_sites();
 //		foreach ( $sites as $site ) {
 //			switch_to_blog( $site['blog_id'] );
@@ -44,7 +44,8 @@ function salon_drop_table (){
 	$wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."salon_log" );
 	$wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."salon_photo" );
 	$wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."salon_promotion" );
-//	$wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."salon_customer_extension" );
+	$wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."salon_category" );
+	$wpdb->query( "DROP TABLE IF EXISTS ".$wpdb->prefix."salon_customer_record" );
 
 	$id = get_option('salon_confirm_page_id');
 	if (! empty($id)  ){

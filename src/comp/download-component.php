@@ -38,7 +38,9 @@ class Download_Component {
 				' INNER JOIN '.$wpdb->prefix.'salon_staff st'.
 				' ON rs.staff_cd = st.staff_cd OR rs.staff_cd = '.Salon_Default::NO_PREFERENCE.
 				' INNER JOIN '.$wpdb->prefix.'salon_branch br'.
-				' ON rs.branch_cd = br.branch_cd';
+				' ON rs.branch_cd = br.branch_cd'.
+				' LEFT JOIN '.$wpdb->prefix.'salon_promotion po'.
+				' ON po.set_code = sa.coupon';
 			$this->_editDownloadData($items,$cols,$where,$sql,$branch_cd);
 		}
 		$this->_writeCsvFile();
@@ -119,8 +121,6 @@ class Download_Component {
 				}
 			}
 		}
-		
-		
 		
 		 $this->csv_data = $result;
 		

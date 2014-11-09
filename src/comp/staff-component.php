@@ -69,7 +69,7 @@ class Staff_Component {
 		$current_user = wp_get_current_user();
 		global $wpdb;
 		foreach ( $edit as $k1 => $d1 ) {
-			if (defined( 'MULTISITE' ) ) {
+			if (is_multisite() ) {
 				if (!isset($d1[$wpdb->prefix.'capabilities']) ) {
 					continue;
 				}
@@ -80,7 +80,7 @@ class Staff_Component {
 			//後からマルチサイトでネットワークアドミンの場合を追加
 			
 			$check_role = false;
-			if ( (defined( 'MULTISITE' ) && is_super_admin() ) ) {
+			if ( (is_multisite() && is_super_admin() ) ) {
 				$check_role = $this->_is_TargetUser($role,'administrator');
 			}
 			else {

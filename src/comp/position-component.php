@@ -49,9 +49,11 @@ class Position_Component {
 		$set_data[10] = array('name'=>__('Promotion Use',SL_DOMAIN),'func'=> 'edit_use_promotion');
 		$set_data[11] = array('name'=>__('Time Card',SL_DOMAIN),'func'=>'edit_working');
 		$set_data[12] = array('name'=>__('Time Card(full members)',SL_DOMAIN),'func'=>'edit_working_all');
-		$set_data[13] = array('name'=>__('Basic Information',SL_DOMAIN),'func'=>'edit_base');
-		$set_data[14] = array('name'=>__('Authoriy of Management',SL_DOMAIN),'func'=>'edit_admin');
-		$set_data[15] = array('name'=>__('View Log',SL_DOMAIN),'func'=>'edit_log');
+		$set_data[13] = array('name'=>__('Customer Record',SL_DOMAIN),'func'=>'edit_record');
+		$set_data[14] = array('name'=>__('Category Setting',SL_DOMAIN),'func'=>'edit_category');
+		$set_data[15] = array('name'=>__('Basic Information',SL_DOMAIN),'func'=>'edit_base');
+		$set_data[16] = array('name'=>__('Authoriy of Management',SL_DOMAIN),'func'=>'edit_admin');
+		$set_data[17] = array('name'=>__('View Log',SL_DOMAIN),'func'=>'edit_log');
 		return $set_data;
 	}
 }

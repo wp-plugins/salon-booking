@@ -13,7 +13,7 @@ class Mail_Page extends Salon_Page {
 
 	public function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch);
-		$this->set_items = array('send_mail_text_on_mail','regist_mail_text_on_mail','mail_from_on_mail','mail_returnPath_on_mail','target_mail_patern','send_mail_subject','regist_mail_subject');
+		$this->set_items = array('send_mail_text_on_mail','regist_mail_text_on_mail','mail_from_on_mail','mail_returnPath_on_mail','target_mail_patern','send_mail_subject','regist_mail_subject','information_mail_text_on_mail','information_mail_subject','mail_bcc');
 	}
 	  
 	public function set_config_datas($config) {
@@ -59,16 +59,26 @@ class Mail_Page extends Salon_Page {
 				
 				$j(".sl_mail_wrap").hide();
 				$j("#sl_mail_warp_"+$j(this).val()).show();
+				
+				$j("#sl_mail_wrap_bcc").hide();
+				if ($j(this).val() == "information" ) {
+					$j("#sl_mail_wrap_bcc").show();
+				}
+				
 			});
 
 			$j("#send_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n', $this->config['SALON_CONFIG_SEND_MAIL_TEXT']); ?>");
 			$j("#regist_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n', $this->config['SALON_CONFIG_SEND_MAIL_TEXT_USER']); ?>");
+			$j("#information_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n', $this->config['SALON_CONFIG_SEND_MAIL_TEXT_INFORMATION']); ?>");
 
 			$j("#send_mail_subject").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_SUBJECT']; ?>");
 			$j("#regist_mail_subject").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_SUBJECT_USER']; ?>");
+			$j("#information_mail_subject").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_SUBJECT_INFORMATION']; ?>");
 
 			$j("#mail_from").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_FROM']; ?>");
 			$j("#mail_returnPath").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_RETURN_PATH']; ?>");
+			
+			$j("#mail_bcc").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_BCC']; ?>");
 			
 			$j("#target_mail_patern").val("confirm").change();
 
@@ -87,10 +97,13 @@ class Mail_Page extends Salon_Page {
 					data: {
 						"config_mail_text":$j("#send_mail_text").val()						
 						,"config_mail_text_user":$j("#regist_mail_text").val()						
+						,"config_mail_text_information":$j("#information_mail_text").val()						
 						,"config_mail_subject":$j("#send_mail_subject").val()						
 						,"config_mail_subject_user":$j("#regist_mail_subject").val()						
+						,"config_mail_subject_information":$j("#information_mail_subject").val()						
 						,"config_mail_from":$j("#mail_from").val()	
 						,"config_mail_returnPath":$j("#mail_returnPath").val()	
+						,"config_mail_bcc":$j("#mail_bcc").val()	
 						,"nonce":"<?php echo $this->nonce; ?>"
 						,"menu_func":"Mail_Edit"
 
@@ -128,8 +141,12 @@ class Mail_Page extends Salon_Page {
 		<select id="target_mail_patern" >
 			<option value="confirm" ><?php _e('The Mail to Confirming Notice to the Client',SL_DOMAIN); ?></option>
 			<option value="regist" ><?php _e('The Mail to respond to the Client newly registered as a Member',SL_DOMAIN); ?></option>
+			<option value="information" ><?php _e('The Mail to information to the registerd staff member',SL_DOMAIN); ?></option>
 		
 		</select>
+        <div id="sl_mail_wrap_bcc" >
+        <textarea id="mail_bcc" ></textarea>
+        </div>
 		<div id="sl_mail_warp_confirm" class="sl_mail_wrap" >
 			<input id="send_mail_subject"  />
 			<textarea id="send_mail_text" class="sl_mail_area" ></textarea>
@@ -138,6 +155,14 @@ class Mail_Page extends Salon_Page {
 			<input id="regist_mail_subject"  />
 			<textarea id="regist_mail_text"  class="sl_mail_area"></textarea>
 		</div>	
+		<div id="sl_mail_warp_information" class="sl_mail_wrap">
+			<input id="information_mail_subject"  />
+			<textarea id="information_mail_text"  class="sl_mail_area"></textarea>
+		</div>	
+        
+ 
+
+
 		<div class="spacer"></div>
 	</div>
 	

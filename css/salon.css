@@ -710,5 +710,53 @@ div.sl_staff_name:hover  p.sl_intro_box { display: block; }
 	margin:0px 0px 20px 0px ;
 }
 
+/*カテゴリ関連 */
+.sl_category_option {
+	margin:0px 5px 0px 5px !important;
+	padding:0px 0px 0px 0px !important;
+	width:auto !important;
+	
+
+}
+
+
+dl#sl_category_wrap  {
+	width:700px;
+	overflow:hidden; 
+	border:1px solid #ccc;
+	border-top:none; 
+	background:#ddd;
+}
+
+
+dl#sl_category_wrap dt {
+	width:150px;
+	float:left;
+	padding:10px;
+	border-top:1px solid #ccc;
+	margin:0px;
+}
+
+dl#sl_category_wrap label {
+	width:150px;
+}
+
+dl#sl_category_wrap dd {
+	width:509px;
+	float:left;
+	padding:10px;
+	border-left:1px solid #ccc; 
+	border-top:1px solid #ccc;
+/*	background:#fff; */
+	margin:0px;
+}
+
+.sl_category_span {
+	height:25px;
+}
+
+dl#sl_category_wrap dd:after {
+	clear:both;
+}
 
 

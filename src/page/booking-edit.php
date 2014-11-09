@@ -7,7 +7,7 @@ class Booking_Edit extends Salon_Page {
 	
 	
 	protected $table_data = null;
-	private $reservation_cd = '';
+	protected $reservation_cd = '';
 
 	public function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch);
@@ -26,6 +26,9 @@ class Booking_Edit extends Salon_Page {
 	public function set_reservation_cd($reservation_cd) {
 		$this->reservation_cd = $reservation_cd;
 		$this->table_data['reservation_cd'] = $reservation_cd;
+	}
+	public function get_reservation_cd() {
+		return $this->reservation_cd;
 	}
 
 	

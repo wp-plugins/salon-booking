@@ -104,6 +104,9 @@ class Booking_Mobile_Edit extends Booking_Edit {
 		//YYYY-MM-DD HH:MM 最後に読み直すために
 		$split = explode(' ',$_POST['start_date']);
 		$this->target_day = str_replace('-','',$split[0]); 
+		if ($_POST['type'] != 'inserted' ) {
+			$this->reservation_cd = intval($_POST['id']);
+		} 
 	}
 
 	public function show_page() {

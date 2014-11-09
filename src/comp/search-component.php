@@ -25,7 +25,7 @@ class Search_Component {
 		global $wpdb;
 		foreach ($datas as $k1 => $d1 ) {
 			$is_exist = false;
-			if (defined( 'MULTISITE' ) ) {
+			if (is_multisite() ) {
 				if (!isset($d1[$wpdb->prefix.'capabilities']) ) {
 					continue;
 				}

@@ -217,15 +217,15 @@ EOT;
 	}
 
 
-	static function echoDataTableLang() {
+	static function echoDataTableLang($iDisplayLength = 100,$only_lang_display = false,$sEmptyTable = "",$sInfoEmpty = "") {
 		$sLengthMenu = __('Display _MENU_ records per page',SL_DOMAIN);
 		$sNext = __('Next Page',SL_DOMAIN);
 		$sPrevious = __('Prev Page',SL_DOMAIN);
 		$sInfo = __('Showing _START_ to _END_ of _TOTAL_ records',SL_DOMAIN);
 		$sSearch = __('search',SL_DOMAIN);
-		$sEmptyTable = __('No data available in table',SL_DOMAIN);
+		if (empty($sEmptyTable)) $sEmptyTable = __('No data available in table',SL_DOMAIN);
 		$sLoadingRecords = __('Loading...' ,SL_DOMAIN);
-		$sInfoEmpty = __('Showing 0 to 0 of 0 entries' ,SL_DOMAIN);
+		if (empty($sInfoEmpty)) $sInfoEmpty = __('Showing 0 to 0 of 0 entries' ,SL_DOMAIN);
 		$sZeroRecords = __('No matching records found' ,SL_DOMAIN);
 		
 		echo <<<EOT
@@ -236,7 +236,7 @@ EOT;
 			"bLengthChange": false,
 			"bPaginate": true,
 			//"bServerSide": true,
-			iDisplayLength : 100,
+			iDisplayLength : {$iDisplayLength},
 			"oLanguage": {
 			        "sLengthMenu": "{$sLengthMenu}"
 			        ,"oPaginate": {
@@ -249,7 +249,10 @@ EOT;
 					,"sLoadingRecords":"{$sLoadingRecords}"
 					,"sInfoEmpty":"{$sInfoEmpty}"
 					,"sZeroRecords":"{$sZeroRecords}"
-			},	
+			},
+EOT;
+		if ($only_lang_display) return;
+		echo <<<EOT2
 			fnServerData: function(sSource, aoData, fnCallback, oSettings) {
 				\$j.ajax({
 					url: sSource,
@@ -271,7 +274,7 @@ EOT;
 				})
 			},
 			
-EOT;
+EOT2;
 	}
 
 
@@ -2078,6 +2081,13 @@ EOT2;
 
 		$item_contents['regist_mail_text_on_mail'] = $item_contents['regist_mail_text'];
 		$item_contents['regist_mail_text_on_mail']['label'] = substr($item_contents['regist_mail_text_on_mail']['label'],3);
+		//[2014/11/01]Ver1.5.1		
+		$item_contents['information_mail_text_on_mail'] =array('id'=>'information_mail_text'
+		 ,'class' => array()
+		 ,'check' => array( 'lenmax300')
+		 ,'label' => __('The Content of the Mail to staff member new reservations',SL_DOMAIN)
+		 ,'tips' => __('within 300 charctors.  {X-TO_NAME} in the content replace customer name',SL_DOMAIN));
+
 
 
 		$item_contents['config_staff_holiday_set'] =array('id'=>'config_staff_holiday_normal'
@@ -2358,6 +2368,17 @@ EOT2;
 		 ,'check' => array('lenmax78')
 		 ,'label' => __('The Subject of the Mail to respond to the Client newly registered as a Member',SL_DOMAIN)
 		 ,'tips' => __('within 78 charctors.',SL_DOMAIN));
+		//[2014/11/01]Ver1.5.1		
+		$item_contents['information_mail_subject'] =array('id'=>'information_mail_subject'
+		 ,'class' => array()
+		 ,'check' => array('lenmax78')
+		 ,'label' => __('The Subject of the Mail to staff member new reservations',SL_DOMAIN)
+		 ,'tips' => __('within 78 charctors.',SL_DOMAIN));
+		$item_contents['mail_bcc'] =array('id'=>'mail_bcc'
+		 ,'class' => array()
+		 ,'check' => array()
+		 ,'label' => __('Mail address (Bcc)',SL_DOMAIN)
+		 ,'tips' => __('If you need the information of reservations,enter mail address separated by commas',SL_DOMAIN));
 
 		//[20140714]Ver1.4.7
 		$item_contents['reserve_deadline'] =array('id'=>'reserve_deadline'
@@ -2440,7 +2461,49 @@ EOT2;
 		 ,'label' => __('coupon',SL_DOMAIN)
 		 ,'tips' => __('please select',SL_DOMAIN));
 
+		$item_contents['record_time'] =array('id'=>'reserved_time'
+		 ,'class' => array()
+		 ,'check' => array( )
+		 ,'label' => __('Reserved Time',SL_DOMAIN)
+		 ,'tips' => ''
+		 ,'table' => array(  'class'=>''
+							,'width'=>self::LONG_WIDTH
+							,'sort'=>'true'
+							,'search'=>'true'
+							,'visible'=>'true' ));
+		//[2014/10/30]Ver1.5.1
+		$item_contents['category_name'] =array('id'=>'sl_category_name'
+		 ,'class' => array()
+		 ,'check' => array( 'chk_required','lenmax50')
+		 ,'label' => __('Category name',SL_DOMAIN)
+		 ,'tips' => __('within 50 charactors',SL_DOMAIN)
+		 ,'table' => array(  'class'=>''
+							,'width'=>self::MIDDLE_WIDTH
+							,'sort'=>'true'
+							,'search'=>'true'
+							,'visible'=>'true' ));
+		$item_contents['category_patern'] =array('id'=>'sl_category_patern'
+		 ,'class' => array()
+		 ,'check' => array( 'chk_required')
+		 ,'label' => __('Category Patern',SL_DOMAIN)
+		 ,'tips' => __('select please',SL_DOMAIN)
+		 ,'table' => array(  'class'=>''
+							,'width'=>self::MIDDLE_WIDTH
+							,'sort'=>'true'
+							,'search'=>'true'
+							,'visible'=>'true' ));
+		$item_contents['category_value'] =array('id'=>'sl_category_value'
+		 ,'class' => array()
+		 ,'check' => array('chk_required')
+		 ,'label' => __('Category Value',SL_DOMAIN)
+		 ,'tips' => __('Display values are separated by commas',SL_DOMAIN));
 
+		$item_contents['target_table'] =array('id'=>'sl_target_table'
+		 ,'class' => array()
+		 ,'check' => array( 'chk_required')
+		 ,'label' => __('Select Taget Table',SL_DOMAIN)
+		 ,'tips' => __('Now only the information of record is available',SL_DOMAIN));
+		 
 		return $item_contents;	
 	
 		
@@ -2457,7 +2520,15 @@ EOT2;
 		foreach ($items as $d1) {
 			$id = $item_contents[$d1]['id'];
 			foreach ($item_contents[$d1]['check'] as $d2 ) {
-				self::serverEachCheck($_POST[$id],trim($d2),$item_contents[$d1]['label'],$err_msg);
+				//[2014/11/01]Ver1.5.1
+				$key = "";
+				if (array_key_exists($id,$_POST) ) {
+					$key = $_POST[$id];
+				}
+				else {
+					$key = $d1;
+				}
+				self::serverEachCheck($key,trim($d2),$item_contents[$d1]['label'],$err_msg);
 
 /*
 				if (trim($d2) == 'chk_required') {
@@ -2802,7 +2873,7 @@ EOT2;
 			$download_items['name'] = array('id'=>'name','label'=>__('Name',SL_DOMAIN),'check'=>'checked','col'=>'non_regist_name');
 			$download_items['staff'] = array('id'=>'staff','label'=>__('Staff',SL_DOMAIN),'check'=>'checked','col'=>'st.user_login','user'=>'need');
 			$download_items['item'] = array('id'=>'item','label'=>__('Menu',SL_DOMAIN),'check'=>'checked','col'=>'item_cds','item'=>'need');
-			$download_items['remark'] = array('id'=>'remark','label'=>__('Wishes',SL_DOMAIN),'check'=>'','col'=>'rs.remark');
+			$download_items['remark'] = array('id'=>'remark','label'=>__('Remark',SL_DOMAIN),'check'=>'','col'=>'rs.remark');
 		}
 		elseif ($_POST['target'] == 'sales' ) {
 			$date = 'CONCAT (DATE_FORMAT(sa.time_from,"'.__('%m/%d/%Y',SL_DOMAIN).'")," ",DATE_FORMAT(sa.time_from, "%H:%i"),"-",DATE_FORMAT(sa.time_to, "%H:%i"))';			
@@ -2810,7 +2881,9 @@ EOT2;
 			$download_items['name'] = array('id'=>'name','label'=>__('Name',SL_DOMAIN),'check'=>'checked','col'=>'non_regist_name');
 			$download_items['staff'] = array('id'=>'staff','label'=>__('Staff',SL_DOMAIN),'check'=>'checked','col'=>'st.user_login','user'=>'need');
 			$download_items['item'] = array('id'=>'item','label'=>__('Menu',SL_DOMAIN),'check'=>'checked','col'=>'sa.item_cds','item'=>'need');
-			$download_items['remark'] = array('id'=>'remark','label'=>__('Comment',SL_DOMAIN),'check'=>'','col'=>'sa.remark');
+			$download_items['coupon'] = array('id'=>'coupon','label'=>__('Coupon',SL_DOMAIN),'check'=>'checked','col'=>'po.description');
+			$download_items['price'] = array('id'=>'price','label'=>__('Price',SL_DOMAIN),'check'=>'checked','col'=>'sa.price');
+			$download_items['remark'] = array('id'=>'remark','label'=>__('Remark',SL_DOMAIN),'check'=>'','col'=>'sa.remark');
 		}
 		return $download_items;
 	}

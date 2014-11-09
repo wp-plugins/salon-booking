@@ -54,6 +54,8 @@ class Confirm_Control extends Salon_Control  {
 			elseif ( $_POST['type'] == 'cancel' ) {
 				$this->datas->deleteTable($table_data);
 			}
+			$this->datas->sendInformationMail($this->pages->get_reservation_cd());
+			
 		}
 
 		$this->pages->show_page();
