@@ -314,50 +314,121 @@ class Salon_Component {
 			//yyyy-mm-dd
 			$ymd = str_replace('-','',substr($set_data['time_from'],0,10));
 
+
+			$in_time = str_replace(':','',substr($set_data['time_from'],-5));
+
+			//２４時超えで翌日だったら日付をひとつ前にする
+			if (+substr($result_branch[0]['close_time'],0,2) > 23) {
+				if ($in_time < $result_branch[0]['open_time'] ) {
+					$ymd_24 = new DateTime(substr($set_data['time_from'],0,10));
+					$ymd_24->modify('-1 day');
+					$ymd = $ymd_24->format('Ymd');
+				}
+			} 
+
+
 			if(isset($sp_dates[$year][$ymd]) && $sp_dates[$year][$ymd] == Salon_Status::OPEN ) {
+			}
+			elseif(isset($sp_dates[$year][$ymd]) && $sp_dates[$year][$ymd] == Salon_Status::CLOSE ) {
+						throw new Exception(self::getMsg('E213'),__LINE__);
 			}
 			else {
 				$holidays = explode(',',$result_branch[0]['closed']);
 				$holidays_detail = explode(';',$result_branch[0]['memo']);
 				
 				$set_holiday = salon_component::getDayOfWeek($set_data['time_from']);
-				
+
+
+				//２４時超えで翌日だったら曜日をひとつ前にする
+				if (+substr($result_branch[0]['close_time'],0,2) > 23) {
+					if ($in_time < $result_branch[0]['open_time'] ) {
+						$set_holiday--;
+						if ($set_holiday == -1 ) $set_holiday = 6;
+					}
+				} 
 				if (in_array($set_holiday,$holidays)  ) {
 					$idx = array_search($set_holiday,$holidays);
 					if ($idx === false) {
 						throw new Exception(self::getMsg('E901',basename(__FILE__).':'.__LINE__));
 					}
 					$holiday_time = explode(",",$holidays_detail[$idx]);
-					$holiday_in_time = +str_replace(':','',$holiday_time[0]);
-					$holiday_out_time = +str_replace(':','',$holiday_time[1]);
+					$holiday_in_time = str_replace(':','',$holiday_time[0]);
+					$holiday_out_time = str_replace(':','',$holiday_time[1]);
 					
-					$in_time = +str_replace(':','',substr($set_data['time_from'],-5));
-					$out_time = +str_replace(':','',substr($set_data['time_to'],-5));
+					$out_time = str_replace(':','',substr($set_data['time_to'],-5));
+
+					if (+substr($result_branch[0]['close_time'],0,2) > 23) {
+						//24時超えの場合は24加算する
+						if ($in_time < $result_branch[0]['open_time'] ) {
+							$in_time = sprintf("%02d",(+substr($in_time,0,2)+24)).substr($in_time,2,2);
+						}
+						if ($out_time < $result_branch[0]['open_time'] ) {
+							$out_time = sprintf("%02d",(+substr($out_time,0,2)+24)).substr($out_time,2,2);
+						}
+					} 
 					//休みの時間の中にはいっていてはいけない
 					if ($out_time <= $holiday_in_time || $holiday_out_time <= $in_time ) {
 					}
 					else {
-						throw new Exception(self::getMsg('E213',basename(__FILE__).':'.__LINE__),1);
+						throw new Exception(self::getMsg('E213'),__LINE__);
 					}
 				}
 			}
 			//予約が営業時間内に収まっているか？
-			$in_time = +str_replace(':','',substr($set_data['time_from'],-5));
-			$out_time = +str_replace(':','',substr($set_data['time_to'],-5));
-			if (+$result_branch[0]['open_time'] > $in_time  ||  $out_time > +$result_branch[0]['close_time'] ) {
-				throw new Exception(self::getMsg('E213',basename(__FILE__).':'.__LINE__),1);
+			$in_time = str_replace(':','',substr($set_data['time_from'],-5));
+			$out_time = str_replace(':','',substr($set_data['time_to'],-5));
+			//24時間超え
+			if (+substr($result_branch[0]['close_time'],0,2) > 23 ) {
+				if ($in_time < $result_branch[0]['open_time']) $in_time = Salon_Component::editOver24Calc($in_time);
+				if ($out_time < $result_branch[0]['open_time']) $out_time = Salon_Component::editOver24Calc($out_time);
+				if ($result_branch[0]['open_time'] > $in_time  ||  $out_time > $result_branch[0]['close_time'] ) {
+					throw new Exception(self::getMsg('E213'),__LINE__);
+				}
+			}
+			else {
+				if ($result_branch[0]['open_time'] > $in_time  ||  $out_time > $result_branch[0]['close_time'] ) {
+					throw new Exception(self::getMsg('E213'),__LINE__);
+				}
 			}
 			
 			if  ($set_data['staff_cd'] !=  Salon_Default::NO_PREFERENCE ) {
 				if ($datas->getConfigData('SALON_CONFIG_STAFF_HOLIDAY_SET') == Salon_Config::SET_STAFF_NORMAL ) {
 					//スタッフの休みのチェック その日のスタッフの全データを取得
+//					$sql =	' SELECT working_cds, '.
+//							' DATE_FORMAT(in_time,"%%H%%i") as in_time,'.
+//							' DATE_FORMAT(out_time,"%%H%%i") as out_time '.
+//							' FROM '.$wpdb->prefix.'salon_working wk '.
+//							'   WHERE %s <= in_time   AND  out_time <= %s '.
+//							'     AND staff_cd = %d ';
 					$sql =	' SELECT working_cds, '.
-							' DATE_FORMAT(in_time,"%%H%%i") as in_time,'.
-							' DATE_FORMAT(out_time,"%%H%%i") as out_time '.
+							'  in_time,'.
+							'  out_time '.
 							' FROM '.$wpdb->prefix.'salon_working wk '.
 							'   WHERE %s <= in_time   AND  out_time <= %s '.
 							'     AND staff_cd = %d ';
-					$sql  = $wpdb->prepare($sql,substr($set_data['time_from'],0,10),substr($set_data['time_from'],0,10)." 23:59",$set_data['staff_cd']);
+					//24時超え
+					if (+substr($result_branch[0]['close_time'],0,2) > 23 ) {
+						$in_time = str_replace(':','',substr($set_data['time_from'],-5));
+						//２４時超えで翌日だったら曜日をひとつ前にする
+						if ($in_time < $result_branch[0]['open_time'] ) {
+							$lastday = self::computeDate(-1,substr($set_data['time_from'],0,4),substr($set_data['time_from'],5,2),substr($set_data['time_from'],8,2));
+							$lastday = substr($lastday,0,10);
+						}
+						else {
+							$lastday = substr($set_data['time_from'],0,10);
+						}
+						$lastday .= " ".substr($result_branch[0]['open_time'],0,2).":".substr($result_branch[0]['open_time'],2,2);
+
+						$nextdaytmp = new DateTime(substr($lastday,0,10));
+						$nextdaytmp->modify('+1 day');
+						$nexthh =  sprintf("%02d",+substr($result_branch[0]['close_time'],0,2)-24 ).":".substr($result_branch[0]['close_time'],2,2);
+						$nextday = $nextdaytmp->format('Y-m-d')." ".$nexthh;
+
+						$sql  = $wpdb->prepare($sql,$lastday,$nextday,$set_data['staff_cd']);
+					}
+					else {
+						$sql  = $wpdb->prepare($sql,substr($set_data['time_from'],0,10),substr($set_data['time_to'],0,10)." 24:00",$set_data['staff_cd']);
+					}
 					if ($wpdb->query($sql) === false ) {
 						$datas->_dbAccessAbnormalEnd();
 					}
@@ -365,23 +436,35 @@ class Salon_Component {
 						$result = $wpdb->get_results($sql,ARRAY_A);					
 					}
 					if (count($result) > 0 ) {
-						$in_time = +str_replace(':','',substr($set_data['time_from'],-5));
-						$out_time = +str_replace(':','',substr($set_data['time_to'],-5));
+						$in_time = strtotime($set_data['time_from']);
+						$out_time = strtotime($set_data['time_to']);
+						//複数回の出退勤を考慮
+						$plu_check_ok_flg = true;
 						foreach($result as $k1 => $d1 ) {
 							$working_cds = explode( ',',$d1['working_cds']);
 							//休みの場合は、指定時間が休みの時間に入っていてはいけない
+							$chk_intime = strtotime($d1['in_time'] );
+							$chk_outtime = strtotime($d1['out_time']);
+							
 							if (in_array(Salon_Working::DAY_OFF,$working_cds) ) {
-								if ($out_time > +$result[0]['in_time'] && +$result[0]['out_time'] >  $in_time  ){
+								if ($out_time > $chk_intime && $chk_outtime >  $in_time  ){
 									throw new Exception(__('this staff can not be reserved in this time range',SL_DOMAIN),__LINE__);
 								}
 							}
 							//逆に勤務状態だったら時間帯に入っていること。早退・遅刻でも通常かHOLIDAYはworking登録時に設定
 							elseif ( in_array(Salon_Working::USUALLY,$working_cds) ||
 									in_array(Salon_Working::HOLIDAY_WORK,$working_cds) 	) {
-								if (+$result[0]['in_time'] > $in_time || $out_time > +$result[0]['out_time'] ) {
-									throw new Exception(__('this staff can not be reserved in this time range',SL_DOMAIN),__LINE__);
+								if ($chk_intime > $in_time || $out_time > $chk_outtime ) {
+									$plu_check_ok_flg = false;
+								}
+								else {
+									$plu_check_ok_flg = true;
+									break;
 								}
 							}
+						}
+						if (!$plu_check_ok_flg) {
+								throw new Exception(__('this staff can not be reserved in this time range',SL_DOMAIN),__LINE__);
 						}
 					}
 				}
@@ -391,10 +474,9 @@ class Salon_Component {
 							' DATE_FORMAT(in_time,"%%H%%i") as in_time,'.
 							' DATE_FORMAT(out_time,"%%H%%i") as out_time '.
 							' FROM '.$wpdb->prefix.'salon_working wk '.
-							'   WHERE ((in_time <= %s AND %s <= out_time ) '.
-							'     OR   (in_time <= %s AND %s <= out_time ) )'.
+							'   WHERE in_time <= %s AND %s <= out_time  '.
 							'     AND staff_cd = %d ';
-					$sql  = $wpdb->prepare($sql,$set_data['time_from'],$set_data['time_from'],$set_data['time_to'],$set_data['time_to'],$set_data['staff_cd']);
+					$sql  = $wpdb->prepare($sql,$set_data['time_from'],$set_data['time_to'],$set_data['staff_cd']);
 					if ($wpdb->query($sql) === false ) {
 						$datas->_dbAccessAbnormalEnd();
 					}
@@ -790,15 +872,38 @@ class Salon_Component {
 		//$from toはHHMM
 		if (strlen($from) == 3 ) $from = '0'.$from;
 		if (strlen($to) == 3 ) $to = '0'.$to;
+		$fromhh = +substr($from,0,2);
+		$frommm = +substr($from,2,2);
+		$tohh = +substr($to,0,2);
+		$tomm = +substr($to,2,2);
+		//fromが２４を超えているならｔｏも超えている
+		if ($fromhh > 23 ) {
+			$fromhh = $fromhh - 24;
+			$tohh = $tohh - 24;
+		}
+		else {
+			if ($tohh > 23 ) {
+				$tohh = $tohh - 24;
+			}
+		}
 		//24時超え
 		$yyyymmdd = '2000/01/01 ';
-		if (intval($from) > intval($to) ) {
+		
+		if ( ($fromhh*100+$frommm) > ($tohh*100+$tomm) ) {
 			$yyyymmdd = '2000/01/02 '; 
 		}
-		$pasttime=strtotime('2000/01/01 '.sprintf("%s:%s:00",substr($from,0,2),substr($from,2,2)));
-		$thistime=strtotime($yyyymmdd.sprintf("%s:%s:00",substr($to,0,2),substr($to,2,2)));
+		$pasttime=strtotime('2000/01/01 '.sprintf("%s:%s:00",$fromhh,$frommm));
+		$thistime=strtotime($yyyymmdd.sprintf("%s:%s:00",$tohh,$tomm));
 		$diff=$thistime-$pasttime;
 		return floor($diff/60);
+	}
+	
+	static function editOver24Calc($hhmm) {
+		//hhとmmを分けて計算する。そうしないと0:30が30:00の扱いになる
+
+		$aft_hhmm = str_replace(':','',$hhmm);
+		$edit = sprintf("%02d%02d",+substr($aft_hhmm,0,2)+24,+substr($aft_hhmm,2,2));
+		return  $edit;
 	}
 
 	static function checkRole($class_name) {

@@ -112,8 +112,9 @@ class Booking_Mobile_Edit extends Booking_Edit {
 	public function show_page() {
 		if ($this->checkOk ) {	
 			$first_hour = substr($this->branch_datas['open_time'],0,2);
+			$last_hour = substr($this->branch_datas['close_time'],0,2);
 	
-			$res = parent::echoMobileData($this->reservation_datas,$this->target_day ,$first_hour,$this->user_login);
+			$res = parent::echoMobileData($this->reservation_datas,$this->target_day ,$first_hour,$last_hour,$this->user_login);
 			if (is_user_logged_in()	) {
 				$msg = __('reservation is compledted',SL_DOMAIN);
 			}

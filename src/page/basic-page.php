@@ -26,9 +26,17 @@ class Basic_Page extends Salon_Page {
 		$this->branch_datas = $branch_datas;
 	}
 
+	public function set_all_branch_datas ($branch_datas) {
+		$this->all_branch_datas = $branch_datas;
+	}
 	
 	public function set_current_user_branch_cd($branch_cd) {
 		$this->current_user_branch_cd = $branch_cd;
+	}
+	public function get_set_branch_cd () {
+		if (empty($_POST['set_branch_cd']) ) return;
+		
+		return @$_POST['set_branch_cd'];
 	}
 
 
@@ -53,6 +61,21 @@ class Basic_Page extends Salon_Page {
 
 			$j("#salon_button_div input[type=button]").addClass("sl_button");
 			<?php parent::echoSetItemLabel(); ?>	
+<?php			
+			if ($this->isSalonAdmin() ) { 
+				$tmp_dir = SL_PLUGIN_SRC_URL;
+				$tmp_action = str_replace('%7E', '~', $_SERVER['REQUEST_URI']);
+				echo <<<EOT
+				\$j("#branch_cd").change(function(){
+					\$j("#sl_submit").html('<form id="sl_form" method="post" action="{$tmp_action}" ><input name="set_branch_cd" id="set_branch_cd" type="hidden"/></form>');
+					\$j("#set_branch_cd").val(\$j("#branch_cd").val());
+					\$j("#sl_form").submit();
+					
+				});
+EOT;
+			}
+?>		
+
 
 			fnDetailInit();	
 			$j("#target_year").val("<?php echo date_i18n('Y'); ?>");
@@ -270,6 +293,9 @@ class Basic_Page extends Salon_Page {
 				
 				$j("#sl_holiday_detail_wrap_"+tmp[i]).show();
 			}
+			<?php  
+					if ($this->is_multi_branch && $this->isSalonAdmin() ) echo '$j("#branch_cd").val('.$this->current_user_branch_cd.');';
+			?>
 
 			<?php parent::echo_clear_error(); ?>
 			
@@ -284,7 +310,22 @@ class Basic_Page extends Salon_Page {
 	<?php	if ($this->is_multi_branch ) $header = '('.$this->branch_datas['name'].')';
 				else $header = '';
 				?>
-	<h2 id="sl_admin_title"><?php echo __('Basic Information',SL_DOMAIN).$header; ?></h2>
+	<h2 id="sl_admin_title"><?php echo __('Basic Information',SL_DOMAIN); ?>
+	<?php  
+			if ( $this->is_multi_branch ) {	//for only_branch
+				if ($this->isSalonAdmin() ) {
+					echo '(<select id="branch_cd">';
+					foreach($this->all_branch_datas as $k1 => $d1 ) {
+						echo '<option value="'.$d1['branch_cd'].'">'.htmlspecialchars($d1['name'],ENT_QUOTES).'</option>';
+					}
+					echo '</select>)';
+				}
+				else {
+					echo $this->branch_datas['name'];				
+				}
+			}
+	?>	
+	</h2>
 	<div id="salon_button_div" >
 	<input id="button_update" type="button" value="<?php _e('Update',SL_DOMAIN); ?>" />
 	<input id="target_year" type="text" class="sl_short_width" />
@@ -322,6 +363,7 @@ class Basic_Page extends Salon_Page {
 	</thead>
 	</table>
 <?php  
+	if ($this->isSalonAdmin() ) echo '<div id="sl_submit" ></div>';
 	}	//show_page
 }		//class
 

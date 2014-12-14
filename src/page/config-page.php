@@ -13,7 +13,7 @@ class Config_Page extends Salon_Page {
 
 	public function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch);
-		$this->set_items = array('config_branch','config_user_login','send_mail_text','config_staff_holiday_set','config_no_prefernce','before_day','after_day','timeline_y_cnt','config_show_detail_msg','config_name_order_set','config_log','config_delete_record','config_delete_record_period','regist_mail_text','maintenance_include_staff','mail_from','mail_returnPath','mobile_use','load_tab','reserve_deadline');
+		$this->set_items = array('config_branch','config_user_login','config_staff_holiday_set','config_no_prefernce','before_day','after_day','timeline_y_cnt','config_show_detail_msg','config_name_order_set','config_log','config_delete_record','config_delete_record_period','maintenance_include_staff','mobile_use','load_tab','reserve_deadline');
 	}
 	  
 	public function set_config_datas($config) {
@@ -73,8 +73,6 @@ class Config_Page extends Salon_Page {
 			<?php if ( $this->config['SALON_CONFIG_SHOW_DETAIL_MSG'] == Salon_Config::DETAIL_MSG_OK ) $set_boolean = 'true';
 					else $set_boolean = 'false'; ?>
 			$j("#config_is_show_detail_msg").attr("checked",<?php echo $set_boolean; ?>);				
-			$j("#send_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n',$this->config['SALON_CONFIG_SEND_MAIL_TEXT']); ?>");
-			$j("#regist_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n',$this->config['SALON_CONFIG_SEND_MAIL_TEXT_USER']); ?>");
 			$j("input[name=\"config_staff_holiday_set\"]").val([<?php echo $this->config['SALON_CONFIG_STAFF_HOLIDAY_SET']; ?>]);
 			$j("input[name=\"config_name_order_set\"]").val([<?php echo $this->config['SALON_CONFIG_NAME_ORDER']; ?>]);
 			<?php if ( $this->config['SALON_CONFIG_NO_PREFERENCE'] == Salon_Config::NO_PREFERNCE_OK ) $set_boolean = 'true';
@@ -93,10 +91,14 @@ class Config_Page extends Salon_Page {
 					else $set_boolean = 'false'; ?>
 			$j("#config_mobile_use").attr("checked",<?php echo $set_boolean; ?>);
 			
-							
+<?php
+/*							
+			$j("#send_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n',$this->config['SALON_CONFIG_SEND_MAIL_TEXT']); ?>");
+			$j("#regist_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n',$this->config['SALON_CONFIG_SEND_MAIL_TEXT_USER']); ?>");
 			$j("#mail_from").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_FROM']; ?>");
 			$j("#mail_returnPath").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_RETURN_PATH']; ?>");
-			
+*/
+?>	
 			
 			$j("input[name=\"config_load_tab\"]").val([<?php echo $this->config['SALON_CONFIG_LOAD_TAB']; ?>]);
 			
@@ -142,8 +144,14 @@ class Config_Page extends Salon_Page {
 					data: {
 						"config_branch":$j("input[name=\"config_branch\"]:checked").val()
 						,"config_user_login":$j("#config_is_user_login").attr("checked")
+<?php 
+/*
 						,"config_mail_text":$j("#send_mail_text").val()						
 						,"config_mail_text_user":$j("#regist_mail_text").val()						
+						,"config_mail_from":$j("#mail_from").val()	
+						,"config_mail_returnPath":$j("#mail_returnPath").val()	
+*/
+?>						
 						,"config_log":$j("#config_is_log_need").attr("checked")
 						,"config_delete_record":$j("#config_is_delete_record").attr("checked")
 						,"config_delete_record_period":$j("#delete_record_period").val()
@@ -157,8 +165,6 @@ class Config_Page extends Salon_Page {
 						,"config_timeline_y_cnt":$j("#timeline_y_cnt").val()
 						,"config_maintenance_include_staff":$j("#config_maintenance_include_staff").attr("checked")
 						,"config_mobile_use":$j("#config_mobile_use").attr("checked")
-						,"config_mail_from":$j("#mail_from").val()	
-						,"config_mail_returnPath":$j("#mail_returnPath").val()	
 						,"config_load_tab":$j("input[name=\"config_load_tab\"]:checked").val() 
 						,"config_reserve_deadline":set_deadline 
 						,"nonce":"<?php echo $this->nonce; ?>"
@@ -235,11 +241,14 @@ class Config_Page extends Salon_Page {
 		<input type="text" id="before_day" />
 		<input type="text" id="after_day" />
 		<input type="text" id="timeline_y_cnt" />
+<?php 
+/*
 		<input type="text" id="mail_from" />
 		<input type="text" id="mail_returnPath" />
 		<textarea id="send_mail_text"  ></textarea>
 		<textarea id="regist_mail_text"  ></textarea>
-
+*/
+?>
 		<div id="config_load_tab_wrap" class="config_item_wrap" >
 			<input id="config_load_staff" name="config_load_tab" type="radio" style="width:16px;margin:3px 5px 0px 10px;" value="<?php echo Salon_Config::LOAD_STAFF; ?>" />
 			<label for="config_load_staff"  style="width:auto;margin:5px;text-align:left;"><?php _e('Staff',SL_DOMAIN); ?></label>

@@ -43,7 +43,7 @@ class Basic_Edit extends Salon_Page {
 
 	public function show_page() {
 
-		$this->table_data['no'] = _($_POST['type']);
+		$this->table_data['no'] = __($_POST['type'],SL_DOMAIN);
 		$this->table_data['check'] = '';
 		if ($_POST['type'] != 'updated' ) {
 			$this->table_data['target_date'] = htmlspecialchars($_POST['target_date'],ENT_QUOTES);

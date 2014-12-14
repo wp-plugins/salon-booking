@@ -808,8 +808,18 @@ EOT;
 	static function echoTimeSelect($id,$open_time,$close_time,$time_step,$is_noEcho = false) {	
 	
 		$dt = new DateTime($open_time);
-		$last_hour = substr($close_time,0,2).":".substr($close_time,2,2);
-		$dt_max = new DateTime($last_hour);
+		$last_hh = substr($close_time,0,2);
+		if ($last_hh > 23 ) {
+			$last_hh -= 24;
+			$last_hour = $last_hh .":".substr($close_time,2,2);
+			$dt_max = new DateTime($last_hour);
+			$dt_max->modify('+1 days');
+		}
+		else {
+			$last_hour = $last_hh .":".substr($close_time,2,2);
+			$dt_max = new DateTime($last_hour);
+		}
+
 		$echo_data =  '<select name="'.$id.'" id="'.$id.'">';
 //		$echo_data .=   '<option value="-1" >'.__('no setting',SL_DOMAIN).'</option>';
 		while($dt <= $dt_max ) {
@@ -1286,6 +1296,7 @@ EOT2;
 				if (!$is_block ) $block = '';	//workingではブロックしない
 				//詳細と休みの順番は一致している前提
 				$set_days_array = explode(',',$branch_datas['closed']);
+				//もし昔のをそのまま使用している場合はクリアしとく
 				if ($branch_datas['memo'] == "MEMO") $branch_datas['memo'] = "";
 				//ここは0のみがはいっていることはないのでemptyで
 				if (!empty($branch_datas['memo']) ) {
@@ -1304,7 +1315,7 @@ EOT2;
 						$frto[] = substr($time_array[1],-2);
 						
 						$zones = (+$frto[0]*60+$frto[1]).','.(+$frto[2]*60+$frto[3]);
-						if($time_array[0] <= $branch_datas['open_time'] && $branch_datas['close_time']  <= $time_array[1] ) {
+						if(substr($branch_datas['close_time'],0,2)<24 && $time_array[0] <= $branch_datas['open_time'] && $branch_datas['close_time']  <= $time_array[1] ) {
 							$zones = "\"fullday\"";
 						}
 						echo <<<EOT
@@ -1345,13 +1356,28 @@ EOT;
 				echo 'var on_business = [ '.implode(',',$on_business_array).' ];';
 				echo 'var holidays = [ '.implode(',',$holiday_array).' ];';
 				
+
+				$startHH = +substr($branch_datas['open_time'],0,2);
+				$startMM = +substr($branch_datas['open_time'],2,2);
+				$endHH = +substr($branch_datas['close_time'],0,2);
+				$endMM = +substr($branch_datas['close_time'],2,2);
+				if ($endHH > 23) {
+					
+					echo 'var add_date = 1;';
+					$endHH -= 24;
+				}
+				else {
+					echo 'var add_date = 0;';
+				}
 				$set_on_business = __('On business',SL_DOMAIN);
 				echo <<<EOT2
 				for (var i=0; i<on_business.length; i++) {
-					var date = on_business[i];
+					var start_date = new Date(on_business[i].getFullYear(),on_business[i].getMonth(),on_business[i].getDate(),{$startHH},{$startMM},0);
+					var end_date = new Date(on_business[i].getFullYear(),on_business[i].getMonth(),on_business[i].getDate(),{$endHH},{$endMM},0);
+					end_date.setDate(end_date.getDate()+add_date);
 					var options = {
-						start_date: date,
-						end_date: scheduler.date.add(date, 1, "day"),
+						start_date: start_date,
+						end_date:  end_date,
 						type: "", 
 						css: "on_business",
 						html: "{$set_on_business}"
@@ -1361,9 +1387,12 @@ EOT;
 	
 				for (var i=0; i<holidays.length; i++) {
 					var date = holidays[i];
+					var start_date = new Date(holidays[i].getFullYear(),holidays[i].getMonth(),holidays[i].getDate(),{$startHH},{$startMM},0);
+					var end_date = new Date(holidays[i].getFullYear(),holidays[i].getMonth(),holidays[i].getDate(),{$endHH},{$endMM},0);
+					end_date.setDate(end_date.getDate()+add_date);
 					var options = {
-						start_date: date,
-						end_date: scheduler.date.add(date, 1, "day"),
+						start_date: start_date,
+						end_date:  end_date,
 						type: "{$block}", 
 						css: "holiday",
 						html: "{$set_html}"
@@ -1480,7 +1509,7 @@ EOT2;
 	}
 	
 
-	static function echo_customize_dhtmlx(){
+	static function echo_customize_dhtmlx($over24 = false){
 		echo <<<EOT
 			scheduler._pre_render_events = function(evs, hold) {
 				var hb = this.xy.bar_height;
@@ -1613,6 +1642,11 @@ EOT2;
 				this.show_cover();
 			};
 EOT;
+		if ($over24) {
+			echo <<<EOT2
+scheduler._on_mouse_move=function(e){if(this._drag_mode){var t=this._mouse_coords(e);if(!this._drag_pos||t.force_redraw||this._drag_pos.x!=t.x||this._drag_pos.y!=t.y){var s,i;if(this._edit_id!=this._drag_id&&this._close_not_saved(),this._drag_pos=t,"create"==this._drag_mode){this._close_not_saved(),this._loading=!0,s=this._get_date_from_pos(t).valueOf();var a=this.callEvent("onBeforeEventCreated",[e]);if(!a)return;if(!this._drag_start)return void(this._drag_start=s);i=s,i==this._drag_start;var _=new Date(this._drag_start),r=new Date(i);"day"!=this._mode&&"week"!=this._mode||_.getHours()!=r.getHours()||_.getMinutes()!=r.getMinutes()||(r=new Date(this._drag_start+1e3)),this._drag_id=this.uid(),this.addEvent(_,r,this.locale.labels.new_event,this._drag_id,t.fields),this.callEvent("onEventCreated",[this._drag_id,e]),this._loading=!1,this._drag_mode="new-size"}var d=this.getEvent(this._drag_id);if("move"==this._drag_mode)s=this._min_date.valueOf()+6e4*(t.y*this.config.time_step+24*t.x*60-(scheduler._move_pos_shift||0)),!t.custom&&this._table_view&&(s+=1e3*this.date.time_part(d.start_date)),s=this._correct_shift(s),i=d.end_date.valueOf()-(d.start_date.valueOf()-s);else{if(s=d.start_date.valueOf(),i=d.end_date.valueOf(),this._table_view){var h=this._min_date.valueOf()+t.y*this.config.time_step*6e4+(t.custom?0:864e5);"month"==this._mode&&(h=this._correct_shift(h,!1)),t.resize_from_start?s=h:i=h}else{var n;if(this.config.last_hour>23){var l=this.date.date_part(new Date(d.start_date));d.start_date.getHours()<this.config.first_hour&&l.setDate(l.getDate()-1),i=l.valueOf()+t.y*this.config.time_step*6e4}else i=this.date.date_part(new Date(d.end_date)).valueOf()+t.y*this.config.time_step*6e4;this._els.dhx_cal_data[0].style.cursor="s-resize",("week"==this._mode||"day"==this._mode)&&(i=this._correct_shift(i))}if("new-size"==this._drag_mode)if(i<=this._drag_start){var o=t.shift||(this._table_view&&!t.custom?864e5:0);s=i-(t.shift?0:o),i=this._drag_start+(o||6e4*this.config.time_step)}else s=this._drag_start;else s>=i&&(i=s+6e4*this.config.time_step)}var n;this.config.last_hour>23?(n=new Date(i),scheduler._allow_dnd=!0):n=new Date(i-1);var c=new Date(s);if(this._table_view||n.getDate()==c.getDate()&&n.getHours()<this.config.last_hour||scheduler._allow_dnd)if(d.start_date=c,d.end_date=new Date(i),this.config.update_render){var u=scheduler._els.dhx_cal_data[0].scrollTop;this.update_view(),scheduler._els.dhx_cal_data[0].scrollTop=u}else this.updateEvent(this._drag_id);this._table_view&&this.for_rendered(this._drag_id,function(e){e.className+=" dhx_in_move"})}}else if(scheduler.checkEvent("onMouseMove")){var f=this._locate_event(e.target||e.srcElement);this.callEvent("onMouseMove",[f,e])}},scheduler._reset_scale=function(){if(this.templates[this._mode+"_date"]){var e=this._els.dhx_cal_header[0],t=this._els.dhx_cal_data[0],s=this.config;e.innerHTML="",t.scrollTop=0,t.innerHTML="";var i=(s.readonly||!s.drag_resize?" dhx_resize_denied":"")+(s.readonly||!s.drag_move?" dhx_move_denied":"");i&&(t.className="dhx_cal_data"+i),this._scales={},this._cols=[],this._colsS={height:0},this._dy_shift=0,this.set_sizes();var a,_,r,d,h=parseInt(e.style.width,10),n=0;_=this.date[this._mode+"_start"](new Date(this._date.valueOf())),a=r=this._table_view?scheduler.date.week_start(_):_,d=this.date.date_part(scheduler._currentDate());var l=scheduler.date.add(_,1,this._mode),o=7;if(!this._table_view){var c=this.date["get_"+this._mode+"_end"];c&&(l=c(_)),o=Math.round((l.valueOf()-_.valueOf())/864e5)}this._min_date=a,this._els.dhx_cal_date[0].innerHTML=this.templates[this._mode+"_date"](_,l,this._mode);for(var u=0;o>u;u++){if(this._cols[u]=Math.floor(h/(o-u)),this._render_x_header(u,n,a,e),!this._table_view){var f=document.createElement("DIV"),v="dhx_scale_holder";a.valueOf()==d.valueOf()&&(v="dhx_scale_holder_now"),f.className=v+" "+this.templates.week_date_class(a,d),this.set_xy(f,this._cols[u]-1,s.hour_size_px*(s.last_hour-s.first_hour),n+this.xy.scale_width+1,0),t.appendChild(f),this.callEvent("onScaleAdd",[f,a])}a=this.date.add(a,1,"day"),h-=this._cols[u],n+=this._cols[u],this._colsS[u]=(this._cols[u-1]||0)+(this._colsS[u-1]||(this._table_view?0:this.xy.scale_width+2)),this._colsS.col_length=o+1}if(this._max_date=a,this.config.last_hour>23&&this._max_date.setHours(this.config.last_hour-24),this._colsS[o]=this._cols[o-1]+this._colsS[o-1],this._table_view)this._reset_month_scale(t,_,r);else if(this._reset_hours_scale(t,_,r),s.multi_day){var g="dhx_multi_day";this._els[g]&&(this._els[g][0].parentNode.removeChild(this._els[g][0]),this._els[g]=null);var p=this._els.dhx_cal_navline[0],m=p.offsetHeight+this._els.dhx_cal_header[0].offsetHeight+1,y=document.createElement("DIV");y.className=g,y.style.visibility="hidden",this.set_xy(y,this._colsS[this._colsS.col_length-1]+this.xy.scroll_width,0,0,m),t.parentNode.insertBefore(y,t);var x=y.cloneNode(!0);x.className=g+"_icon",x.style.visibility="hidden",this.set_xy(x,this.xy.scale_width,0,0,m),y.appendChild(x),this._els[g]=[y,x],this._els[g][0].onclick=this._click.dhx_cal_data}}},scheduler._pre_render_events_line=function(e,t){e.sort(function(e,t){return e.start_date.valueOf()==t.start_date.valueOf()?e.id>t.id?1:-1:e.start_date>t.start_date?1:-1});var s=[],i=[];this._min_mapped_duration=Math.ceil(60*this.xy.min_event_height/this.config.hour_size_px);for(var a=0;a<e.length;a++){var _=e[a],r=_.start_date,d=_.end_date,h=r.getHours(),n=d.getHours();if(_._sday=this._get_event_sday(_),this.config.last_hour>23&&_.start_date.getHours()<this.config.first_hour&&(_._sday-=1),s[_._sday]||(s[_._sday]=[]),!t){_._inner=!1;for(var l=s[_._sday];l.length;){var o=l[l.length-1],c=this._get_event_mapped_end_date(o);if(!(c.valueOf()<=_.start_date.valueOf()))break;l.splice(l.length-1,1)}for(var u=!1,f=0;f<l.length;f++){var o=l[f],c=this._get_event_mapped_end_date(o);if(c.valueOf()<=_.start_date.valueOf()){u=!0,_._sorder=o._sorder,l.splice(f,1),_._inner=!0;break}}if(l.length&&(l[l.length-1]._inner=!0),!u)if(l.length)if(l.length<=l[l.length-1]._sorder){if(l[l.length-1]._sorder)for(f=0;f<l.length;f++){for(var v=!1,g=0;g<l.length;g++)if(l[g]._sorder==f){v=!0;break}if(!v){_._sorder=f;break}}else _._sorder=0;_._inner=!0}else{var p=l[0]._sorder;for(f=1;f<l.length;f++)l[f]._sorder>p&&(p=l[f]._sorder);_._sorder=p+1,_._inner=!1}else _._sorder=0;l.push(_),l.length>(l.max_count||0)?(l.max_count=l.length,_._count=l.length):_._count=_._count?_._count:1}this.config.last_hour>23&&(h<this.config.first_hour&&(h+=24),n<this.config.first_hour&&(n+=24)),(h<this.config.first_hour||n>=this.config.last_hour)&&(i.push(_),e[a]=_=this._copy_event(_),h<this.config.first_hour&&(_.start_date.setHours(this.config.first_hour),_.start_date.setMinutes(0)),n>=this.config.last_hour&&(_.end_date.setMinutes(0),_.end_date.setHours(this.config.last_hour)),_.start_date>_.end_date||h==this.config.last_hour)&&(e.splice(a,1),a--)}if(!t){for(var a=0;a<e.length;a++)e[a]._count=s[e[a]._sday].max_count;for(var a=0;a<i.length;a++)i[a]._count=s[i[a]._sday].max_count}return e},scheduler.render_event=function(e){var t=scheduler.xy.menu_width,s=this.config.use_select_menu_space?0:t;if(!(e._sday<0)){var i=scheduler.locate_holder(e._sday);if(i){var a=60*e.start_date.getHours()+e.start_date.getMinutes();if(this.config.last_hour>23){e.start_date.getHours()<this.config.first_hour&&(a+=1440);var _=60*e.end_date.getHours()+e.end_date.getMinutes();e.end_date.getHours()<this.config.first_hour&&(_+=1440)}else var _=60*e.end_date.getHours()+e.end_date.getMinutes()||60*scheduler.config.last_hour;var r=e._count||1,d=e._sorder||0,h=Math.round((60*a*1e3-60*this.config.first_hour*60*1e3)*this.config.hour_size_px/36e5)%(24*this.config.hour_size_px),n=Math.max(scheduler.xy.min_event_height,(_-a)*this.config.hour_size_px/60),l=Math.floor((i.clientWidth-s)/r),o=d*l+1;if(e._inner||(l*=r-d),this.config.cascade_event_display){var c=this.config.cascade_event_count,u=this.config.cascade_event_margin;o=d%c*u;var f=e._inner?(r-d-1)%c*u/2:0;l=Math.floor(i.clientWidth-s-o-f)}var v=this._render_v_bar(e.id,s+o,h,l,n,e._text_style,scheduler.templates.event_header(e.start_date,e.end_date,e),scheduler.templates.event_text(e.start_date,e.end_date,e));if(this._rendered.push(v),i.appendChild(v),o=o+parseInt(i.style.left,10)+s,this._edit_id==e.id){v.style.zIndex=1,l=Math.max(l-4,scheduler.xy.editor_width),v=document.createElement("DIV"),v.setAttribute("event_id",e.id),this.set_xy(v,l,n-20,o,h+14),v.className="dhx_cal_editor";var g=document.createElement("DIV");this.set_xy(g,l-6,n-26),g.style.cssText+=";margin:2px 2px 2px 2px;overflow:hidden;",v.appendChild(g),this._els.dhx_cal_data[0].appendChild(v),this._rendered.push(v),g.innerHTML="<textarea class='dhx_cal_editor'>"+e.text+"</textarea>",this._quirks7&&(g.firstChild.style.height=n-12+"px"),this._editor=g.firstChild,this._editor.onkeydown=function(e){if((e||event).shiftKey)return!0;var t=(e||event).keyCode;t==scheduler.keys.edit_save&&scheduler.editStop(!0),t==scheduler.keys.edit_cancel&&scheduler.editStop(!1)},this._editor.onselectstart=function(e){return(e||event).cancelBubble=!0},scheduler._focus(g.firstChild,!0),this._els.dhx_cal_data[0].scrollLeft=0}if(0!==this.xy.menu_width&&this._select_id==e.id){this.config.cascade_event_display&&this._drag_mode&&(v.style.zIndex=1);for(var p=this.config["icons_"+(this._edit_id==e.id?"edit":"select")],m="",y=e.color?"background-color: "+e.color+";":"",x=e.textColor?"color: "+e.textColor+";":"",w=0;w<p.length;w++)m+="<div class='dhx_menu_icon "+p[w]+"' style='"+y+x+"' title='"+this.locale.labels[p[w]]+"'></div>";var z=this._render_v_bar(e.id,o-t+1,h,t,20*p.length+26-2,"","<div style='"+y+x+"' class='dhx_menu_head'></div>",m,!0);z.style.left=o-t+1,this._els.dhx_cal_data[0].appendChild(z),this._rendered.push(z)}}}},scheduler._prepare_timespan_options=function(e){var t=[],s=[];if("fullweek"==e.days&&(e.days=[0,1,2,3,4,5,6]),e.days instanceof Array){for(var i=e.days.slice(),a=0;a<i.length;a++){var _=scheduler._lame_clone(e);_.days=i[a],t.push.apply(t,scheduler._prepare_timespan_options(_))}return t}if(!e||!(e.start_date&&e.end_date&&e.end_date>e.start_date||void 0!==e.days&&e.zones))return t;var r=0,d=1440;"fullday"==e.zones&&(e.zones=[r,d]),e.zones&&e.invert_zones&&(e.zones=scheduler.invertZones(e.zones)),e.id=scheduler.uid(),e.css=e.css||"",e.type=e.type||"default";var h=e.sections;if(h){for(var n in h)if(h.hasOwnProperty(n)){var l=h[n];l instanceof Array||(l=[l]);for(var a=0;a<l.length;a++){var o=scheduler._lame_copy({},e);o.sections={},o.sections[n]=l[a],s.push(o)}}}else s.push(e);for(var c=0;c<s.length;c++){var u=s[c],f=u.start_date,v=u.end_date;if(f&&v)for(var g=scheduler.date.date_part(new Date(f)),p=scheduler.date.add(g,1,"day");v>g;){var o=scheduler._lame_copy({},u);delete o.start_date,delete o.end_date,o.days=g.valueOf();var m=f>g?scheduler._get_zone_minutes(f):r;if(this.config.last_hour>23){var y=v>p||v.getDate()!=g.getDate()?d+scheduler._get_zone_minutes(v):scheduler._get_zone_minutes(v);o.zones=[m,y],t.push(o),g=p,p=scheduler.date.add(p,1,"day");break}var y=v>p||v.getDate()!=g.getDate()?d:scheduler._get_zone_minutes(v);o.zones=[m,y],t.push(o),g=p,p=scheduler.date.add(p,1,"day")}else u.days instanceof Date&&(u.days=scheduler.date.date_part(u.days).valueOf()),u.zones=e.zones.slice(),t.push(u)}return t};
+EOT2;
+		}
 	}
 
 	static function abnormal_error($msg) {
@@ -2340,7 +2374,7 @@ EOT2;
 		$item_contents['load_tab'] =array('id'=>'config_load_staff'
 		 ,'class'	=>array()
 		 ,'check' => array()
-		 ,'label' => '19.'.__('Default load tab',SL_DOMAIN)
+		 ,'label' => '15.'.__('Default load tab',SL_DOMAIN)
 		 ,'tips' => __('Please select default load tab at the Reservation Screen.',SL_DOMAIN));
 
 		//[2014/07/26]Ver1.4.5
@@ -2384,7 +2418,7 @@ EOT2;
 		$item_contents['reserve_deadline'] =array('id'=>'reserve_deadline'
 		 ,'class'	=>array()
 		 ,'check' => array("num")
-		 ,'label' => '20.'.__('Deadline of reservations',SL_DOMAIN)
+		 ,'label' => '16.'.__('Deadline of reservations',SL_DOMAIN)
 		 ,'tips' => __('How many days or hours is the deadline of reservation.',SL_DOMAIN));
 
 
@@ -2501,7 +2535,7 @@ EOT2;
 		$item_contents['target_table'] =array('id'=>'sl_target_table'
 		 ,'class' => array()
 		 ,'check' => array( 'chk_required')
-		 ,'label' => __('Select Taget Table',SL_DOMAIN)
+		 ,'label' => __('Select Target Table',SL_DOMAIN)
 		 ,'tips' => __('Now only the information of record is available',SL_DOMAIN));
 		 
 		return $item_contents;	
@@ -2646,7 +2680,7 @@ EOT2;
 					if (preg_match('/^(?:\d{1,2}:\d{1,2})$|^(?:\d{4})$/', $target, $matches) == 0 ) {
 						$err_msg[] = Salon_Component::getMsg('E202',$label);
 					}
-					if ( +substr($target,0,2) > 24 ) {
+					if ( +substr($target,0,2) > 47 ) {
 						$err_msg[] = Salon_Component::getMsg('E202',$label);
 					}
 					break;
@@ -2768,8 +2802,8 @@ EOT2;
 								if( ! val.match(/^(?:[ ]?\d{1,2}:\d{1,2})$|^(?:\d{4})$/)  ){
 									item_errors.push( "'.__('please HH:MM or HHMM format',SL_DOMAIN).'");
 								}
-								if (+val.slice(0,2) > 24 ) {
-									item_errors.push( "'.__('Hour is max 24',SL_DOMAIN).'");
+								if (+val.slice(0,2) > 47 ) {
+									item_errors.push( "'.__('Hour is max 47',SL_DOMAIN).'");
 								}
 								
 							}';
@@ -3029,20 +3063,41 @@ EOT;
 
 //[2014/04/23]Ver 1.3.7 From
 //
-	private function _editDate($yyyymmdd) {
-		return substr($yyyymmdd,0,4). substr($yyyymmdd,5,2).  substr($yyyymmdd,8,2);
+	private function _editDate($yyyymmdd,$first_hour) {
+		$edit_yyyymmdd = substr($yyyymmdd,0,4). substr($yyyymmdd,5,2).  substr($yyyymmdd,8,2);
+		$target = new DateTime($edit_yyyymmdd);
+		if (+substr($yyyymmdd,11,2)<$first_hour) {
+			$target->modify('-1 day');
+		}
+		return $target->format('Ymd');
 	}
 	private function _editTime($yyyymmdd) {
 		return substr($yyyymmdd,11,2). substr($yyyymmdd,14,2);
 	}
+	
+	private function _checkEdit24($hhmm,$first_hour,$last_hour){
+//		$hh =  substr($to,0,2);
+//		if (substr($from,0,2) > $hh ){
+//			$hh += 24;
+//		}
+//		return $hh.substr($to,2,2);
+		
+		$hh = substr($hhmm,0,2);
 
-	public function echoMobileData($reservation_datas ,$target_day,$first_hour,$user_login="") {
+		if ($last_hour > 23 ) {
+			if ($hh < $first_hour ) $hh += 24;
+		}
+		return $hh;
+		
+	}
+
+	public function echoMobileData($reservation_datas ,$target_day,$first_hour,$last_hour,$user_login="") {
 		//全件読むパターン
 		$dayStaff = array();
 		$return_set = array();
 		$randam_num = mt_rand(1000000,9999999);
 		foreach($reservation_datas as $k1 => $d1 ) {
-			$date = $this->_editDate($d1['time_from']);
+			$date = $this->_editDate($d1['time_from'],$first_hour);
 			$from = $this->_editTime($d1['time_from']);
 			$to = $this->_editTime($d1['time_to']);
 			if (( ! empty($user_login) &&  $user_login === $d1['user_login'] ) || 	$this->isSalonAdmin() ) {
@@ -3065,7 +3120,6 @@ EOT;
 				$dayStaff[$date][$d1['staff_cd']][] = array('s'=>$from,'e'=>$to,'ev'=>$d1['reservation_cd']+$randam_num,'st'=>Salon_Edit::NG);
 			}
 		}
-		
 		//同一スタッフでの重複をチェック->予約済みのDIVの高さを求める分母として使用
 		//k1は日付単位。現状、１日単位にしかデータが設定されないが複数日も可能にしとく
 		if(count($dayStaff) >  0 ) {
@@ -3090,7 +3144,13 @@ EOT;
 								foreach ($dup_table[$j]  as $k3 => $d3 ){
 									//d3上のデータと重複したら次の階層へ
 									//重複しないのはd3上の開始よりd2の終了が前かd3上の終了よりd2の開始が後の場合のみ
-									if ($d2[$i]['e'] <= $d3['s'] || $d3['e'] <= $d2[$i]['s'] ) {
+									//24時間対応
+									$ws1 = $this->_checkEdit24($d2[$i]['s'],$first_hour,$last_hour);
+									$we1 = $this->_checkEdit24($d2[$i]['e'],$first_hour,$last_hour);
+									$ws2 = $this->_checkEdit24($d3['s'],$first_hour,$last_hour);
+									$we2 = $this->_checkEdit24($d3['e'],$first_hour,$last_hour);
+									//if ($d2[$i]['e'] <= $d3['s'] || $d3['e'] <= $d2[$i]['s'] ) {
+									if ($we1 <= $ws2 || $we2 <= $ws1 ) {
 									}
 									else {
 										$dup_flg = true;
@@ -3111,7 +3171,7 @@ EOT;
 						$set_cnt = $max_dup+1;
 					}
 					//ここで階層と階層の内容を設定k4は階層
-					$set_time = array();						
+					$set_time = array();	
 					foreach ($dup_table as  $k4 => $d4 ) {
 						//d5は実際の時間
 						foreach ($d4 as $k5 => $d5 ) {
@@ -3168,12 +3228,18 @@ EOT;
 					
 					$left = salon_component::calcMinute($first_hour.'00',$from)/5;
 					$width = salon_component::calcMinute($from,$to)/5;
+					if ($from=="0000"&&$to=="2400") $width=288;
 					$tmp_detail_array[] = array($left,$width,$from,$to);
 				}
 				echo 'slmSchedule.config.days_detail = '.json_encode($tmp_detail_array).';';
 			}
 			echo 'slmSchedule.config.open_position = '.salon_component::calcMinute($first_hour.'00',$branch_datas['open_time'])/5 .';';
-			echo 'slmSchedule.config.close_width = '.salon_component::calcMinute($branch_datas['open_time'],$branch_datas['close_time'])/5 .';';
+			if ($branch_datas['open_time']=="0000" && $branch_datas['close_time']=="2400") {
+				echo 'slmSchedule.config.close_width = 288;';
+			}
+			else {
+				echo 'slmSchedule.config.close_width = '.salon_component::calcMinute($branch_datas['open_time'],$branch_datas['close_time'])/5 .';';
+			}
 			
 			//特殊な日の設定（定休日だけど営業するor営業日だけど休むなど）
 			$sp_dates = unserialize($branch_datas['sp_dates']);
@@ -3227,8 +3293,19 @@ EOT;
 					}
 					$from = substr($d2['in_time'],-4);
 					$to = substr($d2['out_time'],-4);
+					//通常パターンの場合、出勤が開店より前の場合は開店時間にする
 					$left = salon_component::calcMinute($first_hour.'00',$from)/5;
 					$width = salon_component::calcMinute($from,$to)/5;
+					if($branch_datas['close_time'] < "2401" ) {
+						if ($from < $branch_datas['open_time']) {
+							$left = 0;
+							$from = $first_hour.'00';
+						}
+						if ($to > $branch_datas['close_time']) {
+							$to = $branch_datas['close_time'];
+						}
+						$width = salon_component::calcMinute($from ,$to )/5;
+					}
 					$tmp_time_array[] = array($left,$width,substr($d2['in_time'],-4),substr($d2['out_time'],-4));
 					$save_staff_cd = $staff_cd;
 				}
@@ -3362,7 +3439,7 @@ EOT;
 
 	static function echoClosedDetailCheck() {
 		$msg1 = __('please HH:MM or HHMM format',SL_DOMAIN);
-		$msg2 = __('Hour is max 24',SL_DOMAIN);
+		$msg2 = __('Hour is max 47',SL_DOMAIN);
 		echo <<<EOT
 
 		function _fnCheckClosedDetail(step) {
@@ -3374,7 +3451,7 @@ EOT;
 					if( ! val.match(/^(?:[ ]?\d{1,2}:\d{1,2})$|^(?:\d{4})$/)  ){
 						err_msg ="{$msg1}";
 					}
-					else if (+val.slice(0,2) > 24 ) {
+					else if (+val.slice(0,2) > 47 ) {
 						err_msg ="{$msg2}";
 					}
 					else if (!_fnCheckTimeStep(step,val.slice(-2) ) ) {

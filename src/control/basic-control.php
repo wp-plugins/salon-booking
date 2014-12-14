@@ -40,9 +40,14 @@ class Basic_Control extends Salon_Control  {
 		if ($this->action_class == 'Basic_Page' ) {
 
 			$user_login = $this->datas->getUserLogin();
-			$branch_cd = $this->datas->getBracnCdbyCurrentUser($user_login);
+			$this->pages->set_isSalonAdmin($this->datas->isSalonAdmin($user_login));
+			$set_branch_cd = $this->pages->get_set_branch_cd();
+			if ($this->pages->isSalonAdmin() && empty($set_branch_cd) === false ) $branch_cd = $set_branch_cd;
+			else $branch_cd = $this->datas->getBracnCdbyCurrentUser($user_login);
 			$this->pages->set_current_user_branch_cd($branch_cd);
 			$this->pages->set_branch_datas($this->datas->getBranchData($branch_cd));
+			if ($this->pages->isSalonAdmin() ) $this->pages->set_all_branch_datas($this->datas->getAllBranchData());
+			
 
 		}
 		elseif ($this->action_class == 'Basic_Init' ) {

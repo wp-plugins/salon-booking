@@ -16,8 +16,6 @@ class Config_Component {
 	public function editTableData () {
 		$set_data['SALON_CONFIG_BRANCH'] = empty($_POST['config_branch']) ? Salon_Config::ONLY_BRANCH : intval($_POST['config_branch']);
 		$set_data['SALON_CONFIG_USER_LOGIN'] = empty($_POST['config_user_login']) ? Salon_Config::USER_LOGIN_NG : Salon_Config::USER_LOGIN_OK;
-		$set_data['SALON_CONFIG_SEND_MAIL_TEXT'] = stripslashes($_POST['config_mail_text']);
-		$set_data['SALON_CONFIG_SEND_MAIL_TEXT_USER'] = stripslashes($_POST['config_mail_text_user']);
 		$set_data['SALON_CONFIG_STAFF_HOLIDAY_SET'] = empty($_POST['config_staff_holiday_set']) ? Salon_Config::SET_STAFF_NORMAL : $_POST['config_staff_holiday_set'];
 		$set_data['SALON_CONFIG_NAME_ORDER'] = empty($_POST['config_name_order_set']) ? Salon_Config::NAME_ORDER_JAPAN : $_POST['config_name_order_set'];
 		$set_data['SALON_CONFIG_NO_PREFERENCE'] = empty($_POST['config_no_preference']) ? Salon_Config::NO_PREFERNCE_NG : Salon_Config::NO_PREFERNCE_OK;
@@ -32,8 +30,6 @@ class Config_Component {
 
 		$set_data['SALON_CONFIG_MOBILE_USE'] = empty($_POST['config_mobile_use']) ? Salon_Config::MOBILE_USE_NO : Salon_Config::MOBILE_USE_YES;
 
-		$set_data['SALON_CONFIG_SEND_MAIL_FROM'] = stripslashes($_POST['config_mail_from']);
-		$set_data['SALON_CONFIG_SEND_MAIL_RETURN_PATH'] = stripslashes($_POST['config_mail_returnPath']);
 		
 		if ($set_data['SALON_CONFIG_STAFF_HOLIDAY_SET'] == Salon_Config::SET_STAFF_REVERSE ) {
 			$set_data['SALON_CONFIG_NO_PREFERENCE'] = Salon_Config::NO_PREFERNCE_NG ;
@@ -41,7 +37,12 @@ class Config_Component {
 
 		$set_data['SALON_CONFIG_LOAD_TAB'] = empty($_POST['config_load_tab']) ? Salon_Config::LOAD_STAFF : $_POST['config_load_tab'];
 		$set_data['SALON_CONFIG_RESERVE_DEADLINE'] = intval($_POST['config_reserve_deadline']);
-
+/*
+		$set_data['SALON_CONFIG_SEND_MAIL_TEXT'] = stripslashes($_POST['config_mail_text']);
+		$set_data['SALON_CONFIG_SEND_MAIL_TEXT_USER'] = stripslashes($_POST['config_mail_text_user']);
+		$set_data['SALON_CONFIG_SEND_MAIL_FROM'] = stripslashes($_POST['config_mail_from']);
+		$set_data['SALON_CONFIG_SEND_MAIL_RETURN_PATH'] = stripslashes($_POST['config_mail_returnPath']);
+*/
 		return $set_data;
 		
 	}

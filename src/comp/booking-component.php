@@ -54,8 +54,11 @@ class Booking_Component {
 	}
 	public function editWorkingData($branch_cd, $branch_datas)  {
 		$day_from = Salon_Component::computeDate(-1 * $this->datas->getConfigData('SALON_CONFIG_BEFORE_DAY'));
+		
 		$day_to = Salon_Component::computeDate( $this->datas->getConfigData('SALON_CONFIG_AFTER_DAY'));
-		$result = $this->datas->getWorkingDataByBranchCd($branch_cd ,$day_from,$day_to);
+		$over24 = false;
+		if (+substr($branch_datas['close_time'],-4,2) > 23) $over24 = true;
+		$result = $this->datas->getWorkingDataByBranchCd($branch_cd ,$day_from,$day_to,$over24 );
 		$result_after = array();
 		$is_normal_patern = true;
 		if ($this->datas->getConfigData('SALON_CONFIG_STAFF_HOLIDAY_SET') == Salon_Config::SET_STAFF_REVERSE ) {
@@ -64,6 +67,7 @@ class Booking_Component {
 		foreach ($result as $k1 => $d1 ){
 			$working_cds = explode( ',',$d1['working_cds']);
 			if ($is_normal_patern ) {
+					
 				if (in_array(Salon_Working::DAY_OFF,$working_cds) ){
 //					$result_after[$d1['day']][$d1['staff_cd']] = $d1;
 					$result_after[$d1['day']][] = $d1;
@@ -73,20 +77,52 @@ class Booking_Component {
 						in_array(Salon_Working::LATE_IN,$working_cds)  ||
 						in_array(Salon_Working::EARLY_OUT,$working_cds)	) {
 					//開店時間より前に出勤するや閉店時間より後に退勤する場合
-					$op = +substr($branch_datas['open_time'],-4);
-					$cl = +substr($branch_datas['close_time'],-4);
-					$fr = +substr($d1['in_time'],-4);
-					$to = +substr($d1['out_time'],-4);
+					$op = substr($branch_datas['open_time'],-4);
+					$cl = substr($branch_datas['close_time'],-4);
+					$fr = substr($d1['in_time'],-4);
+					$to = substr($d1['out_time'],-4);
+					$set_day_close = $d1['day'];
+					$set_in_time = +$d1['in_time'];
+					$set_out_time = +$d1['out_time'];
+					//24時間対応
+					if ($over24) {
+						//
+						$yyyy_mm_dd_hh_mm_dd_ss = Salon_Component::computeDate(1,substr($set_day_close,0,4),substr($set_day_close,4,2),substr($set_day_close,6,2));
+						$set_day_close = substr(str_replace("-","",$yyyy_mm_dd_hh_mm_dd_ss),0,8);
+						//出勤時間が開店時間より前→24時を超えた出勤　3:00～6:00のように
+						if ($fr < $op) {
+							$d1['day']=$d1['before_day'];
+							$fr = Salon_Component::editOver24Calc($fr);
+							$set_in_time += 2400;
+						}
+						//退勤時間が開店時間より前→24時を超えた出勤　3:00～6:00のように
+						if ($to < $op) {
+							$to = Salon_Component::editOver24Calc($to);
+							$set_out_time += 2400;
+						}
+					}
+					//出勤時間が開店時間より後ｰ>遅刻　出勤時間までは休み
 					if ($fr > $op ) {
 						$tmp_1 = $d1;
-						$tmp_1['out_time'] = $tmp_1['in_time'];
-						$tmp_1['in_time'] = $tmp_1['day'].$branch_datas['open_time'];
-						$result_after[$d1['day']][] = $tmp_1;
+						//ひとつ前にデータがある？
+						$set_index = 0;
+						if (isset($result_after[$d1['day']]) ) 
+							$set_index = count($result_after[$d1['day']]);
+						if($set_index>0){
+							$result_after[$d1['day']][$set_index-1]['out_time'] =  $set_in_time;
+							  
+						}
+						else {
+							$tmp_1['in_time'] = $tmp_1['day'].$branch_datas['open_time'];
+							$tmp_1['out_time'] = $set_in_time;
+							$result_after[$d1['day']][] = $tmp_1;
+						}
 					}
+					//退勤時間が閉店時間より前ｰ>早退　退勤時間以降は休み
 					if ($to <  $cl ) {
 						$tmp_2 = $d1;
-						$tmp_2['in_time'] = $tmp_2['out_time'];
-						$tmp_2['out_time'] = $tmp_2['day'].$branch_datas['close_time'];
+						$tmp_2['in_time'] = $set_out_time;
+						$tmp_2['out_time'] = $set_day_close.$branch_datas['close_time'];
 						$result_after[$d1['day']][] = $tmp_2;
 					}
 
@@ -95,7 +131,12 @@ class Booking_Component {
 			else {
 				if ( in_array(Salon_Working::USUALLY,$working_cds) ||
 					in_array(Salon_Working::HOLIDAY_WORK,$working_cds)){
-					//１日複数回出退勤を繰り返す登録をした場合、staffcdのみだと最後のみが有効になる
+					//24時間対応
+					if ($over24) {
+						$op = substr($branch_datas['open_time'],-4);
+						$fr = substr($d1['in_time'],-4);
+						if ($fr < $op && Salon_Component::isMobile()) $d1['day']=$d1['before_day'];
+					}
 					$result_after[$d1['day']][] = $d1;
 				}
 			}

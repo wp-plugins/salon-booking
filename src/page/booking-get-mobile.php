@@ -10,6 +10,7 @@ class Booking_Get_Mobile extends Salon_Page {
 	private $item_datas =  null;
 	private $branch_cd = '';
 	private $first_hour = '';
+	private $last_hour = '';
 	
 	private $user_login = '';
 
@@ -21,6 +22,7 @@ class Booking_Get_Mobile extends Salon_Page {
 		parent::__construct($is_multi_branch);
 		$this->branch_cd = $_POST['branch_cd'];
 		$this->first_hour = $_POST['first_hour'];
+		$this->last_hour = $_POST['last_hour'];
 		$this->target_day = $_POST['target_day'];
 
 	}
@@ -72,7 +74,7 @@ class Booking_Get_Mobile extends Salon_Page {
 
 	public function show_page() {
 		if ($this->checkOk ) {
-			$res = parent::echoMobileData($this->reservation_datas,$this->target_day ,$this->first_hour,$this->user_login);
+			$res = parent::echoMobileData($this->reservation_datas,$this->target_day ,$this->first_hour,$this->last_hour,$this->user_login);
 			echo '{	"status":"Ok","message":"'.Salon_Component::getMsg('N001').'",
 			"set_data":'.'{"'.$this->target_day.'":'.$res[$this->target_day].'} }';
 		}

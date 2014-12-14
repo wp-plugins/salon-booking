@@ -16,7 +16,13 @@
 		var save_tel = "";
 		var save_name = "";
 		var item_name = new Array();
-		
+
+
+<?php 		//24時間超えの場合
+			if ( $this->last_hour > 23 ) {
+				echo 'var target_yyyymmdd;';
+			}
+?>
 		
 		var is_collision_err = false;
 
@@ -26,11 +32,19 @@
 		$j(document).ready(function() {
 			<?php parent::echoSearchCustomer($this->url); //検索画面 ?>	
 
-			<?php $this->echo_customize_dhtmlx(); ?>
 			scheduler.config.multi_day = true;
+			scheduler.config.all_timed = true;
 			scheduler.config.prevent_cache = true;
 			scheduler.config.first_hour= <?php echo $this->first_hour; ?>;
 			scheduler.config.last_hour= <?php echo $this->last_hour; ?>;
+<?php 		//24時間超えの場合
+			$over24 = false;
+			if ( $this->last_hour > 23 ) {
+				echo 'scheduler.is_one_day_event = function(ev) {return true;};';
+				$over24 = true;
+			}
+			$this->echo_customize_dhtmlx($over24); 
+?>
 			scheduler.config.time_step = <?php echo $this->branch_datas['time_step']; ?>;
 	<?php //予約の必須時間 ?>
 			scheduler.config.event_duration = 60;
@@ -468,6 +482,14 @@ EOT3;
 				if (start != -1 )	{
 					//valueは０なしで表示は０ありにしているがなぜ？
 					if (start.length < 5 ) start="0"+start;
+<?php 		//24時間超えの場合
+			if ( $this->last_hour > 23 ) {
+				//設定された時間で今日か明日かを判定する
+				echo 'if (+start.substr(0,2) >= '.$this->first_hour.'){ '.
+						'target_day_from = new Date(target_yyyymmdd);}'.
+					'else {target_day_from = new Date(target_yyyymmdd);target_day_from.setDate(target_yyyymmdd.getDate()+1);}';
+			}
+?>
 					target_day_from.setHours(start.substr(0,2));
 					target_day_from.setMinutes(+start.substr(3,2));
 					fnUpdateEndTime();
@@ -569,6 +591,16 @@ EOT3;
 		function fnDetailInit( ev ) {
 			if (ev) {
 				$j("#target_day").text(fnDayFormat(ev.start_date,"<?php echo __('%m/%d/%Y',SL_DOMAIN); ?>"));
+<?php 		//24時間超えの場合
+			if ( $this->last_hour > 23 ) {
+				//設定された時間で今日か明日かを判定する
+				echo <<<EOT3
+					target_yyyymmdd = new Date(ev.start_date.getTime());
+					if (ev.start_date.getHours() < {$this->first_hour}) 
+						target_yyyymmdd.setDate(target_yyyymmdd.getDate()-1);
+EOT3;
+			}
+?>
 				target_day_from = new Date(ev.start_date.getTime());
 				$j("#item_cds input").attr("checked",false);
 				if (ev.type) {
@@ -712,7 +744,21 @@ EOT3;
 		function checkStaffHolidayLogic(staff_cd,from,to) {
 			if (staff_cd) {
 				var timeline = scheduler._marked_timespans.timeline;
-				var tmp_st = scheduler.date.date_part(new Date(from));
+<?php 		//24時間超えの場合
+			if ( $this->last_hour > 23 ) {
+				echo <<<EOT
+					if (from.getDate() == scheduler.getState().date.getDate()) {
+						var tmp_st = scheduler.date.date_part(new Date(from));
+					}
+					else {
+						var tmp_st = scheduler.date.date_part(new Date(scheduler.getState().date));
+					}
+EOT;
+			}
+			else {
+				echo 'var tmp_st = scheduler.date.date_part(new Date(from));';
+			}
+?>
 			<?php if ($this->_is_staffSetNormal() ) : ?>
 				if (timeline && timeline[staff_cd]) {
 					<?php //日付単位　?>
@@ -738,23 +784,32 @@ EOT3;
 				}
 			<?php else: ?>
 				if (timeline && timeline[staff_cd]) {
-					var tmp_working = timeline[staff_cd][tmp_st.valueOf()];
-					if (tmp_working) {
-						var tmp_working = tmp_working["default"];
-						var zones = tmp_working[0].zones;
-						if (zones) {
-							for (var k=0; k<zones.length; k += 2) {
-								var zone_start = zones[k];
-								var zone_end = zones[k+1];
-								
-								var start_date = new Date(+tmp_working[0].days + zone_start*60*1000);
-								var end_date = new Date(+tmp_working[0].days + zone_end*60*1000);
+					<?php //２４時間を超えた場合は翌日分もほしい。[TODO]２４時超えしない場合の考慮 ?>
+					for (var m = 0 ; m < 2 ; m++ ) {
+						var tmp_yyyymmdd = 	new Date(tmp_st);
+						tmp_yyyymmdd.setDate(tmp_yyyymmdd.getDate()+m);
+						var tmp_working = timeline[staff_cd][tmp_yyyymmdd.valueOf()];
+						if (tmp_working) {
+	
+							var tmp_working_detail = tmp_working["default"];
+							for(var l=0; l<tmp_working_detail.length; l++){
+	
+								var zones = tmp_working_detail[l].zones;
+								if (zones) {
+									for (var k=0; k<zones.length; k += 2) {
+										var zone_start = zones[k];
+										var zone_end = zones[k+1];
+										
+										var start_date = new Date(+tmp_working_detail[l].days + zone_start*60*1000);
+										var end_date = new Date(+tmp_working_detail[l].days + zone_end*60*1000);
+									}
+									<?php //あっていればここでひっかかる ?>
+									if (start_date <= from  && to <= end_date ) return true;
+								}
 							}
-							if (from > to || start_date > from || from >= end_date || start_date >= to || to > end_date) return false;
 						}
-						else return false;
 					}
-					else return false;
+					return false;
 				}
 				else return false;
 			<?php endif; ?>			

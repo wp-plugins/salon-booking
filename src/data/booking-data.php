@@ -11,26 +11,30 @@ class Booking_Data extends Salon_Data {
 		parent::__construct();
 	}
 	
-	public function getWorkingDataByBranchCd($target_branch_cd ,$day_from = null,$day_to = null){
+	public function getWorkingDataByBranchCd($target_branch_cd ,$day_from = null,$day_to = null,$over24 = false){
 		global $wpdb;
 		if (empty($day_from) ) $day_from = Salon_Component::computeDate(-1);
 		if (empty($day_to) ) $day_to = Salon_Component::computeMonth(1);
+		$before_day = '';
+		if ($over24) $before_day = ',DATE_FORMAT(date_add(in_time, interval -1 day),"%%Y%%m%%d") as before_day ';
 		//from toは日がまたがっている前提
-		$sql =	' SELECT  '.
+		$sql =	$wpdb->prepare(' SELECT  '.
 				' wk.staff_cd,DATE_FORMAT(in_time,"%%Y%%m%%d") as day ,'.
 				' DATE_FORMAT(in_time,"%%Y%%m%%d%%H%%i") as in_time,'.
 				' DATE_FORMAT(out_time,"%%Y%%m%%d%%H%%i") as out_time,working_cds '.
+				$before_day.
 				' FROM '.$wpdb->prefix.'salon_working wk ,'.
 				'      '.$wpdb->prefix.'salon_staff st '.
 				'   WHERE in_time >= %s '.
 				'     AND in_time <= %s '.
 				'     AND st.branch_cd = %d '.
 				'     AND st.staff_cd = wk.staff_cd '.
-				' ORDER BY wk.staff_cd,in_time ';
-		$result = $wpdb->get_results(
-					$wpdb->prepare($sql,$day_from,$day_to,$target_branch_cd),ARRAY_A);
-		if ($result === false ) {
+				' ORDER BY wk.staff_cd,in_time ',$day_from,$day_to,$target_branch_cd);
+		if ($wpdb->query($sql) === false ) {
 			$this->_dbAccessAbnormalEnd();
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
 		}
 		return $result;
 	}
@@ -53,15 +57,24 @@ class Booking_Data extends Salon_Data {
 	}
 	
 	
-	public function getAllEventData($target_day ,$target_branch_cd = null,$isOnly_target_day =false){
+	public function getAllEventData($target_day ,$target_branch_cd = null,$isOnly_target_day =false,$branch_datas = null){
 		global $wpdb;
 		if (empty($target_branch_cd) ) $target_branch_cd = Salon_Default::BRANCH_CD;
 
 		$to_date = '2099-12-31 12:00:00';
 		//モバイルの場合はYYYYMMDDなのでここで変換
 		if ($isOnly_target_day) {
-			$to_date = salon_component::computeDate(1,substr($target_day,0,4),substr($target_day,4,2),substr($target_day,6,2));
-			$target_day = salon_component::computeDate(0,substr($target_day,0,4),substr($target_day,4,2),substr($target_day,6,2));
+			//24時間対応で当日だけではなく翌日も
+			$yyyymmdd = substr($target_day,0,4).'-'.substr($target_day,4,2).'-'.substr($target_day,6,2).' '.substr($branch_datas['open_time'],0,2).':'.substr($branch_datas['open_time'],2,2);
+			$tareget_day_wk = new DateTime($yyyymmdd);
+			$to_date_wk = new DateTime(substr($target_day,0,4).'-'.substr($target_day,4,2).'-'.substr($target_day,6,2));
+			$plushh = +substr($branch_datas['close_time'],0,2);
+			$plusmm = +substr($branch_datas['close_time'],2,2);
+			$to_date_wk->modify('+'.$plushh.' hour');		
+			$to_date_wk->modify('+'.$plusmm.' minute');		
+
+			$to_date = $to_date_wk->format('Y-m-d H:i:s');
+			$target_day = $tareget_day_wk->format('Y-m-d H:i:s');
 		}
 		else {
 			$now = date_i18n('Ymd');
@@ -78,10 +91,10 @@ class Booking_Data extends Salon_Data {
 						' remark,memo,notes,delete_flg,insert_time,update_time '.
 						' FROM '.$wpdb->prefix.'salon_reservation '.
 						'   WHERE time_from >= %s '.
-						'     AND time_to < %s '.
+						'     AND time_from <= %s '.
 						'     AND (status = %d OR status = %d) '.
 						'     AND delete_flg <> '.Salon_Reservation_Status::DELETED.
-						'     AND branch_cd = %s '.
+						'     AND branch_cd = %d '.
 						' ORDER BY time_from ',
 						$target_day,$to_date,Salon_Reservation_Status::COMPLETE,Salon_Reservation_Status::TEMPORARY,$target_branch_cd
 				);

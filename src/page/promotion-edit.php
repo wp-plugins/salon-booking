@@ -32,7 +32,7 @@ class Promotion_Edit extends Salon_Page {
 		$msg = null;
 		if ($_POST['type'] != 'deleted' ) {
 			if (Salon_Page::serverCheck(array('description','set_code','valid_from','valid_to','remark','usable_patern','rank_patern','discount_patern','discount'),$msg) == false) {
-				throw new Exception($msg );
+				throw new Exception($msg,1 );
 			}
 		}
 	}

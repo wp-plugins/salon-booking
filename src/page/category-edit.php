@@ -40,7 +40,7 @@ class Category_Edit extends Salon_Page {
 
 	public function show_page() {
 
-		$this->table_data['no'] = __(parent::replaceResult($_POST['type']),SL_DOMAIN);
+		$this->table_data['no'] = __($_POST['type'],SL_DOMAIN);
 		$this->table_data['check'] = '';
 
 		

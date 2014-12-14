@@ -59,13 +59,14 @@ class Booking_Control extends Salon_Control  {
 			$this->pages->set_promotion_datas($this->comp->editPromotionData($this->branch_cd));
 			
 			if (Salon_Component::isMobile() ) {
-				$this->pages->set_reservation_datas($this->datas->getAllEventData(date_i18n('Ymd'),$this->branch_cd,true));
+				$this->pages->set_reservation_datas($this->datas->getAllEventData(date_i18n('Ymd'),$this->branch_cd,true,$branch_datas));
 			}
 			if (!empty($user_login) )$this->pages->set_user_inf($this->datas->getUserInfDataByUserlogin($user_login));
 
 		}
 		elseif ($this->action_class == 'Booking_Get_Event' ) {
 			$this->branch_cd = $this->pages->get_branch_cd();
+			$branch_datas = $this->datas->getBranchData($this->branch_cd);
 			$this->pages->set_reservation_datas($this->datas->getAllEventData($this->pages->get_target_day($this->datas->getConfigData('SALON_CONFIG_BEFORE_DAY')),$this->branch_cd));
 			$this->pages->set_item_datas($this->datas->getTargetItemData($this->branch_cd,true,true));
 			$this->pages->set_user_login($user_login);
@@ -75,7 +76,8 @@ class Booking_Control extends Salon_Control  {
 			$this->branch_cd = $this->pages->get_branch_cd();
 			$this->pages->set_config_datas($this->datas->getConfigData());
 			if ($this->pages->check_request() ) {
-				$this->pages->set_reservation_datas($this->datas->getAllEventData($this->pages->get_target_day(),$this->branch_cd,true));
+				$branch_datas = $this->datas->getBranchData($this->branch_cd);
+				$this->pages->set_reservation_datas($this->datas->getAllEventData($this->pages->get_target_day(),$this->branch_cd,true,$branch_datas));
 				$this->pages->set_item_datas($this->datas->getTargetItemData($this->branch_cd,true,true));
 				$this->pages->set_user_login($user_login);
 			}
@@ -118,8 +120,9 @@ class Booking_Control extends Salon_Control  {
 				$this->comp->sendMailForConfirm($this->pages->get_table_data());
 				$this->pages->set_user_login($user_login);
 				$this->branch_cd = $this->pages->get_branch_cd();
-				$this->pages->set_branch_datas($this->datas->getBranchData($this->branch_cd));
-				$this->pages->set_reservation_datas($this->datas->getAllEventData($this->pages->get_target_day(),$this->branch_cd,true));
+				$branch_datas = $this->datas->getBranchData($this->branch_cd);
+				$this->pages->set_branch_datas($branch_datas);
+				$this->pages->set_reservation_datas($this->datas->getAllEventData($this->pages->get_target_day(),$this->branch_cd,true,$branch_datas));
 				$this->datas->sendInformationMail($this->pages->get_reservation_cd());
 			}
 		}

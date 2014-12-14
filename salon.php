@@ -3,7 +3,7 @@
 Plugin Name: Salon Booking 
 Plugin URI: http://salon.mallory.jp
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff member.
-Version: 1.5.1
+Version: 1.5.2
 Author: kuu
 Author URI: http://salon.mallory.jp
 Text Domain: salon
@@ -534,7 +534,10 @@ public function example_remove_dashboard_widgets() {
 	public function admin_add_help_customer() {
 		$screen = get_current_screen();
 		$help = '<br>'.__('You can register the existing client not yet a registered member or update the clinet. ',SL_DOMAIN);
-		$help .= '<ul ><li><strong>'.__('User Login',SL_DOMAIN).'</strong> - '.__('Supposing the Login Name is the same with Mail Address, any ID could be accepted so long as it is Sole and Unique within the site.',SL_DOMAIN ).'</li></ul>';
+		$help .= '<ul >';
+		$help .= '<li><strong>'.__('User Login',SL_DOMAIN).'</strong> - '.__('Supposing the Login Name is the same with Mail Address, any ID could be accepted so long as it is Sole and Unique within the site.',SL_DOMAIN ).'</li>';
+		$help .= '<li><strong>'.__('Rank',SL_DOMAIN).'</strong> - '.__('Select Customers rank.',SL_DOMAIN ).'</li>';
+		$help .= '</ul>';
 		$this->_setTab($screen,'_content',__( 'Content'),$help);
 		$this->help_common($screen,array(true,true,true));
 		$this->help_side($screen);
@@ -544,7 +547,8 @@ public function example_remove_dashboard_widgets() {
 		$screen = get_current_screen();
 		$help = '<ul>';
 		$help .= '<li><strong>'.__('Required Time(minutes)',SL_DOMAIN).'</strong> - '.__('When a customer has reserved, this plugin used to calculate the end time automatically.Please enter in minutes.',SL_DOMAIN ).'</li>';
-		$help .= '<li><strong>'.__('Price',SL_DOMAIN).'</strong> - '.__('When a customer has reserved, this plugin used to calculate the price automatically.',SL_DOMAIN ).'</li></ul>';
+		$help .= '<li><strong>'.__('Price',SL_DOMAIN).'</strong> - '.__('When a customer has reserved, this plugin used to calculate the price automatically.',SL_DOMAIN ).'</li>';
+		$help .= '<li><strong>'.__('All staff member can treat',SL_DOMAIN).'</strong> - '.__('If all staff member can treat this menu,check here.If some staff members can treat this menu,check in the screent of "Staff Information",not here.',SL_DOMAIN ).'</li>';
 		$help .= '</ul>';
 		$this->_setTab($screen,'_content',__( 'Content'),$help);
 		$this->help_common($screen,array(true,true,true));
@@ -555,7 +559,10 @@ public function example_remove_dashboard_widgets() {
 		$screen = get_current_screen();
 		$help = '<br>'.__('If you register as a staff here, you will become also a user of "Word Press". If you are already registered to the Word Press with the authority of contributor or upper, you will be on the list of the staffs here.However, you are not still registered yet as a staff, you have to add the user information after the selection, and you can use the function as a staff just by the plug in. ',SL_DOMAIN);
 		$help .= '<ul>';
+		$help .= '<li><strong>'.__('Position',SL_DOMAIN).'</strong> - '.__('If you change the position,the role of wordpress also change.Be carefull!',SL_DOMAIN ).'</li>';
 		$help .= '<li><strong>'.__('The Maximum Number of the Redundant Reservations',SL_DOMAIN).'</strong> - '.__('Set the number of redundant reservations a staff can handle at the same timeframe.Normally the number should be zero, but could it be 1 if the staff should have an assistant and serve duplicate clients at the same time. Of course highly capable staff may also select 3, or 4.',SL_DOMAIN ).'</li>';
+		$help .= '<li><strong>'.__('Menu',SL_DOMAIN).'</strong> - '.__('Check the menu which this staff member can treat.',SL_DOMAIN ).'</li>';
+		$help .= '<li><strong>'.__('Introductions',SL_DOMAIN).'</strong> - '.__('Input put self-introductions.',SL_DOMAIN ).'</li>';
 		$help .= '<li><strong>'.__('Addition/Update of Photograph',SL_DOMAIN).'</strong> - '.
 				'<ol >'.
 				'<li style="list-style-type: lower-alpha">'.__('Drag & drop of  a photograph of the staff  into "Photos of staff member" area.',SL_DOMAIN).'</li>'.
@@ -574,6 +581,7 @@ public function example_remove_dashboard_widgets() {
 		$screen = get_current_screen();
 		$help = '<ul>';
 		$help .= '<li><strong>'.__('Please copy and paste this tag to insert to the page',SL_DOMAIN).'</strong> - '.__('This field should be inserted to the fixed page as it reads, then the reservation screen will be displayed.',SL_DOMAIN ).'</li>';
+		$help .= '<li><strong>'.__('Open Time, Close Time',SL_DOMAIN).'</strong> - '.__('If Close Time is over midnight, plus 24 to close time.',SL_DOMAIN ).'</li>';
 		$help .= '<li><strong>'.__('The Maximum Number of the Redundant Reservations',SL_DOMAIN).'</strong> - '.__('By entering the number, you can set the maximum number of the reservations to coop cooperate with simultaneously by each shop. If the staff serves to only one client full time one on one, set the number as zero.',SL_DOMAIN ).'</li>';
 		$help .= '<li><strong>'.__('Unit of Time (minutes)',SL_DOMAIN).'</strong> - '.__('Time unit is selectable for the clients when making reservation. If unit 15 is designated, then the time is selectable from 10:00, 10:15 and so on. If 30 is selected, 10:00, 10:30, and so, for example.',SL_DOMAIN ).'</li>';
 		$help .= '<li><strong>'.__('Regular Closing Day',SL_DOMAIN).'</strong> - '.__('You can nominate a regular closing day of the week by the unit of week. If you open the shop on regular closing day or you close the shop on business day, you have to set it on the screen of "Basic Information" under "Salon Maintenance".',SL_DOMAIN ).'</li>';
@@ -610,16 +618,12 @@ public function example_remove_dashboard_widgets() {
 
 		$help = '<ol style="list-style-type:decimal" start="13">';
 		$help .= '<li><strong>'.__('X days ahead',SL_DOMAIN).'</strong> - '.__('<br>This column is used to select the range of the days extracted from the data base of the reservation and the actual performance to view as a list. The criteria of X day are the day you currently operate the system. If you choose a large numerical value for the X to enter, the response time of the system may slow down. So, please make the X according to the situation and the need of the shop. (E.g. the reservation is full for another 1 year, or one month is enough for it, or else) ',SL_DOMAIN ) . '</li>';
-		$help .= '<li><strong>'.__('Mail from',SL_DOMAIN).'</strong> - '.__('	If you use original "from" of  Mail header fields, fill in this field using "Name<mail address>" formats.',SL_DOMAIN ) . '</li>';
-		$help .= '<li><strong>'.__('Mail return path',SL_DOMAIN).'</strong> - '.__('	If you use original "return path" of  Mail header fields, fill in this field.',SL_DOMAIN ) . '</li>';
 		$help .= '<li><strong>'.__('Number of the staffs displayed',SL_DOMAIN).'</strong> - '.__('This is the screen showing staffs for the reservation. Recommend the number you enter to be 3 to 6 around, for the better visual appealing.  ',SL_DOMAIN ) . '</li>';
-		$help .= '<li><strong>'.__('The Content of the Mail to Confirming Notice to the Client',SL_DOMAIN).'</strong> - '.__('When responding to the clients of without registration as a member, if you put [X-TO_NAME] and [X-TO_SALON] into the contents of the confirmation mail, which will be displayed as the name of the client and the shop automatically and sent to the client.  ',SL_DOMAIN ) . '</li>';
-		$help .= '<li><strong>'.__('The Content of the Mail to respond to the Client newly registered as a Member',SL_DOMAIN).'</strong> - '.__('This is the model contents of the mail to the client who checked "register as a member"on the screen of Reservation Confirmation. In this notice mail, the password for the client is also included. ',SL_DOMAIN ) . '</li>';
 		$help .= '<li><strong>'.__('Default load tab',SL_DOMAIN).'</strong> - '.__('If you change the load default tab at "Reservation Screen",select "Staff","Month","Week" or  "Day". ',SL_DOMAIN ) . '</li>';
 		$help .= '<li><strong>'.__('Deadline of reservations',SL_DOMAIN).'</strong> - '.__('How many days or hours is the deadline of reservation.If you set 0, cancellation of the start time just before it is possible',SL_DOMAIN ) . '</li>';
 		$help .= '</ol>';
 
-		$this->_setTab($screen,'_content3',__( 'Content').'(13-20)',$help);
+		$this->_setTab($screen,'_content3',__( 'Content').'(13-16)',$help);
 
 		$this->help_common($screen,array(true,false,false));
 		$this->help_side($screen);
@@ -627,7 +631,16 @@ public function example_remove_dashboard_widgets() {
 
 	public function admin_add_help_mail() {
 		$screen = get_current_screen();
-		$help = '<h3>Under Construction</h3>';
+		$help = '<ul>';
+		$help .= '<li><strong>'.__('Mail from',SL_DOMAIN).'</strong> - '.__('If you use original "from" of  Mail header fields, fill in this field using "Name<mail address>" formats.',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('Mail return path',SL_DOMAIN).'</strong> - '.__('If you use original "return path" of  Mail header fields, fill in this field.',SL_DOMAIN ) . '</li>';
+
+		$help .= '<li><strong>'.__('Select Mail',SL_DOMAIN).'</strong> - '.__('Select this field, the selected mail infromation displayed below.',SL_DOMAIN ).'</li>';
+		$help .= '<li><strong>'.__('Mail address (Bcc)',SL_DOMAIN).'</strong> - '.__('This field is displayed in case of selected "The Mail to information to the registerd staff member".If you want to receive the mail about reservation, input mail addresses separated by commas.  ',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('The Content of the Mail to Confirming Notice to the Client',SL_DOMAIN).'</strong> - '.__('When responding to the clients of without registration as a member, if you put [X-TO_NAME] and [X-TO_SALON] into the contents of the confirmation mail, which will be displayed as the name of the client and the shop automatically and sent to the client.  ',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('The Content of the Mail to respond to the Client newly registered as a Member',SL_DOMAIN).'</strong> - '.__('This is the model contents of the mail to the client who checked "register as a member"on the screen of Reservation Confirmation. In this notice mail, the password for the client is also included. ',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('The Content of the Mail to staff member new reservations',SL_DOMAIN).'</strong> - '.__('This is the model contents of the mail to the staff who enterd "Mail address (Bcc)"on this screen.',SL_DOMAIN ) . '</li>';
+		$help .= '</ul>';
 		$this->_setTab($screen,'_content',__( 'Content'),$help);
 		$this->help_common($screen,array(true,false,false));
 		$this->help_side($screen);
@@ -636,7 +649,7 @@ public function example_remove_dashboard_widgets() {
 
 	public function admin_add_help_position() {
 		$screen = get_current_screen();
-		$help = '<br>'.__('You can select the functions according to the position of the staffs you selected. All the functions are set as default according to each position. Check with the screen what can be handled by each position from part time worker to the President. For example, part timers are set only capable of reservation registration as a default, and if you think a certain part timer be allowed to use the function of "TimeCard", then check here to activate the function. ',SL_DOMAIN);
+		$help = '<br>'.__('You can select the functions according to the position of the staffs you selected. All the functions are set as default according to each position. Check with the screen what can be handled by each position from part time worker to the President. For example, part timers are set only capable of reservation registration as a default, and if you think a certain part timer be allowed to use the function of "TimeCard", then check here to activate the function. <font color="red">Take special care with the "wp_role".</font>',SL_DOMAIN);
 		$help .= '<ul>';
 		$help .= '<li><strong>'.__('Role',SL_DOMAIN).'</strong> - '.
 				'<ol >'.
@@ -675,7 +688,15 @@ public function example_remove_dashboard_widgets() {
 
 	public function admin_add_help_promotion() {
 		$screen = get_current_screen();
-		$help = '<h3>Under Construction</h3>';
+		$help = '<ul>';
+		$help .= '<li><strong>'.__('Code',SL_DOMAIN).'</strong> - '.__('Enter code for provide a coupon.',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('Description',SL_DOMAIN).'</strong> - '.__('Enter name of a coupon.',SL_DOMAIN ) . '</li>';
+
+		$help .= '<li><strong>'.__('Valid from, Valid to',SL_DOMAIN).'</strong> - '.__('If you want to set a time limit, enter this fields.',SL_DOMAIN ).'</li>';
+		$help .= '<li><strong>'.__('Usable',SL_DOMAIN).'</strong> - '.__('Select "Can only be used less than X times per customer", it is not used more than x times including repeats. ',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('Discount Patern',SL_DOMAIN).'</strong> - '.__('This field apply a discount, as a percentage or as a flat amount. ',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('Discount',SL_DOMAIN).'</strong> - '.__('Enter percentage or amount.',SL_DOMAIN ) . '</li>';
+		$help .= '</ul>';
 		$this->_setTab($screen,'_content',__( 'Content'),$help);
 		$this->help_common($screen,array(true,false,false));
 		$this->help_side($screen);
@@ -713,7 +734,11 @@ public function example_remove_dashboard_widgets() {
 	//[Ver1.5.1]
 	public function admin_add_help_record() {
 		$screen = get_current_screen();
-		$help = '<h3>Under Construction</h3>';
+		$help = '<br>'.__('The detail information about customers is entered in this screen.',SL_DOMAIN);
+		$help .= '<ul>';
+		$help .= '<li><strong>'.__('Calendar',SL_DOMAIN).'</strong> - '.__('The reservated day become available  to click.Click the day,customers are displayed followin view formats.',SL_DOMAIN).'</li>';
+		$help .= '<li><strong>'.__('Input each fields',SL_DOMAIN).'</strong> - '.__('The field which is registerd on the screen of "Category" are displayed.',SL_DOMAIN).'</li>';
+		$help .= '</ul>';
 		$this->_setTab($screen,'_content',__( 'Content'),$help);
 		$this->help_common($screen,array(true,false,false));
 		$this->help_side($screen);
@@ -721,7 +746,13 @@ public function example_remove_dashboard_widgets() {
 
 	public function admin_add_help_category() {
 		$screen = get_current_screen();
-		$help = '<h3>Under Construction</h3>';
+		$help = '<br>'.__('The fields which use in the screen of "Customer Record" are entered in this screen.',SL_DOMAIN);
+		$help .= '<ul>';
+		$help .= '<li><strong>'.__('Category name',SL_DOMAIN).'</strong> - '.__('"Category name" is displayed as input field name in the screen of "Customer Record".',SL_DOMAIN).'</li>';
+		$help .= '<li><strong>'.__('Category Patern',SL_DOMAIN).'</strong> - '.__('Select "Radio Button","Check Box","Text" or "Select Box".Selected patern  is displayed as input field value in the screen of "Customer Record".',SL_DOMAIN).'</li>';
+		$help .= '<li><strong>'.__('Category Value',SL_DOMAIN).'</strong> - '.__('If you select  "Radio Button","Check Box" or "Select Box",you can enter this.Entered values which are separated by commas are able to select by  "Radio Button","Check Box" or "Select Box".',SL_DOMAIN).'</li>';
+		$help .= '<li><strong>'.__('Select Target Table',SL_DOMAIN).'</strong> - '.__('Now you can select only "Record".',SL_DOMAIN).'</li>';
+		$help .= '</ul>';
 		$this->_setTab($screen,'_content',__( 'Content'),$help);
 		$this->help_common($screen,array(true,false,false));
 		$this->help_side($screen);

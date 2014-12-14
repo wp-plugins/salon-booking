@@ -53,7 +53,7 @@ class Item_Edit extends Salon_Page {
 	public function show_page() {
 		$res = array();
 
-		$res['no'] = __(parent::replaceResult($_POST['type']),SL_DOMAIN);
+		$res['no'] = __($_POST['type'],SL_DOMAIN);
 		$res['check'] = '';
 
 		$res['item_cd'] = $this->table_data['item_cd'];

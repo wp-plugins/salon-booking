@@ -92,7 +92,14 @@ class Working_Page extends Salon_Page {
 		var save_out_time;
 		var paste_error = false;
 
+<?php 		//24時間超えの場合
+			if ( $this->last_hour > 23 ) {
+				echo 'var target_yyyymmdd;';
+			}
+?>
 		scheduler.config.multi_day = true;
+		scheduler.config.all_timed = true;
+		
 		scheduler.config.prevent_cache = true;
 		scheduler.config.first_hour= <?php echo $this->first_hour; ?>;
 		scheduler.config.last_hour= <?php echo $this->last_hour; ?>;
@@ -106,6 +113,18 @@ class Working_Page extends Salon_Page {
 		scheduler.config.check_limits = false;
 <?php //小さいメニューバーを出さない ?>
 		scheduler.xy.menu_width = 0;
+<?php 		//24時間超えの場合
+			$over24 = false;
+			if ( $this->last_hour > 23 ) {
+				echo 'scheduler.is_one_day_event = function(ev) {return true;};';
+				$over24 = true;
+			}
+			$this->echo_customize_dhtmlx($over24); 
+?>
+
+
+
+
 
 <?php //locale_jaを使用しないように 
 		parent::echoLocaleDef();
@@ -331,6 +350,16 @@ EOT;
 			$j("#name").text( staff_name );
 //			$j("#target_day").text(ev.start_date.getFullYear()+"/"+ ('00' + (ev.start_date.getMonth() + 1)).slice(-2) +"/"+('00' + (ev.end_date.getDate())).slice(-2) );
 			$j("#target_day").text(fnDayFormat(ev.start_date,"<?php echo __('%m/%d/%Y',SL_DOMAIN); ?>"));
+<?php 		//24時間超えの場合
+			if ( $this->last_hour > 23 ) {
+				//設定された時間で今日か明日かを判定する
+				echo <<<EOT3
+					target_yyyymmdd = new Date(ev.start_date.getTime());
+					if (ev.start_date.getHours() < {$this->first_hour} ) 
+						target_yyyymmdd.setDate(target_yyyymmdd.getDate()-1);
+EOT3;
+			}
+?>
 			save_in_time = ('00' + (ev.start_date.getHours())).slice(-2)+":"+('00' + (ev.start_date.getMinutes())).slice(-2) ;
 			key_in_time = new Date(ev.start_date);
 			key_out_time = new Date(ev.end_date);
@@ -365,7 +394,17 @@ EOT;
 				$j("#in_time").attr("disabled",true);
 				$j("#in_time").val("<?php echo substr($this->branch_datas['open_time'],0,2).":".substr($this->branch_datas['open_time'],2,2); ?>");
 				$j("#out_time").attr("disabled",true);
-				$j("#out_time").val("<?php echo substr($this->branch_datas['close_time'],0,2).":".substr($this->branch_datas['close_time'],2,2); ?>");
+<?php 		//24時間超えの場合
+			if ( $this->last_hour > 23 ) {
+				$hh = +substr($this->branch_datas['close_time'],0,2) - 24;
+				
+				echo '$j("#out_time").val("'.sprintf("%02d",$hh).":".substr($this->branch_datas['close_time'],2,2).'");';
+			}
+			else {
+				echo '$j("#out_time").val("'.substr($this->branch_datas['close_time'],0,2).":".substr($this->branch_datas['close_time'],2,2).'");';
+			}
+				
+?>
 				return;
 			}
 			else {
@@ -406,6 +445,17 @@ EOT;
 			target_day.setHours(+split_data[0]);
 			target_day.setMinutes(+split_data[1]);
 		}
+<?php	if ( $this->last_hour > 23 ) : ?>
+
+		function _edit_over24 (target_day , set_time) {
+			var tmp_in = set_time.split(":");
+			if (tmp_in[0] < <?php echo $this->first_hour; ?>) {
+				target_day.setDate(target_day.getDate()+1);
+			}
+			
+			_edit_time(target_day,set_time);
+		}
+<?php   endif; ?>
 
 		function save_form() {
 			if ( ! checkItem("data_detail") ) return false;
@@ -413,11 +463,33 @@ EOT;
 			var ev = scheduler.getEvent(scheduler.getState().lightbox_id);
 			var tmp_in_time = new Date(ev.start_date);
 			var tmp_out_time = new Date(ev.end_date);
+<?php	if ( $this->last_hour > 23 ) : ?>
+			tmp_in_time.setDate(target_yyyymmdd.getDate());
+			tmp_out_time.setDate(target_yyyymmdd.getDate());
+			_edit_over24(tmp_in_time,$j("#in_time").val());
+			<?php //０：００から２４：００営業の場合で終了が００:００指定の場合。とりあえず対処 ?>
+			if (+scheduler.config.first_hour == 0 && +scheduler.config.last_hour == 24 && $j("#out_time").val().substr(0,2) == "00") {
+				tmp_out_time.setHours(23);
+				tmp_out_time.setMinutes(59);
+			}
+			else {
+				_edit_over24(tmp_out_time,$j("#out_time").val());
+			}
+<?php   else: ?>
 			_edit_time(tmp_in_time,$j("#in_time").val());
 			_edit_time(tmp_out_time,$j("#out_time").val());
+<?php   endif; ?>
+
+			<?php //FROM toのチェック ?>
+			if (tmp_in_time >= tmp_out_time) {
+				var label = $j("#in_time").prev().children().eq(1);
+				label.text("<?php _e('in_time or out_time is wrong ',SL_DOMAIN).'(1)'; ?>")
+				label.addClass("error small");
+				return false;
+			}
 
 			var collision_limit = scheduler.config.collision_limit;
-			evs = scheduler.getEvents(tmp_in_time, tmp_out_time);
+			var evs = scheduler.getEvents(tmp_in_time, tmp_out_time);
 			for (var i=0; i<evs.length; i++) {
 				if (evs[i].id == ev.id) {
 					evs.splice(i,1);
@@ -425,17 +497,23 @@ EOT;
 				}
 			}
 			if ( evs.length >= collision_limit ) {
-				var label = $j("#in_time").prev().children();
+				var label = $j("#in_time").prev().children().eq(1);
 				label.text("<?php _e('in_time or out_time is duplicated ',SL_DOMAIN); ?>")
 				label.addClass("error small");
-				var label = $j("#out_time").prev().children();
+				var label = $j("#out_time").prev().children().eq(1);
 				label.text("<?php _e('in_time or out_time is duplicated ',SL_DOMAIN); ?>")
 				label.addClass("error small");
 				return false;
 			}
-
+<?php 
+/*
 			_edit_time(ev.start_date,$j("#in_time").val());
 			_edit_time(ev.end_date,$j("#out_time").val());
+*/
+?>	
+			ev.start_date = tmp_in_time;
+			ev.end_date = tmp_out_time;
+			
 			ev.remark = $j("#remark").val();
 			var tmp =  new Array(); 			
 			$j("#working_cds input[type=checkbox]").each(function (){
@@ -562,8 +640,16 @@ EOT;
 		</div>
 
 		<?php parent::echoWorkingCheck(); ?>
-		<?php parent::echoTimeSelect("in_time",'0000','2359',$this->branch_datas['time_step']); ?>	
-		<?php parent::echoTimeSelect("out_time",'0000','2359',$this->branch_datas['time_step']); ?>	
+<?php 		//24時間超えの場合
+			if ( $this->last_hour > 23 ) {
+				parent::echoTimeSelect("in_time",$this->branch_datas['open_time'],$this->branch_datas['close_time'],$this->branch_datas['time_step']);
+				parent::echoTimeSelect("out_time",$this->branch_datas['open_time'],$this->branch_datas['close_time'],$this->branch_datas['time_step']);	
+			}
+            else {
+				parent::echoTimeSelect("in_time",'0000','2359',$this->branch_datas['time_step']);	
+                parent::echoTimeSelect("out_time",'0000','2359',$this->branch_datas['time_step']);
+            }
+?>
 		<textarea id="remark"  ></textarea>
 		<div class="spacer"></div>
 		<div id="booking_button_div" >

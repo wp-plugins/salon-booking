@@ -128,12 +128,12 @@ class Branch_Page extends Salon_Page {
 			//
 			save_closed = setData['aoData'][position[0]]['_aData']['closed'];
 			var tmp = setData['aoData'][position[0]]['_aData']['closed'].split(",");
+			$j(".sl_holiday_detail_wrap").hide();
 			$j("#closed_day_check input").attr("checked",false);
 			<?php //[2014/10/01]半休対応 ?>			
 			save_closed_detail = setData['aoData'][position[0]]['_aData']['memo'];
 			if (save_closed_detail == "MEMO" ) save_closed_detail = "";
 			var tmp_detail = save_closed_detail.split(";");
-
 			for (var i=0; i < tmp.length; i++) {
 				$j("#closed_day_"+tmp[i]).attr("checked",true);
 				var tmp_time_array = Array();

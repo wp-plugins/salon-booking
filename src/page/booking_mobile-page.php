@@ -72,6 +72,11 @@
 
 		var staff_items = new Array();
 
+<?php 		//24時間超えの場合
+			if ( $this->last_hour > 23 ) {
+				echo 'var target_yyyymmdd;';
+			}
+?>
 		slmSchedule.config={
 					day_full:[<?php _e('"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"',SL_DOMAIN); ?>],
 					day_short:[<?php _e('"Sun","Mon","Tue","Wed","Thu","Fri","Sat"',SL_DOMAIN); ?>]
@@ -178,6 +183,17 @@
 			$j("#start_time").change(function(){
 				var start  = $j(this).val();
 				if (start && start != -1 )	{
+
+<?php 		//24時間超えの場合
+			if ( $this->last_hour > 23 ) {
+				//設定された時間で今日か明日かを判定する
+				echo 'if (+start.substr(0,2) >= '.$this->first_hour.'){ '.
+						'target_day_from = new Date(target_yyyymmdd);}'.
+					'else {target_day_from = new Date(target_yyyymmdd);target_day_from.setDate(target_yyyymmdd.getDate()+1);}';
+			}
+?>
+
+
 					target_day_from.setHours(start.substr(0,2));
 					target_day_from.setMinutes(+start.substr(3,2));
 					fnUpdateEndTime();
@@ -247,7 +263,7 @@
 				
 			<?php parent::echoSetItemLabelMobile(); ?>
 			<?php
-				$res =  parent::echoMobileData($this->reservation_datas,$init_target_day,$this->first_hour,$this->user_inf['user_login']);
+				$res =  parent::echoMobileData($this->reservation_datas,$init_target_day,$this->first_hour,$this->last_hour,$this->user_inf['user_login']);
 				//現状1件だが複数件でも大丈夫なように
 				foreach($res as $k1 => $d1 ) {
 					echo "slmSchedule._daysStaff[\"$k1\"] = $d1;";
@@ -282,7 +298,6 @@
 		
 <?php */?>
 
-		<?php parent::echoCheckDeadline	($this->config_datas['SALON_CONFIG_RESERVE_DEADLINE']); ?>
 		
 
 		function _fnAddReservation (startHour) {
@@ -298,7 +313,12 @@
 				return;
 			}
 */ ?>
-			if (!_checkDeadline(chk_date) ) return;
+<?php 		//24時間超えの場合はクライアント側で予約開始時刻のチェックを行わない
+			if ( $this->last_hour < 24 ) {
+				echo 'if (!_checkDeadline(chk_date) ) return;';
+			}
+?>
+
 
 			$j("#slm_page_main").hide();
 			$j("#slm_page_regist").show();
@@ -310,6 +330,14 @@
 				target_day_from.setHours(startHour); 
 			}
 			target_day_to = new Date(target_day_from.getTime());
+<?php 		//24時間超えの場合
+			if ( $this->last_hour > 23 ) {
+				//設定された時間で今日か明日かを判定する
+				echo <<<EOT3
+					target_yyyymmdd = new Date(target_day_from);
+EOT3;
+			}
+?>
 			save_item_cds = "";
 			operate = "inserted";
 			save_id = "";
@@ -398,13 +426,16 @@
 					var tmpH = slmSchedule.config.staff_holidays[yyyymmdd][staff_cd_h];
 					for(var seqH in tmpH ) {
 						var left =  Math.floor(each5 * tmpH[seqH][0] + left_start);
-						//var width = Math.floor(each5 * tmpH[seqH][1]);
-						var width = slmSchedule.calcWidthBase(tmpH[seqH][0] ,tmpH[seqH][1]);
-						var height = $j("#slm_st_" + staff_cd_h).outerHeight();
-						var fromH = tmpH[seqH][2].substr(0,2);
-						var setH = '<div class="<?php echo $staff_holiday_class; ?> slm_staff_holiday" style="position:absolute; top:0px; height: '+height+'px; left:'+left+'px; width:'+width+'px;"><?php echo $staff_holiday_set; ?><div style="display:none">'+staff_cd_h+':'+fromH+'</div></div>';
-						
-						$j("#slm_st_"+staff_cd_h).prepend(setH);
+						<?php //開始位置が終了時間より右の場合は無視する。 ?>
+						if (tmpH[seqH][0] <= slmSchedule.config.close_width ) { 
+							//var width = Math.floor(each5 * tmpH[seqH][1]);
+							var width = slmSchedule.calcWidthBase(tmpH[seqH][0] ,tmpH[seqH][1]);
+							var height = $j("#slm_st_" + staff_cd_h).outerHeight();
+							var fromH = tmpH[seqH][2].substr(0,2);
+							var setH = '<div class="<?php echo $staff_holiday_class; ?> slm_staff_holiday" style="position:absolute; top:0px; height: '+height+'px; left:'+left+'px; width:'+width+'px;"><?php echo $staff_holiday_set; ?><div style="display:none">'+staff_cd_h+':'+fromH+'</div></div>';
+							
+							$j("#slm_st_"+staff_cd_h).prepend(setH);
+						}
 					}
 				}
 			}
@@ -468,7 +499,7 @@
 							
 							var setcn = '<div id="'+eid+'" class="'+set_class+'"style="position:absolute; top:'+top+'px; height: '+height+'px; left:'+left+'px; width:'+width+'px;"><span title="'+tmpb[3]+'-'+tmpb[4]+'"/></div>';
 							
-							$j("#slm_st_"+staff_cd).prepend(setcn);
+							$j("#slm_st_"+staff_cd+"_dummy").prepend(setcn);
 							
 							if (tmpb[5]=="<?php echo Salon_Reservation_Status::COMPLETE; ?>") {
 								slmSchedule.setEventDetail(tmpb[2],tmpd);
@@ -488,6 +519,18 @@
 									
 									$j("#start_time").val(settime);
 									save_item_cds =ev_tmp["item_cds"];
+
+
+<?php 		//24時間超えの場合
+			if ( $this->last_hour > 23 ) {
+				//設定された時間で今日か明日かを判定する
+				echo <<<EOT4
+					target_yyyymmdd = new Date(target_day_from);
+EOT4;
+			}
+?>
+
+
 									
 									var item_array = save_item_cds.split(",");
 									for	 (var i = 0 ,max_loop = item_array.length; i < max_loop; i++) {
@@ -552,6 +595,7 @@
 						"target_day":targetDay
 						,"branch_cd":<?php echo $this->branch_datas['branch_cd']; ?>						
 						,"first_hour":<?php echo $this->first_hour; ?>
+						,"last_hour":<?php echo $this->last_hour; ?>
 						,"nonce":"<?php echo $this->nonce; ?>"
 						,"menu_func":"Booking_Get_Mobile"
 					},
@@ -725,6 +769,7 @@
                     
                     echo '<li class="slm_time_li"><span>'.sprintf("%02d",$i).'</span></li>';
                 }
+				echo "<div id=\"slm_st_{$k1}_dummy\"></div>";
                 echo '</ul>';
             }
             ?>
@@ -774,12 +819,24 @@
 EOT;
 			}
 		?>           
-		<ul><li  ><select id="start_time" name="start_time" class="slm_sel" >
+		<ul>
+        <li  ><select id="start_time" name="start_time" class="slm_sel" >
 <?php
 		
 		$dt = new DateTime($this->branch_datas['open_time']);
-		$last_hour = substr($this->branch_datas['close_time'],0,2).":".substr($this->branch_datas['close_time'],2,2);
-		$dt_max = new DateTime($last_hour);
+		$close_time = $this->branch_datas['close_time'];
+		$last_hh = substr($close_time,0,2);
+		if ($last_hh > 23 ) {
+			$last_hh -= 24;
+			$last_hour = $last_hh .":".substr($close_time,2,2);
+			if ($last_hour == "0:00") $last_hour = "23:59";			
+			$dt_max = new DateTime($last_hour);
+			$dt_max->modify('+1 days');
+		}
+		else {
+			$last_hour = $last_hh .":".substr($close_time,2,2);
+			$dt_max = new DateTime($last_hour);
+		}
 		$echo_data =  '';
 		while($dt <= $dt_max ) {
 			$echo_data .= '<option value="'.$dt->format("H:i").'" >'.$dt->format("H:i").'</option>';
