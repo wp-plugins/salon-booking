@@ -1,9 +1,9 @@
 === Salon Booking ===
 Contributors: kuu(Tanaka Hisao)
 Tags: hair salon,salon,appointment,booking,beauty apps,reservation,dental clinic,hospital,mutilingual,散髪予約,美容院予約,美容室予約,サロン予約,エステ予約,予約システム,予約管理
-Requires at least: 3.8
+Requires at least: 4.0
 Tested up to: 4.0
-Stable tag: 1.5.2
+Stable tag: 1.5.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,6 +122,12 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 5. 管理画面（出退勤）
 
 == Changelog ==
+= 1.5.3 =
+* 変更: ２４時超えの営業時間で、操作する時間が２４時を超えた場合、前日の日を初期表示する  
+* 変更: 月タブ表示で、締切時間を有効にした場合でも当日入力可能にする。  
+* 変更: その他いろいろ。  
+
+
 = 1.5.2 =
 * 追加: 夕方開店の翌朝閉店のような２４時を超えての営業時間への対応  
 * 追加: 未作成のヘルプ  

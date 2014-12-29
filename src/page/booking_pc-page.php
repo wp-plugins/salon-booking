@@ -343,7 +343,7 @@ EOT3;
 					alert("<?php _e('The past times can not reserve',SL_DOMAIN); ?>");
 				}
 */ ?>
-				if (!_checkDeadline(ev.start_date) ) {
+				if ((scheduler._mode != "month") && !_checkDeadline(ev.start_date) ) {
 					is_check = false;
 				}
 				if ( ev.start_date > new Date(<?php echo $this->insert_max_day; ?>) ) {
@@ -547,12 +547,11 @@ EOT3;
 			$j("#detail_out span").addClass("sl_detail_out");			
 			$j("#detail_out label").addClass("sl_detail_out");			
 
-			<?php // if ($is_todayholiday) : ?>
-<?php //[2014/10/01
-//				scheduler.setCurrentView(scheduler.date.add( scheduler.date[scheduler._mode+"_start"](scheduler._date),(1),scheduler._mode)); 
-?>
-			<?php // endif;  */ ?>
-
+<?php if ( $this->last_hour > 23  && $this->branch_datas["open_time"] > $this->current_time && $this->close_24 >= $this->current_time)  : ?> 
+			
+			scheduler.setCurrentView(scheduler.date.add( scheduler.date[scheduler._mode+"_start"](scheduler._date),(-1),scheduler._mode)); 
+			
+<?php endif; ?>
 
 		});
 	
@@ -594,10 +593,13 @@ EOT3;
 <?php 		//24時間超えの場合
 			if ( $this->last_hour > 23 ) {
 				//設定された時間で今日か明日かを判定する
+				$msg_format = __('%m/%d/%Y',SL_DOMAIN);
 				echo <<<EOT3
 					target_yyyymmdd = new Date(ev.start_date.getTime());
-					if (ev.start_date.getHours() < {$this->first_hour}) 
+					if (ev.start_date.getHours() < {$this->first_hour})  {
 						target_yyyymmdd.setDate(target_yyyymmdd.getDate()-1);
+						\$j("#target_day").text(fnDayFormat(target_yyyymmdd,"{$msg_format}"));
+					}
 EOT3;
 			}
 ?>
@@ -946,6 +948,17 @@ EOT;
 			ev.user_login =	save_user_login;
 			if ( ! checkDuplicate(ev,target_day_from,target_day_to) ) return false;
 			if (!_checkDeadline(target_day_from) ) return false;
+
+
+<?php  parent::echoOver24Confirm($this->last_hour,$this->branch_datas["open_time"] ,$this->close_24,$this->current_time); ?>
+<?php /* if ( $this->last_hour > 23  && $this->branch_datas["open_time"] > $this->current_time && $this->close_24 >= $this->current_time)  : ?> 
+			var time_from_hhmm = ('0'+target_day_from.getHours()).slice(-2)+('0'+target_day_from.getMinutes()).slice(-2);
+			 if (<?php echo $this->branch_datas["open_time"]; ?>  > time_from_hhmm ) {
+				 if (! confirm("<?php _e('Is this Date OK ? ',SL_DOMAIN); ?>"+"["+fnDayFormat(target_day_from,"<?php _e('%m/%d/%Y',SL_DOMAIN); ?>")+"]") ) return false;
+			}
+			
+			
+<?php endif; */ ?>
 
 			ev.name = $j("#name").val();
 			ev.text = _edit_text_name($j("#name").val());

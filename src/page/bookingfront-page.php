@@ -31,6 +31,9 @@ class BookingFront_Page extends Salon_Page {
 	private $user_inf = null;	
 	
 	private $promotion_datas = null; 
+	
+	private $current_time = '';
+	private $close_24 = '';
 
 	public function __construct($is_multi_branch) {
 		parent::__construct($is_multi_branch,session_id());
@@ -40,6 +43,7 @@ class BookingFront_Page extends Salon_Page {
 			$url = preg_replace("/[hH][tT][tT][pP]:/","https:",$url);
 		}
 		$this->url = $url;
+		$this->current_time = date_i18n("Hi");
 	}
 	
 	public function set_branch_datas ($branch_datas) {
@@ -47,6 +51,12 @@ class BookingFront_Page extends Salon_Page {
 		$this->first_hour = substr($this->branch_datas['open_time'],0,2);
 		$this->last_hour = substr($this->branch_datas['close_time'],0,2);
 		if (intval(substr($this->branch_datas['close_time'],2,2)) > 0 ) $this->last_hour++;
+		$this->close_24 = $this->branch_datas['close_time'];
+		if ($this->last_hour > 23 ) {
+			
+			$this->close_24 = sprintf("%02d",+$this->last_hour-24).substr($this->branch_datas['close_time'],2,2);
+			
+		}
 	}
 
 	public function set_item_datas ($item_datas) {

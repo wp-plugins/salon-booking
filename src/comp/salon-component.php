@@ -848,6 +848,7 @@ class Salon_Component {
 		if (!empty($result['SALON_CONFIG_MOBILE_USE']) && ($result['SALON_CONFIG_MOBILE_USE'] == Salon_Config::MOBILE_USE_NO )) return false;
 
 		if ( $checkRequest && isset($_REQUEST['sl_desktop']) && $_REQUEST['sl_desktop'] == 'true'  ) return false; 
+		
 		$useragents = array(
 			'iPhone', // iPhone
 			'iPod', // iPod touch

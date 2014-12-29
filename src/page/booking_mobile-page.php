@@ -41,6 +41,10 @@
 		}
 	}
 	$init_target_day = date_i18n('Ymd');
+	if ( $this->last_hour > 23  && $this->branch_datas["open_time"] > $this->current_time && $this->close_24 >= $this->current_time)  {
+		$init_target_day = date('Ymd',strtotime(date_i18n('Y-m-d')." -1 day"));
+	}
+	
 	//
 	$staff_holiday_class = "slm_holiday";
 	$staff_holiday_set = __('Holiday',SL_DOMAIN);
@@ -618,6 +622,9 @@ EOT4;
 
 		function _UpdateEvent() {
 			var temp_p2 = '';
+
+<?php  parent::echoOver24Confirm($this->last_hour,$this->branch_datas["open_time"] ,$this->close_24,$this->current_time); ?>
+			
 			if (operate != 'inserted') {
 				temp_p2 = slmSchedule._events[save_id]['p2'];
 			}
@@ -766,8 +773,11 @@ EOT4;
 
                 echo "<ul id=\"slm_st_{$k1}\"><li class=\"slm_first_li\"  >".$d1['img'].'</li>';
                 for($i = +$this->first_hour ; $i < $this->last_hour ; $i++ ) {
-                    
-                    echo '<li class="slm_time_li"><span>'.sprintf("%02d",$i).'</span></li>';
+					$set_i = $i;
+					if ( $this->last_hour > 23 ) {
+						if ($i > 23) $set_i -= 24;
+					}
+                    echo '<li class="slm_time_li"><span>'.sprintf("%02d",$set_i).'</span></li>';
                 }
 				echo "<div id=\"slm_st_{$k1}_dummy\"></div>";
                 echo '</ul>';

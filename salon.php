@@ -3,7 +3,7 @@
 Plugin Name: Salon Booking 
 Plugin URI: http://salon.mallory.jp
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff member.
-Version: 1.5.2
+Version: 1.5.3
 Author: kuu
 Author URI: http://salon.mallory.jp
 Text Domain: salon

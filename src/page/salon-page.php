@@ -1056,6 +1056,20 @@ EOT;
 		}
 EOT;
 	}
+	
+	public function echoOver24Confirm($last_hour,$open_time,$close_time,$current_time) {
+
+		if ( $last_hour > 23  && $open_time > $current_time && $close_time >= $current_time)  {
+			$msg = __('Is this Date OK ? ',SL_DOMAIN);
+			$msg_format = __('%m/%d/%Y',SL_DOMAIN);
+			echo <<<EOT
+			var time_from_hhmm = ('0'+target_day_from.getHours()).slice(-2)+('0'+target_day_from.getMinutes()).slice(-2);
+			 if ({$open_time}  > time_from_hhmm ) {
+				 if (! confirm("{$msg}"+"["+fnDayFormat(target_day_from,"{$msg_format}")+" "+('0'+target_day_from.getHours()).slice(-2)+":"+('0'+target_day_from.getMinutes()).slice(-2)+"]") ) return false;
+			}
+EOT;
+		}
+	}
 
 
 	static function echoWorkingCheck($is_noEcho = false){
