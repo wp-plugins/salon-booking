@@ -59,6 +59,15 @@ class BookingFront_Page extends Salon_Page {
 		}
 	}
 
+
+	public function get_targetDate_for_mobile () {
+		$init_target_day = date_i18n('Ymd');
+		if ( $this->last_hour > 23  && $this->branch_datas["open_time"] > $this->current_time && $this->close_24 >= $this->current_time)  {
+			$init_target_day = date('Ymd',strtotime(date_i18n('Y-m-d')." -1 day"));
+		}
+		return $init_target_day;
+	}
+
 	public function set_item_datas ($item_datas) {
 		$this->item_datas = $item_datas;
 	}
