@@ -461,11 +461,9 @@ EOT3;
 			if ( ! checkItem("data_detail") ) return false;
 			//重複のチェック
 			var ev = scheduler.getEvent(scheduler.getState().lightbox_id);
-			var tmp_in_time = new Date(ev.start_date);
-			var tmp_out_time = new Date(ev.end_date);
 <?php	if ( $this->last_hour > 23 ) : ?>
-			tmp_in_time.setDate(target_yyyymmdd.getDate());
-			tmp_out_time.setDate(target_yyyymmdd.getDate());
+			var tmp_in_time = new Date(target_yyyymmdd);
+			var tmp_out_time = new Date(target_yyyymmdd);
 			_edit_over24(tmp_in_time,$j("#in_time").val());
 			<?php //０：００から２４：００営業の場合で終了が００:００指定の場合。とりあえず対処 ?>
 			if (+scheduler.config.first_hour == 0 && +scheduler.config.last_hour == 24 && $j("#out_time").val().substr(0,2) == "00") {
@@ -476,6 +474,8 @@ EOT3;
 				_edit_over24(tmp_out_time,$j("#out_time").val());
 			}
 <?php   else: ?>
+			var tmp_in_time = new Date(ev.start_date);
+			var tmp_out_time = new Date(ev.end_date);
 			_edit_time(tmp_in_time,$j("#in_time").val());
 			_edit_time(tmp_out_time,$j("#out_time").val());
 <?php   endif; ?>

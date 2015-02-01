@@ -82,7 +82,7 @@
 	//				$tmp = preg_replace("/(width|height)(=\\\'\d+\\\')/","$1=\'50\'",$d1['photo']);
 					$tmp = "";				
 					if (!empty($d1['photo_result'][0]) ) {
-						$tmp = "<a href='".$d1['photo_result'][0]['photo_path']."' rel='staff".$d1['staff_cd']."' ' class='lightbox' ><img src='".$d1['photo_result'][0]['photo_resize_path']."' alt='' width='150' height='150' class='alignnone size-thumbnail wp-image-186' /></a>";
+						$tmp = "<a href='".$d1['photo_result'][0]['photo_path']."' rel='staff".$d1['staff_cd']."' ' class='lightbox' ><img src='".$d1['photo_result'][0]['photo_resize_path']."' alt='' style='max-width=50px; max-height:50px; margin:0;' class='alignnone size-thumbnail wp-image-186' /></a>";
 					}
 					if (!empty($d1['memo']) ) 
 						//頭につける

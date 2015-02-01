@@ -92,6 +92,7 @@ class Booking_Data extends Salon_Data {
 						' FROM '.$wpdb->prefix.'salon_reservation '.
 						'   WHERE time_from >= %s '.
 						'     AND time_from <= %s '.
+						'     AND time_from < time_to '.
 						'     AND (status = %d OR status = %d) '.
 						'     AND delete_flg <> '.Salon_Reservation_Status::DELETED.
 						'     AND branch_cd = %d '.

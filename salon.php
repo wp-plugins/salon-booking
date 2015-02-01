@@ -3,7 +3,7 @@
 Plugin Name: Salon Booking 
 Plugin URI: http://salon.mallory.jp
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff member.
-Version: 1.5.4
+Version: 1.5.5
 Author: kuu
 Author URI: http://salon.mallory.jp
 Text Domain: salon
@@ -905,6 +905,7 @@ public function example_remove_dashboard_widgets() {
 		
 		if (Salon_Component::isMobile() ) {
 
+/*
 			// metaやlinkの削除
 			//remove_action('wp_head','wp_enqueue_scripts',1);	//headを表示するにはいる
 			remove_action('wp_head','feed_links',2);
@@ -923,9 +924,10 @@ public function example_remove_dashboard_widgets() {
 //			wp_deregister_script('jquery');			//使用有無
 
 
-			wp_deregister_script('comment-reply');			
+//			wp_deregister_script('comment-reply');			
 			add_action( 'widgets_init', 'remove_recent_comments_style' );			
 	
+*/
 
 			wp_enqueue_script( 'salon-mobile', SL_PLUGIN_URL.'js/salon_mobile.js',array( 'jquery' ) );
 			wp_enqueue_style('salon-mobile', SL_PLUGIN_URL.'css/salon_mobile.css');
