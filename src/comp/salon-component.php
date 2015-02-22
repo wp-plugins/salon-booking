@@ -866,7 +866,7 @@ class Salon_Component {
 			'webmate' // Other iPhone browser
 		);
 		$pattern = '/'.implode('|', $useragents).'/i';
-		return preg_match($pattern, $_SERVER['HTTP_USER_AGENT']);
+		return (preg_match($pattern, $_SERVER['HTTP_USER_AGENT']) == 1);
 	}
 	
 	static function calcMinute($from,$to) {

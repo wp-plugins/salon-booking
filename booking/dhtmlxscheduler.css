@@ -1596,10 +1596,10 @@ input.dhx_repeat_checkbox {
 }
 
 .dhx_scheduler_month td {
-	padding:0px;
-	border-top-width:0px;
-	border-bottom-width:0px;
-	border-right-width:0px;
+	padding:0px !important;
+	border-top-width:0px !important;
+	border-bottom-width:0px !important;
+	border-right-width:0px !important;
 }
 
 .dhx_cal_data table {
@@ -1609,7 +1609,7 @@ input.dhx_repeat_checkbox {
 	border-bottom-width:0px;
 	border-left-width:0px;
 	border-right-width:0px;
-	margin-top:0px;
+	margin-top:0px !important;
 	margin-bottom:28px;
 }
 
@@ -1621,6 +1621,10 @@ input.dhx_repeat_checkbox {
 
 /*[hisa] */
 .dhx_scheduler_month div {
+	box-sizing:content-box;
+}
+
+.dhx_scheduler_month td {
 	box-sizing:content-box;
 }
 

@@ -8,8 +8,8 @@
 
 /* スケジューラー */ 
 #scheduler_here {
-	width:680px;
-	height:600px;
+/*	width:680px;
+*/	height:600px;
 	border:solid 1px #003399;
 }
 
@@ -211,9 +211,11 @@
 	text-align:right;
 	width:300px;
 	float:left;
+	line-height:12px;
 }
 #data_detail label.sl_detail_out {
 	padding-top:7px;
+	line-height:12px;
 }
 
 #booking_login_div .small,
@@ -345,7 +347,7 @@
 
 #booking_login_div {
 	border:solid 1px #b7ddf2;
-	width:650px;
+	max-width:650px;
 	margin-top:10px;
 	margin-bottom:10px;
 	padding:14px;
@@ -604,7 +606,7 @@ label#mail_lbl  {
 	padding:0;
 	margin:0;
 	border-width:0px;
-	
+	table-layout:auto;
 }
 
 #sl_front_items  label {
@@ -626,6 +628,7 @@ label#mail_lbl  {
 	padding:0;
 	margin:0;
 	border-width:0px;
+	box-sizing::border-box;
 	
 }
 
