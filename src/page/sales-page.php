@@ -172,7 +172,7 @@ EOT;
 					//途中から扱えなくなった場合？
 					
 					$j("#item_cds :checkbox").each(function(){
-						if($j(this).attr("checked") ){
+						if($j(this).prop("checked") ){
 							$j(this).attr("disabled",false)
 						}
 					})
@@ -354,7 +354,8 @@ EOT;
 				 (save_tel != $j("#tel").val() )  ){
 				save_user_login = ""; 
 			}
-			var regist_customer = $j("#regist_customer").attr("checked");
+			var regist_customer = null;
+			if ($j("#regist_customer").prop("checked")) regist_customer = "checked";
 
 			$j.ajax({
 				 	type: "post",

@@ -179,6 +179,8 @@ class Item_Page extends Salon_Page {
 		<?php if ($this->is_multi_branch == false ) : //for only_branch ?>
 			if (operate  =="inserted") $j("#branch_cd").val("<?php echo $this->get_default_brandh_cd();?>");
 		<?php endif; ?>
+			var all_flg = null;
+			if ($j("#all_flg").prop("checked")) all_flg = "checked";
 			$j.ajax({
 				 	type: "post",
 					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slitem",
@@ -198,7 +200,7 @@ class Item_Page extends Salon_Page {
 						"photo":'',
 						"exp_from":$j("#exp_from").val(),
 						"exp_to":$j("#exp_to").val(),
-						"all_flg":$j("#all_flg").attr("checked"),
+						"all_flg":all_flg,
 						"is_change_all_flg":is_change_all_flg,
 						"nonce":"<?php echo $this->nonce; ?>",
 						"menu_func":"Item_Edit"

@@ -104,6 +104,8 @@ class Confirm_Page extends Salon_Page {
 			});
 			<?php echo $echo_data_exec_event; ?>
 			function fnFixReservation(action) {
+				var isRegist = null;
+				if ($j("#user_login_regist").prop("checked")) isRegist="checked";
 				$j.ajax({
 						type: "post"
 						,url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slconfirm"
@@ -114,7 +116,7 @@ class Confirm_Page extends Salon_Page {
 							,"P2":"<?php echo $this->activation_key; ?>"
 							,"nonce":"<?php echo $this->nonce; ?>"
 							<?php if (($this->datas['status'] == Salon_Reservation_Status::TEMPORARY) && ($this->config_datas['SALON_CONFIG_USER_LOGIN'] == Salon_Config::USER_LOGIN_OK)) : ?>
-							,"is_regist":$j("#user_login_regist").attr("checked")
+							,"is_regist": isRegist
 							<?php endif; ?>
 							,"menu_func":"Confirm_Edit"
 						}

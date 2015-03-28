@@ -3,7 +3,7 @@ Contributors: kuu(Tanaka Hisao)
 Tags: hair salon,salon,appointment,booking,beauty apps,reservation,dental clinic,hospital,mutilingual,散髪予約,美容院予約,美容室予約,サロン予約,エステ予約,予約システム,予約管理
 Requires at least: 4.0
 Tested up to: 4.0
-Stable tag: 1.5.6
+Stable tag: 1.5.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,16 +122,23 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 5. 管理画面（出退勤）
 
 == Changelog ==
+= 1.5.7 =
+* 変更: チェックボックスの判定が有効にならない場合があることへの対応  
+* バグ: 余計なタグ  
+
 = 1.5.6 =
 * 変更: Twenty Fifteenで画面がくずれることへの対応  
+
 
 = 1.5.5 =
 * バグ: ２４時超えの営業時間で、月末に２４時を超えた勤務時間を登録する際の不具合  
 * バグ: ２４時超えの営業時間で、スマートフォンで表示がおかしくなる不具合  
 * 変更: スマートフォン画面では読ませないようにしていたscirpt及びcss（軽量化）をやめ
 
+
 = 1.5.4 =
 * バグ: ２４時超えの営業時間で、２４時を超えた場合に前日表示する際、前日ではなく翌日を表示している不具合  
+
 
 = 1.5.3 =
 * 変更: ２４時超えの営業時間で、操作する時間が２４時を超えた場合、前日の日を初期表示する  

@@ -125,7 +125,7 @@ class Config_Page extends Salon_Page {
 		function fnClickUpdate() {
 			if ( ! checkItem("data_detail","config_deadline_time_unit") ) return false;
 			if ( $j("input[name=\"config_staff_holiday_set\"]:checked").val() == <?php echo Salon_Config::SET_STAFF_REVERSE;?> &&
-				$j("#config_is_no_preference").attr("checked") == "checked" ) {
+				$j("#config_is_no_preference").prop("checked")  ) {
 					alert("<?php _e('can\'t check \"No Designation of Staff\"',SL_DOMAIN); ?>");
 					return false;
 			}
@@ -137,34 +137,43 @@ class Config_Page extends Salon_Page {
 			else if ($j("#config_deadline_time_unit").val() == <?php echo Salon_Config::DEFALUT_RESERVE_DEADLINE_UNIT_HOUR; ?> ) {
 				set_deadline = set_deadline * 60;
 			}
+
+
+			var config_is_user_login = null;
+			if ($j("#config_is_user_login").prop("checked") ) config_is_user_login = "checked";
+			var config_is_log_need = null;
+			if ($j("#config_is_log_need").prop("checked") ) config_is_log_need = "checked";
+			var config_is_delete_record = null;
+			if ($j("#config_is_delete_record").prop("checked") ) config_is_delete_record = "checked";
+			var config_is_no_preference = null;
+			if ($j("#config_is_no_preference").prop("checked") ) config_is_no_preference = "checked";
+			var config_is_show_detail_msg = null;
+			if ($j("#config_is_show_detail_msg").prop("checked") ) config_is_show_detail_msg = "checked";
+			var config_maintenance_include_staff = null;
+			if ($j("#config_maintenance_include_staff").prop("checked") ) config_maintenance_include_staff = "checked";
+			var config_mobile_use = null;
+			if ($j("#config_mobile_use").prop("checked") ) config_mobile_use = "checked";
+
 			$j.ajax({
 				 	type: "post",
 					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slconfig", 
 					dataType : "json",
 					data: {
 						"config_branch":$j("input[name=\"config_branch\"]:checked").val()
-						,"config_user_login":$j("#config_is_user_login").attr("checked")
-<?php 
-/*
-						,"config_mail_text":$j("#send_mail_text").val()						
-						,"config_mail_text_user":$j("#regist_mail_text").val()						
-						,"config_mail_from":$j("#mail_from").val()	
-						,"config_mail_returnPath":$j("#mail_returnPath").val()	
-*/
-?>						
-						,"config_log":$j("#config_is_log_need").attr("checked")
-						,"config_delete_record":$j("#config_is_delete_record").attr("checked")
+						,"config_user_login":config_is_user_login
+						,"config_log":config_is_log_need
+						,"config_delete_record":config_is_delete_record
 						,"config_delete_record_period":$j("#delete_record_period").val()
 						,"config_after_day":$j("#after_day").val()						
 						,"config_staff_holiday_set":$j("input[name=\"config_staff_holiday_set\"]:checked").val()
 						,"config_name_order_set":$j("input[name=\"config_name_order_set\"]:checked").val()
-						,"config_no_preference":$j("#config_is_no_preference").attr("checked")
-						,"config_show_detail_msg":$j("#config_is_show_detail_msg").attr("checked")
+						,"config_no_preference":config_is_no_preference
+						,"config_show_detail_msg":config_is_show_detail_msg
 						,"config_before_day":$j("#before_day").val()						
 						,"config_after_day":$j("#after_day").val()						
 						,"config_timeline_y_cnt":$j("#timeline_y_cnt").val()
-						,"config_maintenance_include_staff":$j("#config_maintenance_include_staff").attr("checked")
-						,"config_mobile_use":$j("#config_mobile_use").attr("checked")
+						,"config_maintenance_include_staff":config_maintenance_include_staff
+						,"config_mobile_use":config_mobile_use
 						,"config_load_tab":$j("input[name=\"config_load_tab\"]:checked").val() 
 						,"config_reserve_deadline":set_deadline 
 						,"nonce":"<?php echo $this->nonce; ?>"

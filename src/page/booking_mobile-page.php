@@ -784,7 +784,7 @@ EOT4;
             }
             ?>
         	<div id="slm_holiday" class="slm_holiday" ><?php _e('Holiday',SL_DOMAIN); ?></div>
-            <a  data-role="button"  id="slm_regist_button" class="slm_tran_button" href="javascript:void(0)" ><?php _e('Booking',SL_DOMAIN); ?></a></li>
+            <a  data-role="button"  id="slm_regist_button" class="slm_tran_button" href="javascript:void(0)" ><?php _e('Booking',SL_DOMAIN); ?></a>
         </div>
         
     </div>

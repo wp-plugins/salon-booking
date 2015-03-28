@@ -390,7 +390,8 @@ EOT;
 				save_user_login = ""; 
 			}
 			
-			var regist_customer = $j("#regist_customer").attr("checked");
+			var regist_customer = null;
+			if ($j("#regist_customer").prop("checked") ) regist_customer = "checked";
 
 			$j.ajax({
 				 	type: "post",
