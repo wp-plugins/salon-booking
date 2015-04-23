@@ -3,7 +3,7 @@
 Plugin Name: Salon Booking 
 Plugin URI: http://salon.mallory.jp
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff member.
-Version: 1.5.7
+Version: 1.5.8
 Author: kuu
 Author URI: http://salon.mallory.jp
 Text Domain: salon
@@ -1260,7 +1260,6 @@ public function example_remove_dashboard_widgets() {
 								`notes`			TEXT,
 								`open_time`			char(4),							
 								`close_time`			char(4),							
-	/* 0-> Sun 1-> Mon ～ 6-> Sat c.f. 2,3  -> 火・水定休日　Javascriptのgetdayの値と合わせている */
 								`closed`				char(15),								
 								`sp_dates`			TEXT,
 								`time_step`	INT default 15,
