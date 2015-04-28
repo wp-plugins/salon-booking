@@ -2558,7 +2558,6 @@ EOT2;
 	}
 	
 	static function serverCheck($items , &$msg) {
-		
 		if (wp_verify_nonce($_REQUEST['nonce'],session_id()) === false) {
 			throw new Exception(Salon_Component::getMsg('E008',__function__.':'.__LINE__ ) );
 		}
@@ -2676,7 +2675,7 @@ EOT2;
 	
 	static function serverEachCheck($target,$check,$label,&$err_msg){
 		if (trim($check) == 'chk_required') {
-			if (empty($target)&& $target!==0) {
+			if (empty($target)&& +$target!==0) {
 				$err_msg[] = Salon_Component::getMsg('E201',$label);
 				return false;
 			}
