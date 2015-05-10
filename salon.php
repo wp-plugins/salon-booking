@@ -3,7 +3,7 @@
 Plugin Name: Salon Booking 
 Plugin URI: http://salon.mallory.jp
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff member.
-Version: 1.5.9
+Version: 1.5.10
 Author: kuu
 Author URI: http://salon.mallory.jp
 Text Domain: salon
@@ -595,7 +595,8 @@ public function example_remove_dashboard_widgets() {
 		$screen = get_current_screen();
 
 		$help = '<ol style="list-style-type:decimal">';
-		$help .= '<li><strong>'.__('Number of the Shops',SL_DOMAIN).'</strong> - '.__('Select "plural shops", if the Salon holds more than one shop and has the need to have an independent reservation page for each shop.',SL_DOMAIN ) . '</li>';
+///		$help .= '<li><strong>'.__('Number of the Shops',SL_DOMAIN).'</strong> - '.__('Select "plural shops", if the Salon holds more than one shop and has the need to have an independent reservation page for each shop.',SL_DOMAIN ) . '</li>';
+		$help .= '<li><strong>'.__('Number of the Shops',SL_DOMAIN).'</strong> - '.__('Now plural shops select only.',SL_DOMAIN ) . '</li>';
 		$help .= '<li><strong>'.__('Approval of the Login by the Clients',SL_DOMAIN).'</strong> - '.__('If you want the columns for user ID and the password be displayed, on the screen of Reservation, check mark the column of  "approve the client’s login". This is the function not required if the same function is provided by other means like sidebars and so.',SL_DOMAIN ) . '</li>';
 		$help .= '<li><strong>'.__('Opration Log Setting',SL_DOMAIN).'</strong> - '.__('Check the mark "Opration Log Setting" to recorded the opration of "Add","Update" or "Delete" to log file.',SL_DOMAIN ) . '</li>';
 		$help .= '<li><strong>'.__('Automatic Deletion',SL_DOMAIN).'</strong> - '.__('Check the mark "automatic deletion"to mask the personal information like names and phone numbers after the designated month since the reservation date. This is daily updated automatically at midnight. ',SL_DOMAIN ) . '</li>';

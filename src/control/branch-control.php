@@ -45,6 +45,7 @@ class Branch_Control extends Salon_Control  {
 		elseif ($this->action_class == 'Branch_Edit' ) {
 			$this->pages->check_request();
 			$res = $this->comp->editTableData();
+			$this->comp->serverCheck($res);
 			$this->pages->set_table_data($res);
 			if ($_POST['type'] == 'inserted' ) {
 				$this->pages->set_branch_cd($this->datas->insertTable( $res));

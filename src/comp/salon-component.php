@@ -701,6 +701,12 @@ class Salon_Component {
 			case 'E213':
 				$err_msg = $err_cd.' '.__("This time zones can not be reserved",SL_DOMAIN);
 				break;	
+			case "E214":
+				$err_msg = $err_cd.' '.__("This menu checked as the following staff member.\nplease update the menu of the following staff member.\n",SL_DOMAIN).$add_char;
+				break;
+			case "E215":
+				$err_msg = $err_cd.' '.__("At least one data is needed",SL_DOMAIN);
+				break;
 			case 'E301':
 				$err_msg = $err_cd.' '.__("This coupon is invalid now.",SL_DOMAIN);
 				break;	

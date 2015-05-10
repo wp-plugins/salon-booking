@@ -10,7 +10,31 @@ class Branch_Component {
 		$this->datas = $datas;
 	}
 	
+	public function serverCheck($set_data) {
+		global $wpdb;
+		//連続して削除されると、どっかのスタッフが使用しているメニューでも削除できるのでここでチェックする。
+		if ( $_POST['type'] == 'deleted' )  {
 	
+			$sql =	$wpdb->prepare(
+						' SELECT  count(*) as cnt '.
+						' FROM '.$wpdb->prefix.'salon_branch '.
+						'   WHERE delete_flg <> %d ',
+						Salon_Reservation_Status::DELETED);
+
+			if ($wpdb->query($sql) === false ) {
+				$this->_dbAccessAbnormalEnd();
+			}
+			else {
+				$result = $wpdb->get_results($sql,ARRAY_A);
+			}
+			
+			if ($result[0]['cnt'] == 1 ) {
+				throw new Exception(Salon_Component::getMsg('E215'),1);
+			}
+		}
+
+		
+	}
 	
 	public function editTableData () {
 		

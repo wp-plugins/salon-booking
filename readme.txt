@@ -3,7 +3,7 @@ Contributors: kuu(Tanaka Hisao)
 Tags: hair salon,salon,appointment,booking,beauty apps,reservation,dental clinic,hospital,mutilingual,散髪予約,美容院予約,美容室予約,サロン予約,エステ予約,予約システム,予約管理
 Requires at least: 4.0
 Tested up to: 4.0
-Stable tag: 1.5.9
+Stable tag: 1.5.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,6 +122,12 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 5. 管理画面（出退勤）
 
 == Changelog ==
+= 1.5.10 =
+* 変更: 店舗の設定を、処理内で単一と分ける意味がなくなったため無条件で複数店舗にする。  
+* バグ: メニューのデータを使用しているスタッフがいても、連続して削除するとエラーにならないことへの対処  
+* バグ: 店舗のデータを全件削除して、再表示すると画面が崩れることへの対処  
+
+
 = 1.5.9 =
 * バグ: 0円の登録ができない対処  
 

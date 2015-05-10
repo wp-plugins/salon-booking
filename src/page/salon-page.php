@@ -2074,7 +2074,7 @@ EOT2;
 		 ,'class'	=>array()
 		 ,'check' => array()
 		 ,'label' => '1.'.__('Number of the Shops',SL_DOMAIN)
-		 ,'tips' => __('plural shops ,check here',SL_DOMAIN));
+		 ,'tips' => __('Now plural shops select only.',SL_DOMAIN));
 	
 		$item_contents['config_user_login'] =array('id'=>'config_is_user_login'
 		 ,'class'	=>array()

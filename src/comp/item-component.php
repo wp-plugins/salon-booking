@@ -11,11 +11,47 @@ class Item_Component {
 	}
 	
 	
+	public function serverCheck($set_data) {
+		global $wpdb;
+		//連続して削除されると、どっかのスタッフが使用しているメニューでも削除できるのでここでチェックする。
+		if ( ( $_POST['type'] == 'deleted' ) || ($set_data['all_flg'] == Salon_Config::ALL_ITEMS_NO )) {
+	
+			$sql =	$wpdb->prepare(
+						' SELECT  '.
+						' staff_cd ,user_login, in_items '.
+						' FROM '.$wpdb->prefix.'salon_staff '.
+						'   WHERE delete_flg <> %d ',
+						Salon_Reservation_Status::DELETED);
+
+			if ($wpdb->query($sql) === false ) {
+				$this->_dbAccessAbnormalEnd();
+			}
+			else {
+				$result = $wpdb->get_results($sql,ARRAY_A);
+			}
+		
+			$err_staffs = Array();
+			
+			foreach($result as $k1 => $d1 ) {
+				$items_array = explode(",",$d1['in_items']);
+				//使用しているメニューが１つの場合->削除やALL_FLGを落とせないようにする。
+				if ((count($items_array) == 1) && ($items_array[0] == $set_data['item_cd'])) {
+					$err_staffs[] = $this->datas->getUserName($d1['user_login']);
+				}
+			}
+			if (count($err_staffs) > 0 ) {			
+				throw new Exception(Salon_Component::getMsg('E214', implode("\n",$err_staffs)),1);
+			}
+		}
+
+		
+	}
 	
 	public function editTableData () {
 		
 		if ( $_POST['type'] == 'deleted' ) {
 			$set_data['item_cd'] = intval($_POST['item_cd']);
+			
 		}
 		else {
 //[2013/11/10]Ver 1.3.1 
