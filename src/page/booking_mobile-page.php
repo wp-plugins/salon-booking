@@ -98,6 +98,7 @@
 			}
 			?>	
 			<?php if ($this->_is_staffSetNormal() )  : ?>			
+<?php /*
 			$j(".slm_time_li").bind({
 				'touchstart': function(e) {
 					var tmp_staff_cd = this.parentElement.id.split("_")[2];
@@ -118,6 +119,15 @@
 					clearTimeout( timer );
 				}
 			});
+*/ ?>
+			$j(".slm_time_li,.slm_first_li").click(function() {
+				var tmp_staff_cd = this.parentElement.id.split("_")[2];
+				var tmp_time = +$j(this).children().text();
+				if (! tmp_time ) tmp_time = <?php echo  substr($this->branch_datas["open_time"],0,2); ?>;
+				_fnAddReservation(tmp_time);
+				$j("#staff_cd").val(tmp_staff_cd).change();
+			});
+
 			<?php endif; ?>
 
 			<?php parent::echoSetHolidayMobile($this->branch_datas,$this->working_datas,$this->target_year,$this->first_hour);	?>
