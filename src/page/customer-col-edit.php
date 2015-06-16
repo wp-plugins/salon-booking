@@ -8,19 +8,15 @@ class Customer_Col_Edit extends Salon_Page {
 	private $table_data = null;
 	private $is_wpuserdata = false;
 
-	private $config_datas = null;
 	
-	public function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 	}
 	
 	public function set_table_data($table_data) {
 		$this->table_data = $table_data;
 	}
 
-	public function set_config_datas($config_datas) {
-		$this->config_datas = $config_datas;
-	}
 
 	public function isWpuserdata () {
 		return $this->is_wpuserdata;

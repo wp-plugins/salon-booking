@@ -143,7 +143,7 @@ class Booking_Component {
 		}
 		return $result_after;
 	}
-	public function editTableData () {
+	public function editTableData ($branch_datas,$is_edit = false) {
 		if  ($_POST['type'] == 'deleted' ) {
 			$set_data['reservation_cd'] = intval($_POST['id']);
 			$set_data['status'] = Salon_Reservation_Status::DELETED;		
@@ -153,9 +153,6 @@ class Booking_Component {
 			$set_data['non_regist_name'] = stripslashes($_POST['name']);			
 			$set_data['non_regist_email'] = $_POST['mail'];	
 			$set_data['time_from'] = $_POST['start_date'];
-			//[2014/08/16]終了時間はメニュから再設定する。
-			//$set_data['time_to'] = $_POST['end_date'];		
-			
 			$set_data['status'] = $_POST['status'];		
 			$set_data['remark'] = stripslashes($_POST['remark']);		
 			$set_data['branch_cd'] = intval($_POST['branch_cd']);
@@ -165,9 +162,11 @@ class Booking_Component {
 			$set_data['non_regist_activate_key'] = substr(md5(uniqid(mt_rand(),1)),0,8);
 			$set_data['item_cds'] = $_POST['item_cds'];	
 			$set_data['non_regist_tel'] = $_POST['tel'];	
-
-			$set_data['time_to'] = $this->datas->getMenuItemCalcEndTime($set_data['time_from'],$set_data['item_cds']);
-			
+			if (($is_edit)&&(!empty($branch_datas['notes']))) 
+				$set_data['time_to'] = $_POST['end_date'];
+			else 
+				$set_data['time_to'] = $this->datas->getMenuItemCalcEndTime($set_data['time_from'],$set_data['item_cds']);
+		
 			$set_data['coupon'] = "";
 			if (isset($_POST['coupon']) && !empty($_POST['coupon'])) {
 				$set_data['coupon'] = stripslashes($_POST['coupon']);
@@ -180,7 +179,9 @@ class Booking_Component {
 			}
 			else {
 				$set_data['status'] = Salon_Reservation_Status::COMPLETE;
-				if ( $this->datas->isSalonAdmin($user_login) ) {
+				$role = array();
+				$isAdmin = $this->datas->isSalonAdmin($user_login,$role);
+				if ( $isAdmin || in_array('edit_booking',$role) ) {
 					if (empty($_POST['user_login']) ) {
 						if (empty($_POST['regist_customer'] ) ) $regist_customer = false;
 						else $regist_customer = true;

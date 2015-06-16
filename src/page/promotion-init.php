@@ -7,8 +7,8 @@ class Promotion_Init extends Salon_Page {
 	
 	private $init_datas =  null;
 	
-	public function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 	}
 
 	public function get_init_datas() {

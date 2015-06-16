@@ -7,8 +7,8 @@ class Basic_Edit extends Salon_Page {
 	
 	private $table_data = null;
 	
-	public function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 	}
 
 	

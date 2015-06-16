@@ -34,13 +34,13 @@ class Confirm_Control extends Salon_Control  {
 	
 	public function do_action() {
 		$this->do_require($this->action_class ,'page',$this->permits);
-		$this->pages = new $this->action_class($this->is_multi_branch);
+		$this->pages = new $this->action_class($this->is_multi_branch,$this->is_use_session);
+		$this->pages->set_config_datas($this->datas->getConfigData());
 
 		if ($this->action_class == 'Confirm_Page' ) {
 			$reservation_cd = $this->pages->get_reservation_cd();
 			$this->pages->set_reservation_datas($this->comp->editTargetReservationData($reservation_cd));
 			$this->pages->check_request();
-			$this->pages->set_config_datas($this->datas->getConfigData());
 		}
 		elseif ($this->action_class == 'Confirm_Edit' ) {
 			$reservation_cd = $this->pages->get_reservation_cd();

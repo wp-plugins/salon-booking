@@ -11,12 +11,11 @@ class Confirm_Page extends Salon_Page {
 	private $datas = null;
 	
 	private $error_msg = '';
-	private $config_datas = null;
 	
 	
 	
-	public function __construct() {
-		parent::__construct(false);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 		if (!empty($_GET['P1'])) $this->reservation_cd = intval($_GET['P1']);
 		if (!empty($_GET['P2'])) $this->activation_key = $_GET['P2'];
 	}
@@ -50,9 +49,6 @@ class Confirm_Page extends Salon_Page {
 		
 	}
 	
-	public function set_config_datas($config_datas) {
-		$this->config_datas = $config_datas;
-	}
 
 	public function show_page() {
 		if (!empty($this->error_msg) ) {

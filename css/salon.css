@@ -763,3 +763,61 @@ dl#sl_category_wrap dd:after {
 }
 
 
+
+#sl_setting_data_wrap {
+	border: 1px solid #aacfe4;
+	float:left;
+	padding:15px 0px 15px 0px ;
+	margin:0px 0px 20px 0px ;
+	
+}
+
+
+#data_detail .sl_short_width_no_margin {
+	height:auto;
+	margin-top:2px;
+	margin-bottom:2px;
+	margin-right:2px;
+	width:50px;
+}
+
+#data_detail .sl_middle_width_no_margin {
+	width:100px;
+	margin-top:2px;
+	margin-bottom:2px;
+	margin-right:2px;
+}
+
+#data_detail .sl_long_width_no_margin {
+	width:200px;
+	margin-top:2px;
+	margin-bottom:2px;
+	margin-right:2px;
+}
+
+#data_detail .sl_in_span {
+	display:inline-block;
+	text-align:right;
+	width:300px;
+}
+
+#data_detail #sl_original_result {
+	display:inline-block;
+	height:auto;
+	margin:2px;
+}
+
+#data_detail .sl_in_button {
+	float:none;
+}
+
+#data_detail #sl_is_setting_patern {
+	margin-top:2px;
+	margin-bottom:2px;
+	margin-right:100px;
+	width:15px;
+}
+
+#data_detail .sl_patern_sel {
+	width:100px;
+}}

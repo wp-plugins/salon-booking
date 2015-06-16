@@ -37,12 +37,16 @@ class Config_Component {
 
 		$set_data['SALON_CONFIG_LOAD_TAB'] = empty($_POST['config_load_tab']) ? Salon_Config::LOAD_STAFF : $_POST['config_load_tab'];
 		$set_data['SALON_CONFIG_RESERVE_DEADLINE'] = intval($_POST['config_reserve_deadline']);
-/*
-		$set_data['SALON_CONFIG_SEND_MAIL_TEXT'] = stripslashes($_POST['config_mail_text']);
-		$set_data['SALON_CONFIG_SEND_MAIL_TEXT_USER'] = stripslashes($_POST['config_mail_text_user']);
-		$set_data['SALON_CONFIG_SEND_MAIL_FROM'] = stripslashes($_POST['config_mail_from']);
-		$set_data['SALON_CONFIG_SEND_MAIL_RETURN_PATH'] = stripslashes($_POST['config_mail_returnPath']);
-*/
+
+		
+
+		$set_data['SALON_CONFIG_PC_DISPLAY_TAB_STAFF'] = empty($_POST['config_show_tab_staff']) ? Salon_Config::SHOW_NO_TAB : Salon_Config::SHOW_TAB;
+		$set_data['SALON_CONFIG_PC_DISPLAY_TAB_MONTH'] = empty($_POST['config_show_tab_month']) ? Salon_Config::SHOW_NO_TAB : Salon_Config::SHOW_TAB;
+		$set_data['SALON_CONFIG_PC_DISPLAY_TAB_WEEK'] = empty($_POST['config_show_tab_week']) ? Salon_Config::SHOW_NO_TAB : Salon_Config::SHOW_TAB;
+		$set_data['SALON_CONFIG_PC_DISPLAY_TAB_DAY'] = empty($_POST['config_show_tab_day']) ? Salon_Config::SHOW_NO_TAB : Salon_Config::SHOW_TAB;
+
+		$set_data['SALON_CONFIG_USE_SESSION_ID'] = empty($_POST['config_use_session']) ? Salon_Config::USE_NO_SESSION : Salon_Config::USE_SESSION;
+
 		return $set_data;
 		
 	}

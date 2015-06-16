@@ -11,15 +11,11 @@ class Config_Page extends Salon_Page {
 
 	
 
-	public function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
-		$this->set_items = array('config_branch','config_user_login','config_staff_holiday_set','config_no_prefernce','before_day','after_day','timeline_y_cnt','config_show_detail_msg','config_name_order_set','config_log','config_delete_record','config_delete_record_period','maintenance_include_staff','mobile_use','load_tab','reserve_deadline');
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
+		$this->set_items = array('config_branch','config_user_login','config_staff_holiday_set','config_no_prefernce','before_day','after_day','timeline_y_cnt','config_show_detail_msg','config_name_order_set','config_log','config_delete_record','config_delete_record_period','maintenance_include_staff','mobile_use','load_tab','reserve_deadline','show_tab','config_use_session');
 	}
 	  
-	public function set_config_datas($config) {
-		$this->config = $config;
-	}
-
 	
 	public function show_page() {
 ?>
@@ -28,9 +24,14 @@ class Config_Page extends Salon_Page {
 
 		var $j = jQuery;
 		<?php parent::echoClientItem($this->set_items); ?>	
+
 		$j(document).ready(function() {
 			$j("#salon_button_div input[type=button]").addClass("sl_button");
 			<?php parent::echoSetItemLabel(false); ?>
+
+
+			var userAgent = window.navigator.userAgent.toLowerCase();
+			var appVersion = window.navigator.appVersion.toLowerCase();
 			for(index in check_items) {
 				if (check_items[index]) {
 					var diff = 0;
@@ -50,80 +51,114 @@ class Config_Page extends Salon_Page {
 						$j("#"+id).attr("style","margin-bottom: "+diff+"px;");
 						$j("#"+id+"_lbl").children(".small").attr("style","text-align:left;");
 					}
+
+					if (userAgent.indexOf('msie') != -1) {
+					//ie9ˆÈ‰º‚Í–³Ž‹
+						var lineHeight = parseFloat($j("#"+id+"_lbl .small").css("line-height"))*parseFloat($("body").css("font-size"));
+						var bHeight = Math.round(lineHeight);
+					}else{//ieˆÈŠO
+					    var lineHeight = parseFloat($j("#"+id+"_lbl .small").css("line-height"));
+					    var bHeight = Math.round(lineHeight);
+					}
+					if (bHeight < $j("#"+id+"_lbl .small").height() ) {
+						$j("#"+id+"_lbl .small").attr("style","text-align:left;");
+					}
+
 				}
 			}
 
-            $j("#button_update").click(function()	{
+
+
+			$j("#button_update").click(function()	{
 				fnClickUpdate();
 			});
 
-			$j("input[name=\"config_branch\"]").val([<?php echo $this->config['SALON_CONFIG_BRANCH']; ?>]);
-			<?php if ( $this->config['SALON_CONFIG_USER_LOGIN'] == Salon_Config::USER_LOGIN_OK ) $set_boolean = 'true';
+			$j("input[name=\"config_branch\"]").val([<?php echo $this->config_datas['SALON_CONFIG_BRANCH']; ?>]);
+			<?php if ( $this->config_datas['SALON_CONFIG_USER_LOGIN'] == Salon_Config::USER_LOGIN_OK ) $set_boolean = 'true';
 					else $set_boolean = 'false'; ?>
 			$j("#config_is_user_login").attr("checked",<?php echo $set_boolean; ?>);				
 
-			<?php if ( $this->config['SALON_CONFIG_DELETE_RECORD'] == Salon_Config::DELETE_RECORD_YES ) $set_boolean = 'true';
+			<?php if ( $this->config_datas['SALON_CONFIG_DELETE_RECORD'] == Salon_Config::DELETE_RECORD_YES ) $set_boolean = 'true';
 					else $set_boolean = 'false'; ?>
 			$j("#config_is_delete_record").attr("checked",<?php echo $set_boolean; ?>);				
-			$j("#delete_record_period").val("<?php echo $this->config['SALON_CONFIG_DELETE_RECORD_PERIOD']; ?>");
+			$j("#delete_record_period").val("<?php echo $this->config_datas['SALON_CONFIG_DELETE_RECORD_PERIOD']; ?>");
 
-			<?php if ( $this->config['SALON_CONFIG_LOG'] == Salon_Config::LOG_NEED ) $set_boolean = 'true';
+			<?php if ( $this->config_datas['SALON_CONFIG_LOG'] == Salon_Config::LOG_NEED ) $set_boolean = 'true';
 					else $set_boolean = 'false'; ?>
 			$j("#config_is_log_need").attr("checked",<?php echo $set_boolean; ?>);				
-			<?php if ( $this->config['SALON_CONFIG_SHOW_DETAIL_MSG'] == Salon_Config::DETAIL_MSG_OK ) $set_boolean = 'true';
+			<?php if ( $this->config_datas['SALON_CONFIG_SHOW_DETAIL_MSG'] == Salon_Config::DETAIL_MSG_OK ) $set_boolean = 'true';
 					else $set_boolean = 'false'; ?>
 			$j("#config_is_show_detail_msg").attr("checked",<?php echo $set_boolean; ?>);				
-			$j("input[name=\"config_staff_holiday_set\"]").val([<?php echo $this->config['SALON_CONFIG_STAFF_HOLIDAY_SET']; ?>]);
-			$j("input[name=\"config_name_order_set\"]").val([<?php echo $this->config['SALON_CONFIG_NAME_ORDER']; ?>]);
-			<?php if ( $this->config['SALON_CONFIG_NO_PREFERENCE'] == Salon_Config::NO_PREFERNCE_OK ) $set_boolean = 'true';
+			$j("input[name=\"config_staff_holiday_set\"]").val([<?php echo $this->config_datas['SALON_CONFIG_STAFF_HOLIDAY_SET']; ?>]);
+			$j("input[name=\"config_name_order_set\"]").val([<?php echo $this->config_datas['SALON_CONFIG_NAME_ORDER']; ?>]);
+			<?php if ( $this->config_datas['SALON_CONFIG_NO_PREFERENCE'] == Salon_Config::NO_PREFERNCE_OK ) $set_boolean = 'true';
 					else $set_boolean = 'false'; ?>
 			$j("#config_is_no_preference").attr("checked",<?php echo $set_boolean; ?>);
 
-			$j("#before_day").val("<?php echo $this->config['SALON_CONFIG_BEFORE_DAY']; ?>");
-			$j("#after_day").val("<?php echo $this->config['SALON_CONFIG_AFTER_DAY']; ?>");
-			$j("#timeline_y_cnt").val("<?php echo $this->config['SALON_CONFIG_TIMELINE_Y_CNT']; ?>");
+			$j("#before_day").val("<?php echo $this->config_datas['SALON_CONFIG_BEFORE_DAY']; ?>");
+			$j("#after_day").val("<?php echo $this->config_datas['SALON_CONFIG_AFTER_DAY']; ?>");
+			$j("#timeline_y_cnt").val("<?php echo $this->config_datas['SALON_CONFIG_TIMELINE_Y_CNT']; ?>");
 			
-			<?php if ( $this->config['SALON_CONFIG_MAINTENANCE_INCLUDE_STAFF'] == Salon_Config::MAINTENANCE_INCLUDE_STAFF ) $set_boolean = 'true';
+			<?php if ( $this->config_datas['SALON_CONFIG_MAINTENANCE_INCLUDE_STAFF'] == Salon_Config::MAINTENANCE_INCLUDE_STAFF ) $set_boolean = 'true';
 					else $set_boolean = 'false'; ?>
 			$j("#config_maintenance_include_staff").attr("checked",<?php echo $set_boolean; ?>);
 
-			<?php if ( $this->config['SALON_CONFIG_MOBILE_USE'] == Salon_Config::MOBILE_USE_YES ) $set_boolean = 'true';
+			<?php if ( $this->config_datas['SALON_CONFIG_MOBILE_USE'] == Salon_Config::MOBILE_USE_YES ) $set_boolean = 'true';
 					else $set_boolean = 'false'; ?>
 			$j("#config_mobile_use").attr("checked",<?php echo $set_boolean; ?>);
 			
 <?php
 /*							
-			$j("#send_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n',$this->config['SALON_CONFIG_SEND_MAIL_TEXT']); ?>");
-			$j("#regist_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n',$this->config['SALON_CONFIG_SEND_MAIL_TEXT_USER']); ?>");
-			$j("#mail_from").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_FROM']; ?>");
-			$j("#mail_returnPath").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_RETURN_PATH']; ?>");
+			$j("#send_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n',$this->config_datas['SALON_CONFIG_SEND_MAIL_TEXT']); ?>");
+			$j("#regist_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n',$this->config_datas['SALON_CONFIG_SEND_MAIL_TEXT_USER']); ?>");
+			$j("#mail_from").val("<?php echo $this->config_datas['SALON_CONFIG_SEND_MAIL_FROM']; ?>");
+			$j("#mail_returnPath").val("<?php echo $this->config_datas['SALON_CONFIG_SEND_MAIL_RETURN_PATH']; ?>");
 */
 ?>	
 			
-			$j("input[name=\"config_load_tab\"]").val([<?php echo $this->config['SALON_CONFIG_LOAD_TAB']; ?>]);
+			$j("input[name=\"config_load_tab\"]").val([<?php echo $this->config_datas['SALON_CONFIG_LOAD_TAB']; ?>]);
 			
 			<?php
 				//
-				$setMinutes = $this->config['SALON_CONFIG_RESERVE_DEADLINE'];
+				$setMinutes = $this->config_datas['SALON_CONFIG_RESERVE_DEADLINE'];
 				$setIndex = Salon_Config::DEFALUT_RESERVE_DEADLINE_UNIT_MIN;
-				if ($this->config['SALON_CONFIG_RESERVE_DEADLINE'] % (60 * 24 ) == 0 ) {
-					$setMinutes = $this->config['SALON_CONFIG_RESERVE_DEADLINE'] / (60 * 24);
+				if ($this->config_datas['SALON_CONFIG_RESERVE_DEADLINE'] % (60 * 24 ) == 0 ) {
+					$setMinutes = $this->config_datas['SALON_CONFIG_RESERVE_DEADLINE'] / (60 * 24);
 					$setIndex = Salon_Config::DEFALUT_RESERVE_DEADLINE_UNIT_DAY;
 				}
-				elseif  ($this->config['SALON_CONFIG_RESERVE_DEADLINE'] % 60  == 0 ) {
-					$setMinutes = $this->config['SALON_CONFIG_RESERVE_DEADLINE'] / 60;
+				elseif  ($this->config_datas['SALON_CONFIG_RESERVE_DEADLINE'] % 60  == 0 ) {
+					$setMinutes = $this->config_datas['SALON_CONFIG_RESERVE_DEADLINE'] / 60;
 					$setIndex = Salon_Config::DEFALUT_RESERVE_DEADLINE_UNIT_HOUR;
 				}
 			?>
 			$j("#reserve_deadline").val(<?php echo $setMinutes; ?>);
-			$j("#config_deadline_time_unit").val(<?php echo $setIndex; ?>);						
+			$j("#config_deadline_time_unit").val(<?php echo $setIndex; ?>);	
 							
+			<?php if ( $this->config_datas['SALON_CONFIG_PC_DISPLAY_TAB_STAFF'] == Salon_Config::SHOW_TAB ) $set_boolean = 'true';
+					else $set_boolean = 'false'; ?>
+			$j("#config_show_staff").attr("checked",<?php echo $set_boolean; ?>);				
+			<?php if ( $this->config_datas['SALON_CONFIG_PC_DISPLAY_TAB_MONTH'] == Salon_Config::SHOW_TAB ) $set_boolean = 'true';
+					else $set_boolean = 'false'; ?>
+			$j("#config_show_month").attr("checked",<?php echo $set_boolean; ?>);				
+			<?php if ( $this->config_datas['SALON_CONFIG_PC_DISPLAY_TAB_WEEK'] == Salon_Config::SHOW_TAB ) $set_boolean = 'true';
+					else $set_boolean = 'false'; ?>
+			$j("#config_show_week").attr("checked",<?php echo $set_boolean; ?>);				
+			<?php if ( $this->config_datas['SALON_CONFIG_PC_DISPLAY_TAB_DAY'] == Salon_Config::SHOW_TAB ) $set_boolean = 'true';
+					else $set_boolean = 'false'; ?>
+			$j("#config_show_day").attr("checked",<?php echo $set_boolean; ?>);
+
+			<?php if ( $this->config_datas['SALON_CONFIG_USE_SESSION_ID'] == Salon_Config::USE_SESSION ) $set_boolean = 'true';
+					else $set_boolean = 'false'; ?>
+			$j("#config_is_use_session").attr("checked",<?php echo $set_boolean; ?>);
+
+
 
 		});
 
 
 		function fnClickUpdate() {
 			if ( ! checkItem("data_detail","config_deadline_time_unit") ) return false;
+			$j("#reserve_deadline").css({"width":"100px","margin":"3px 5px 0px 10px"});
 			if ( $j("input[name=\"config_staff_holiday_set\"]:checked").val() == <?php echo Salon_Config::SET_STAFF_REVERSE;?> &&
 				$j("#config_is_no_preference").prop("checked")  ) {
 					alert("<?php _e('can\'t check \"No Designation of Staff\"',SL_DOMAIN); ?>");
@@ -154,6 +189,23 @@ class Config_Page extends Salon_Page {
 			var config_mobile_use = null;
 			if ($j("#config_mobile_use").prop("checked") ) config_mobile_use = "checked";
 
+			var config_mobile_use = null;
+			if ($j("#config_mobile_use").prop("checked") ) config_mobile_use = "checked";
+
+			var config_show_tab_staff = null;
+			if ($j("#config_show_staff").prop("checked") ) config_show_tab_staff = "checked";
+			var config_show_tab_month = null;
+			if ($j("#config_show_month").prop("checked") ) config_show_tab_month = "checked";
+			var config_show_tab_week = null;
+			if ($j("#config_show_week").prop("checked") ) config_show_tab_week = "checked";
+			var config_show_tab_day = null;
+			if ($j("#config_show_day").prop("checked") ) config_show_tab_day = "checked";
+
+			var config_use_session = null;
+			if ($j("#config_is_use_session").prop("checked") ) config_use_session = "checked";
+
+
+
 			$j.ajax({
 				 	type: "post",
 					url:  "<?php echo get_bloginfo( 'wpurl' ); ?>/wp-admin/admin-ajax.php?action=slconfig", 
@@ -176,6 +228,11 @@ class Config_Page extends Salon_Page {
 						,"config_mobile_use":config_mobile_use
 						,"config_load_tab":$j("input[name=\"config_load_tab\"]:checked").val() 
 						,"config_reserve_deadline":set_deadline 
+						,"config_show_tab_staff":config_show_tab_staff
+						,"config_show_tab_month":config_show_tab_month
+						,"config_show_tab_week":config_show_tab_week
+						,"config_show_tab_day":config_show_tab_day
+						,"config_use_session":config_use_session
 						,"nonce":"<?php echo $this->nonce; ?>"
 						,"menu_func":"Config_Edit"
 
@@ -189,7 +246,7 @@ class Config_Page extends Salon_Page {
 							alert(data.message);
 							location.reload();
 						}
-			        },
+					},
 					error:  function(XMLHttpRequest, textStatus){
 						alert (textStatus);
 						return false;
@@ -280,6 +337,23 @@ class Config_Page extends Salon_Page {
 			
 		</div>
 		
+		<div id="config_show_tab_wrap" class="config_item_wrap" >
+			<input id="config_show_staff" name="config_show_tab" type="checkbox" style="width:16px;margin:3px 5px 0px 10px;" value="<?php echo Salon_Config::SHOW_TAB; ?>" />
+			<label for="config_show_staff"  style="width:auto;margin:5px;text-align:left;"><?php _e('Staff',SL_DOMAIN); ?></label>
+			<input id="config_show_month" name="config_show_tab" type="checkbox" style="width:16px;margin:3px 5px 0px 10px;" value="<?php echo Salon_Config::SHOW_TAB; ?>" />
+			<label for="config_show_month"  style="width:auto;margin:5px;text-align:left;"><?php _e('Month',SL_DOMAIN); ?></label>
+			<input id="config_show_week" name="config_show_tab" type="checkbox" style="width:16px;margin:3px 5px 0px 10px;" value="<?php echo Salon_Config::SHOW_TAB; ?>" />
+			<label for="config_show_week"  style="width:auto;margin:5px;text-align:left;"><?php _e('Week',SL_DOMAIN); ?></label>
+			<input id="config_show_day" name="config_show_tab" type="checkbox" style="width:16px;margin:3px 5px 0px 10px;" value="<?php echo Salon_Config::SHOW_TAB; ?>" />
+			<label for="config_show_day"  style="width:auto;margin:5px;text-align:left;"><?php _e('Day',SL_DOMAIN); ?></label>
+		</div>
+
+		<div id="config_is_use_session_wrap" class="config_item_wrap" >
+			<input id="config_is_use_session" type="checkbox"  style="width:16px;margin:3px 5px 0px 10px;" value="<?php echo Salon_Config::USE_SESSION; ?>" />
+		</div>
+
+
+
 		<div class="spacer"></div>
 	</div>
 

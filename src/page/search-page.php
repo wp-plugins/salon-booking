@@ -8,10 +8,11 @@ class Search_Page extends Salon_Page {
 	private $search_items = null;
 	private $result = null;
 	private $isNodata = false;
-	
+	private $role = null;
 
-	function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 		$this->search_items = array('mail'=>$_POST['mail'],'name'=>$_POST['name'],'tel'=>$_POST['tel']);
 	}
 	
@@ -26,10 +27,17 @@ class Search_Page extends Salon_Page {
 	public function setNodata () {
 		$this->isNodata = true;
 	}
-	
+
+	public function set_role($role) {
+		$this->role = $role;
+	}
+
+
 	public function check_request() {
 		//ここは、弱い権限でログインしているスタッフがrequestを偽造して全部取得する場合などを想定
-		if (!$this->isSalonAdmin() ) {
+		if (in_array('edit_booking',$this->role) || $this->isSalonAdmin() ) {
+		}
+		else {
 			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
 		}
 	}

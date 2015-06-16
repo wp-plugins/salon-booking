@@ -34,6 +34,7 @@ class Branch_Data extends Salon_Data {
 						' time_step = %d , '.
 						' closed = %s , '.
 						' memo = %s , '.
+						' notes = %s , '.
 						' update_time = %s ';
 												
 		$set_data_temp = array($table_data['name'],
@@ -48,6 +49,7 @@ class Branch_Data extends Salon_Data {
 						$table_data['time_step'],
 						$table_data['closed'],
 						$table_data['memo'],
+						$table_data['notes'],
 						date_i18n('Y-m-d H:i:s'),
 						$table_data['branch_cd']);
 		$where_string = ' branch_cd = %d ';
@@ -90,6 +92,12 @@ class Branch_Data extends Salon_Data {
 		return $this->getAllBranchData();
 	}
 	
+	static function getSettingPaternDatas(){
+		$result = array();
+		$result[Salon_Config::SETTING_PATERN_TIME] = __('Input time unit',SL_DOMAIN);
+		$result[Salon_Config::SETTING_PATERN_ORIGINAL] = __('Input pre-determined time frames',SL_DOMAIN);
+		return $result;
+	}
 
 	
 	

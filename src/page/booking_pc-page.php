@@ -296,7 +296,7 @@ EOT3;
 				ev.edit_flg = <?php  echo Salon_Edit::OK; ?>;
 					<?php if ( is_user_logged_in() ) : ?>
 						<?php	
-						if ($this->isSalonAdmin() ) {
+						if ($this->_is_editBooking() ) {
 							$new_name = '';
 							$new_mail = '';
 							$new_tel = '';
@@ -387,7 +387,7 @@ EOT3;
 					is_check = false;
 				}
 				
-				<?php if ( ! $this->isSalonAdmin() ) : ?>
+				<?php if ( ! $this->_is_editBooking() ) : ?>
 				else if (ev.status == <?php echo Salon_Reservation_Status::TEMPORARY; ?> ) {
 						is_check = false;
 						alert("<?php _e('tempolary data can not update',SL_DOMAIN); ?>");
@@ -480,7 +480,6 @@ EOT3;
 			$j("#start_time").change(function(){
 				var start  = $j(this).val();
 				if (start != -1 )	{
-					//valueは０なしで表示は０ありにしているがなぜ？
 					if (start.length < 5 ) start="0"+start;
 <?php 		//24時間超えの場合
 			if ( $this->last_hour > 23 ) {
@@ -496,6 +495,25 @@ EOT3;
 				}
 			});
 
+<?php 	
+	if (($this->_is_editBooking())&&(!empty($this->branch_datas['notes']))) {
+		echo '$j("#end_time").change(function(){';
+		echo 'var end  = $j(this).val();';
+		echo 'if (end != -1 )	{';
+		echo 'if (end.length < 5 ) end="0"+end;';
+		//24時間超えの場合
+		if ( $this->last_hour > 23 ) {
+			//設定された時間で今日か明日かを判定する
+			echo 'if (+end.substr(0,2) >= '.$this->first_hour.'){ '.
+					'target_day_to = new Date(target_yyyymmdd);}'.
+				'else {target_day_to = new Date(target_yyyymmdd);target_day_from.setDate(target_yyyymmdd.getDate()+1);}';
+		}
+		echo 'target_day_to.setHours(end.substr(0,2));';
+		echo 'target_day_to.setMinutes(+end.substr(3,2));';
+		echo '}';
+		echo '});';
+	}
+?>
 
 			<?php //[2014/06/22]スタッフコードにより選択を変更 ?>
 			$j("#staff_cd").change(function(){
@@ -534,6 +552,9 @@ EOT3;
 					fnUpdateEndTime();
 				}
 			});
+
+
+
 			<?php //[2014/06/22]ここまで ?>
 			<?php parent::echoSetItemLabel(false); ?>	
 			<?php parent::echo_clear_error(); ?>
@@ -580,8 +601,14 @@ EOT3;
 			$j("#price").text(price);
 			target_day_to = new Date(target_day_from.getTime());
 			target_day_to.setMinutes(target_day_to.getMinutes() + minute);				
-			$j("#end_time").text(' - '+target_day_to.getHours() + ":" + (target_day_to.getMinutes()<10?'0':'') + target_day_to.getMinutes());
-	
+<?php 
+		if (($this->_is_editBooking())&&(!empty($this->branch_datas['notes']))) {
+			echo '$j("#end_time").val(target_day_to.getHours() + ":" + (target_day_to.getMinutes()<10?"0":"") + target_day_to.getMinutes());';
+		}
+		else {
+			echo '$j("#end_time").text(" - "+target_day_to.getHours() + ":" + (target_day_to.getMinutes()<10?"0":"") + target_day_to.getMinutes());';
+		}
+?>
 			save_item_cds = tmp.join(",");
 		}
 	
@@ -608,12 +635,12 @@ EOT3;
 				if (ev.type) {
 					$j("#button_insert").val("<?php _e('Create Reservation',SL_DOMAIN); ?>");
 					$j("#button_delete").hide();
-					<?php	if ($this->isSalonAdmin() ) 	echo '$j("#button_search").show();'; ?>
+					<?php	if ($this->_is_editBooking() ) 	echo '$j("#button_search").show();'; ?>
 				}
 				else {
 					$j("#button_insert").val("<?php _e('Update Reservation',SL_DOMAIN); ?>");
 					$j("#button_delete").show();
-					<?php	if ($this->isSalonAdmin() ) echo '$j("#button_search").hide();'; ?>
+					<?php	if ($this->_is_editBooking() ) echo '$j("#button_search").hide();'; ?>
 				}
 				save_user_login = ev.user_login;
 				
@@ -630,7 +657,7 @@ EOT3;
 				$j("#name").attr("readonly", false);
 				$j("#mail").attr("readonly", false);
 				$j("#tel").attr("readonly", false);
-				<?php if ( !is_user_logged_in() ||  $this->isSalonAdmin() ) : ?>
+				<?php if ( !is_user_logged_in() ||  $this->_is_editBooking() ) : ?>
 					$j("#name").focus();			
 				<?php else : ?>
 					$j("#name").attr("readonly", true);
@@ -640,7 +667,11 @@ EOT3;
 				<?php endif; ?>
 				$j("#start_time").val(('0'+ev.start_date.getHours()).slice(-2)+":"+('0'+ev.start_date.getMinutes()).slice(-2));
 				save_target_event = scheduler._lame_clone(ev);
-				fnUpdateEndTime();
+				<?php	if (($this->_is_editBooking())&&(!empty($this->branch_datas['notes']))) : ?>
+					$j("#end_time").val(('0'+ev.end_date.getHours()).slice(-2)+":"+('0'+ev.end_date.getMinutes()).slice(-2));
+				<?php else : ?>
+					fnUpdateEndTime();
+				<?php endif; ?>
 				
 				$j("#rstatus").text("");
 				if (ev.status == <?php echo Salon_Reservation_Status::TEMPORARY; ?> ) {
@@ -671,13 +702,10 @@ EOT3;
 				}
 				
 				$j("#coupon").val(ev.coupon).change();
+				<?php	if (($this->_is_editBooking())&&(!empty($this->branch_datas['notes']))) : ?>
+					$j("#end_time").val(('0'+ev.end_date.getHours()).slice(-2)+":"+('0'+ev.end_date.getMinutes()).slice(-2));
+				<?php endif; ?>
 					
-//					
-//		foreach($promotion_datas as $k1 => $d1 ) {
-//			$echo_data .= '<option value="'.$d1['set_code'].'">'.htmlspecialchars($d1['description'],ENT_QUOTES).'</option>';
-//		}
-//		$echo_data .= '</select></div>';
-					//alert("check");
 				<?php parent::echo_clear_error(); ?>
 			}
 		}
@@ -924,9 +952,16 @@ EOT;
 		}
 
 		function save_form() {
-			if ( ! checkItem("data_detail") ) return false;
+<?php 
+		if (($this->_is_editBooking())&&(!empty($this->branch_datas['notes']))) {
+			echo 'if ( ! checkItem("data_detail","end_time") ) return false;';
+		}
+		else {
+			echo 'if ( ! checkItem("data_detail") ) return false;';
+		}
+?>
 			var ev = scheduler.getEvent(scheduler.getState().lightbox_id);
-			<?php if ( $this->isSalonAdmin() ) : ?>
+			<?php if ( $this->_is_editBooking() ) : ?>
 				if (ev.status == <?php echo Salon_Reservation_Status::TEMPORARY; ?> ) {
 					if (!confirm("<?php _e('This is temporary reservation.\nIf you will update,this reservation is completed.\nContinue?',SL_DOMAIN); ?>") ) return false;
 				}
@@ -1038,10 +1073,18 @@ EOT;
 			<div class="dhx_cal_next_button">&nbsp;</div>
 			<div class="dhx_cal_today_button"></div>
 			<div class="dhx_cal_date"></div>
+			<?php if ( $this->config_datas['SALON_CONFIG_PC_DISPLAY_TAB_DAY'] == Salon_Config::SHOW_TAB ) : ?>
 			<div class="dhx_cal_tab" name="day_tab" style="right:148px;"></div>
+			<?php endif; ?>
+			<?php if ( $this->config_datas['SALON_CONFIG_PC_DISPLAY_TAB_WEEK'] == Salon_Config::SHOW_TAB) : ?>
 			<div class="dhx_cal_tab" name="week_tab" style="right:84px;"></div>
+			<?php endif; ?>
+			<?php if ( $this->config_datas['SALON_CONFIG_PC_DISPLAY_TAB_MONTH'] == Salon_Config::SHOW_TAB) : ?>
 			<div class="dhx_cal_tab" name="month_tab" style="right:20px;"></div>
+			<?php endif; ?>
+			<?php if ( $this->config_datas['SALON_CONFIG_PC_DISPLAY_TAB_STAFF'] == Salon_Config::SHOW_TAB) : ?>
 			<div class="dhx_cal_tab" name="timeline_tab" style="right:212px;"></div>
+			<?php endif; ?>
 		</div>
 		<div class="dhx_cal_header"></div>
 		<div class="dhx_cal_data"></div>
@@ -1053,8 +1096,8 @@ EOT;
 			<label  ><?php _e('Date',SL_DOMAIN); ?>:</label>
 			<span id="target_day" ></span>
 			<label  ><?php _e('Status',SL_DOMAIN); ?>:</label>
-		    <span id="rstatus"  ></span>
-            
+			<span id="rstatus"  ></span>
+
 		</div>
 <?php if ($this->_is_editBooking() ) : ?>
 		<div id="multi_item_wrap" >
@@ -1069,7 +1112,14 @@ EOT;
 
 		<div id="date_time_wrap" >
 				<?php parent::echoTimeSelect("start_time",$this->branch_datas['open_time'],$this->branch_datas['close_time'],$this->branch_datas['time_step']); ?>	
-				<span id="end_time" ></span>
+				<?php 
+				if (($this->_is_editBooking())&&(!empty($this->branch_datas['notes']))) {
+					parent::echoTimeSelect("end_time",$this->branch_datas['open_time'],$this->branch_datas['close_time'],$this->branch_datas['time_step'],false,'class="sl_patern_sel"');	
+				}
+				else {
+					echo '<span id="end_time" ></span>';
+				}
+				?>
 		</div>
 		<?php parent::echoStaffSelect("staff_cd",$this->staff_datas,$this->_is_noPreference(),false); ?>
 		<?php parent::echoItemInputCheckTable($this->item_datas); ?>
@@ -1077,6 +1127,29 @@ EOT;
 		<textarea id="remark"  ></textarea>
 		<label ><?php _e('price',SL_DOMAIN); ?>:</label>
 		<span id="price"></span>
+		<?php 
+/*
+		if (($this->_is_editBooking())&&(!empty($this->branch_datas['notes']))) {
+			echo '<div id="sl_setting_patern_'.$this->branch_datas['branch_cd'].'_wrap" class="sl_patern_original" >';
+			echo '<label >'.__('Enter the time directly',SL_DOMAIN).':</label>';
+			$setting_patern = explode(';',$this->branch_datas['notes']);
+			if ($setting_patern[0] == Salon_Config::SETTING_PATERN_ORIGINAL) {
+				echo '<select id="sl_setting_patern_'.$this->branch_datas['branch_cd'].'"  class="sl_sel sl_patern_original_sel"  >';
+				echo '<option  value="" selected="selected" >'.__('No Use',SL_DOMAIN).'</option>';
+				for ($i = 1 ;$i < count($setting_patern); $i++ ) {
+					$col_array = explode(',',$setting_patern[$i]);
+					echo '<option value="'.$col_array[1].'-'.$col_array[2].'" >'.$col_array[0].'('.$col_array[1].'-'.$col_array[2].')</option>';
+				}
+				echo '</select>';
+			}
+			else {
+					parent::echoTimeSelect("sl_setting_start_time",$this->branch_datas['open_time'],$this->branch_datas['close_time'],$this->branch_datas['time_step']);
+					parent::echoTimeSelect("sl_setting_end_time",$this->branch_datas['open_time'],$this->branch_datas['close_time'],$this->branch_datas['time_step']);	
+			}
+			echo '</div>';
+		}
+*/		?>
+
 		<div class="spacer"></div>
 		<div id="booking_button_div" >
 			<input type="button" value="<?php _e('Close',SL_DOMAIN); ?>" id="button_close"  >
@@ -1084,7 +1157,7 @@ EOT;
 			<input type="button" value="<?php _e('Create Reservation',SL_DOMAIN); ?>" id="button_insert"  >
 		</div>			
 	</div>
-<?php if ($this->isSalonAdmin() ) : ?>
+<?php if ($this->_is_editBooking() ) : ?>
 	<div id="sl_search" class="modal">
 		<div class="modalBody">
 			<div id="sl_search_result"></div>

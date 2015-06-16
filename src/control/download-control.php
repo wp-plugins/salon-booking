@@ -32,7 +32,7 @@ class Download_Control extends Salon_Control  {
 	
 	public function do_action() {
 		$this->do_require($this->action_class ,'page',$this->permits);
-		$this->pages = new $this->action_class($this->is_multi_branch);
+		$this->pages = new $this->action_class($this->is_multi_branch,$this->is_multi_branch);
 		if ($this->action_class == 'Download_Exec' ) {
 			$user_login = $this->datas->getUserLogin();
 			$this->pages->set_isSalonAdmin($this->datas->isSalonAdmin($user_login));

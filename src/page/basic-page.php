@@ -17,8 +17,8 @@ class Basic_Page extends Salon_Page {
 	
 	
 
-	function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 		$this->set_items = array('open_time','close_time','time_step','closed_day_check','sp_date','duplicate_cnt');
 	}
 	

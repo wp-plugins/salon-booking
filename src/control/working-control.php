@@ -37,7 +37,8 @@ class Working_Control extends Salon_Control  {
 	
 	public function do_action() {
 		$this->do_require($this->action_class ,'page',$this->permits);
-		$this->pages = new $this->action_class($this->is_multi_branch);
+		$this->pages = new $this->action_class($this->is_multi_branch,$this->is_use_session);
+		$this->pages->set_config_datas($this->datas->getConfigData());
 		if ($this->action_class == 'Working_Page' ) {
 			$user_login = $this->datas->getUserLogin();
 			$this->pages->set_isSalonAdmin($this->datas->isSalonAdmin($user_login));

@@ -18,7 +18,6 @@ class BookingFront_Page extends Salon_Page {
 
 	private $reseration_cd = '';
 	
-	private $config_datas = null;
 	private $target_year = '';
 	
 		
@@ -35,8 +34,8 @@ class BookingFront_Page extends Salon_Page {
 	private $current_time = '';
 	private $close_24 = '';
 
-	public function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch,session_id());
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 		$this->target_year = date_i18n("Y");
 		$url = get_bloginfo('wpurl');
 		if (is_ssl() && strpos(strtolower ( $url),'https') === false ) {
@@ -119,8 +118,6 @@ class BookingFront_Page extends Salon_Page {
 	private function _is_editBooking() {
 			if (in_array('edit_booking',$this->role) || $this->isSalonAdmin() ) return true;
 	}
-	
-	
 	
 	public function set_config_datas($config_datas) {
 		$this->config_datas = $config_datas;

@@ -34,11 +34,11 @@ class Staff_Control extends Salon_Control  {
 	
 	public function do_action() {
 		$this->do_require($this->action_class ,'page',$this->permits);
-		$this->pages = new $this->action_class($this->is_multi_branch);
+		$this->pages = new $this->action_class($this->is_multi_branch,$this->is_use_session);
+		$this->pages->set_config_datas($this->datas->getConfigData());
 		if ($this->action_class == 'Staff_Page' ) {
-			$this->pages->set_branch_datas($this->datas->getAllBranchData());
+			$this->pages->set_branch_datas($this->datas->getBranchDataIncMenu());
 			$this->pages->set_position_datas($this->datas->getAllPositionData(true));
-			$this->pages->set_config_datas($this->datas->getConfigData());
 			$this->pages->set_item_datas($this->datas->getAllItemDataForSet());
 		}
 		elseif ($this->action_class == 'Staff_Init' ) {
@@ -77,7 +77,6 @@ class Staff_Control extends Salon_Control  {
 		}
 		elseif ($this->action_class == 'Staff_Col_Edit' ) {
 			$this->set_response_type($this->pages->getResponseType());
-			$this->pages->set_config_datas($this->datas->getConfigData());
 			if ($this->pages->check_request() ) {
 				if ($this->pages->isWpuserdata() ) {
 					$res = $this->comp->editColunDataForWpUser();

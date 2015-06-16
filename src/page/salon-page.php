@@ -27,11 +27,14 @@ class Salon_Page {
 	protected $is_multi_branch = false;
 	protected $is_salon_admin = false;
 	protected $nonce = '';
+	protected $config_datas = null;
 
 
-	public function __construct($is_multi_branch) {
+	public function __construct($is_multi_branch,$use_session ) {
 		$this->is_multi_branch = $is_multi_branch;
-		$this->nonce = wp_create_nonce(session_id());
+		$nonce = SL_PLUGIN_DIR;
+		if ($use_session) $nonce = session_id();
+		$this->nonce = wp_create_nonce($nonce);
 		
 	}
 	public function set_isSalonAdmin($is_salon_admin){
@@ -44,6 +47,11 @@ class Salon_Page {
 	
 	public function get_default_brandh_cd() {
 		return Salon_Default::BRANCH_CD;
+	}
+
+	public function set_config_datas($config_datas) {
+		$this->config_datas = $config_datas;
+
 	}
 
 
@@ -688,6 +696,9 @@ EOT;
 	//[TODO]IEだとくずれてしまうのでmargin1加算
 		$default_margin = self::INPUT_BOTTOM_MARGIN;
 		echo <<<EOT
+				var userAgent = window.navigator.userAgent.toLowerCase();
+				var appVersion = window.navigator.appVersion.toLowerCase();
+
 				\$j("span").removeClass("error");
 				for(index in check_items) {
 					var id = check_items[index]["id"];
@@ -698,6 +709,21 @@ EOT;
 						\$j("#"+id).attr("style"," margin-bottom: "+diff+"px;");
 						\$j("#"+id+"_lbl").children(".samll").attr("style","text-align:left;");
 					}
+
+
+					if (userAgent.indexOf('msie') != -1) {
+					//ie9以下は無視
+						var lineHeight = parseFloat(\$j("#"+id+"_lbl .small").css("line-height"))*parseFloat($("body").css("font-size"));
+						var bHeight = Math.round(lineHeight);
+					}else{//ie以外
+					    var lineHeight = parseFloat(\$j("#"+id+"_lbl .small").css("line-height"));
+					    var bHeight = Math.round(lineHeight);
+					}
+					if (bHeight < \$j("#"+id+"_lbl .small").height() ) {
+						\$j("#"+id+"_lbl .small").attr("style","text-align:left;");
+					}
+
+
 				}
 EOT;
 	
@@ -805,7 +831,7 @@ EOT;
 		
 	}
 
-	static function echoTimeSelect($id,$open_time,$close_time,$time_step,$is_noEcho = false) {	
+	static function echoTimeSelect($id,$open_time,$close_time,$time_step,$is_noEcho = false,$class = "") {	
 	
 		$dt = new DateTime($open_time);
 		$last_hh = substr($close_time,0,2);
@@ -820,7 +846,7 @@ EOT;
 			$dt_max = new DateTime($last_hour);
 		}
 
-		$echo_data =  '<select name="'.$id.'" id="'.$id.'">';
+		$echo_data =  '<select name="'.$id.'" id="'.$id.'" '.$class.' ">';
 //		$echo_data .=   '<option value="-1" >'.__('no setting',SL_DOMAIN).'</option>';
 		while($dt <= $dt_max ) {
 //			$echo_data .= '<option value="'.$dt->format("G:i").'" >'.$dt->format("H:i").'</option>';
@@ -2391,6 +2417,7 @@ EOT2;
 		 ,'label' => '15.'.__('Default load tab',SL_DOMAIN)
 		 ,'tips' => __('Please select default load tab at the Reservation Screen.',SL_DOMAIN));
 
+
 		//[2014/07/26]Ver1.4.5
 		$item_contents['memo'] =array('id'=>'memo'
 		 ,'class' => array()
@@ -2551,15 +2578,50 @@ EOT2;
 		 ,'check' => array( 'chk_required')
 		 ,'label' => __('Select Target Table',SL_DOMAIN)
 		 ,'tips' => __('Now only the information of record is available',SL_DOMAIN));
+
+		$item_contents['show_tab'] =array('id'=>'config_show_staff'
+		 ,'class'	=>array()
+		 ,'check' => array()
+		 ,'label' => '17.'.__('Show tab',SL_DOMAIN)
+		 ,'tips' => __('Please check show tab at the Reservation Screen.',SL_DOMAIN));
+
+		$item_contents['config_use_session'] =array('id'=>'config_is_use_session'
+		 ,'class'	=>array()
+		 ,'check' => array()
+		 ,'label' => '18.'.__('Use session id.',SL_DOMAIN)
+		 ,'tips' => __('If you get the message \"This request is invalid nonce\",uncheck this field',SL_DOMAIN));
+
 		 
+		$item_contents['setting_patern_cd'] =array('id'=>'sl_setting_patern_cd'
+		 ,'class'	=>array()
+		 ,'check' => array('chk_required')
+		 ,'label' => __('Setting the reservation time',SL_DOMAIN)
+		 ,'tips' => __('\"Input time unit\" -> Setting for allowing the user to input a time.\"Input pre-determined time frames\" -> The user is able to select from time frames decided by the administrator. Selecting this item displays the following input selections. ',SL_DOMAIN));
+
+		$item_contents['original_name'] =array('id'=>'sl_original_name'
+		 ,'class'	=>array()
+		 ,'check' => array()
+		 ,'label' => __('Selection item name',SL_DOMAIN)
+		 ,'tips' => __('The name of the item selected by the user. ',SL_DOMAIN));
+
+		$item_contents['is_setting_patern'] =array('id'=>'sl_is_setting_patern'
+		 ,'class'	=>array()
+		 ,'check' => array()
+		 ,'label' => __('Setting time of staff member',SL_DOMAIN)
+		 ,'tips' => __('If staff member can set from-to time, check here. ',SL_DOMAIN));
+
 		return $item_contents;	
 	
 		
 	}
 	
-	static function serverCheck($items , &$msg) {
-		if (wp_verify_nonce($_REQUEST['nonce'],session_id()) === false) {
-			throw new Exception(Salon_Component::getMsg('E008',__function__.':'.__LINE__ ) );
+	public function serverCheck($items , &$msg) {
+		
+		$nonce = SL_PLUGIN_DIR;
+
+		if ($this->config_datas['SALON_CONFIG_USE_SESSION_ID'] == Salon_Config::USE_SESSION) $nonce = session_id();
+		if (wp_verify_nonce($_REQUEST['nonce'],$nonce) === false) {
+			throw new Exception(Salon_Component::getMsg('E013',__function__.':'.__LINE__ ) ,1);
 		}
 		if (count($items) == 0 ) return true;
 		$item_contents = self::setItemContents();	
@@ -2675,7 +2737,7 @@ EOT2;
 	
 	static function serverEachCheck($target,$check,$label,&$err_msg){
 		if (trim($check) == 'chk_required') {
-			if (empty($target)&& +$target!==0) {
+			if (empty($target)&& $target!==0) {
 				$err_msg[] = Salon_Component::getMsg('E201',$label);
 				return false;
 			}
@@ -3497,6 +3559,33 @@ EOT;
 	}
 
 //[2014/08/12]Ver 1.4.8 To
+
+	static function echoOpenCloseTime($tag,$open,$close,$step,$plusClass="") {
+		echo '<select id="'.$tag.'" name="'.$tag.'" class="sl_sel rcal_time '.$plusClass.'" >';
+		$dt = new DateTime(substr($open,0,2).":".substr($open,2,2));
+		$last_hour = substr($close,0,2).":".substr($close,2,2);
+		$dt_max = new DateTime($last_hour);
+		$echo_data =  '';
+		while($dt <= $dt_max ) {
+			$echo_data .= '<option value="'.$dt->format("H:i").'" >'.$dt->format("H:i").'</option>';
+			$dt->modify("+".$step." minutes");
+		}
+		echo $echo_data;	
+		echo '</select>';
+
+	}
+
+	static function echoSettingPaternSelect($tag,$datas) {	
+	
+		$echo_data =  '<select name="'.$tag.'" id="'.$tag.'">';
+		foreach($datas as $k1 => $d1) {
+			$echo_data .= '<option value="'.$k1.'" >'.$d1.'</option>';
+		}
+		$echo_data .= '</select>';
+		echo $echo_data;
+	
+			
+	}
 
 
 

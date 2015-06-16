@@ -17,6 +17,8 @@ abstract class Salon_Data {
 	private $isPromotion = null;
 	private $isCustomer = null;
 
+	private $role = null;
+
 	private $customer_rank = 0;
 
 	public function __construct() {
@@ -60,7 +62,13 @@ abstract class Salon_Data {
 		if (empty($result['SALON_CONFIG_SEND_MAIL_BCC']) ) $result['SALON_CONFIG_SEND_MAIL_BCC'] = "";
 		
 		
-				
+		if (empty($result['SALON_CONFIG_PC_DISPLAY_TAB_STAFF']) ) $result['SALON_CONFIG_PC_DISPLAY_TAB_STAFF'] = Salon_Config::SHOW_TAB;
+		if (empty($result['SALON_CONFIG_PC_DISPLAY_TAB_MONTH']) ) $result['SALON_CONFIG_PC_DISPLAY_TAB_MONTH'] = Salon_Config::SHOW_TAB;
+		if (empty($result['SALON_CONFIG_PC_DISPLAY_TAB_WEEK']) ) $result['SALON_CONFIG_PC_DISPLAY_TAB_WEEK'] = Salon_Config::SHOW_TAB;
+		if (empty($result['SALON_CONFIG_PC_DISPLAY_TAB_DAY']) ) $result['SALON_CONFIG_PC_DISPLAY_TAB_DAY'] = Salon_Config::SHOW_TAB;
+		
+		if (empty($result['SALON_CONFIG_USE_SESSION_ID']) ) $result['SALON_CONFIG_USE_SESSION_ID'] = Salon_Config::USE_SESSION;
+		
 		$this->config = $result;
 	}
 	
@@ -78,6 +86,23 @@ abstract class Salon_Data {
 		if ($result === false ) {
 			$this->_dbAccessAbnormalEnd();
 		}
+		return $result;
+	}
+
+	public function getBranchDataIncMenu () {
+		global $wpdb;
+
+		$sql = 'SELECT distinct br.* FROM '.$wpdb->prefix.'salon_branch br '.
+				' INNER JOIN '.$wpdb->prefix.'salon_item it '.
+				' ON br.branch_cd = it.branch_cd ORDER BY branch_cd ';
+
+		if ($wpdb->query($sql) === false ) {
+			$this->_dbAccessAbnormalEnd();
+		}
+		else {
+			$result = $wpdb->get_results($sql,ARRAY_A);
+		}
+
 		return $result;
 	}
 
@@ -702,7 +727,10 @@ abstract class Salon_Data {
 	
 
 	public function isSalonAdmin($user_login,&$role = false){	
-		if (!is_null($this->isAdmin)) return  $this->isAdmin;
+		if (!is_null($this->isAdmin)) {
+			$role = $this->role;
+			return  $this->isAdmin;
+		}
 		if (is_multisite() && is_super_admin() ) {
 			$this->isAdmin = true;
 			$this->isPromotion = true;
@@ -736,7 +764,10 @@ abstract class Salon_Data {
 		if (count($result) > 0) {
 			$this->isStaff = true;
 			$show_menu =  explode(",",$result[0]['role']);
-			if (! $role ) $role = $show_menu;
+			if (! $role ) {
+				$role = $show_menu;
+				$this->role = $role;
+			}
 			if (in_array('edit_admin',$show_menu) || $result[0]['position_cd'] == self::SALON_MAINTENANCE) {
 				$this->isAdmin = true;
 				$this->isPromotion = true;

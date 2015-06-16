@@ -10,12 +10,11 @@ class Customer_Page extends Salon_Page {
 	
 	private $branch_datas = null;
 	
-	private $config_datas = null;
 	private $customer_rank_datas = null;
 	
 
-	function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 		if ($is_multi_branch ) {
 			$this->set_items = array('first_name','last_name','branch_cd','zip','address','customer_tel','customer_mobile','customer_mail','user_login','rank_patern','remark');
 		}
@@ -29,9 +28,6 @@ class Customer_Page extends Salon_Page {
 		$this->branch_datas = $branch_datas;
 	}
 	
-	public function set_config_datas($config_datas) {
-		$this->config_datas = $config_datas;
-	}
 
 	public function set_customer_rank_datas ($datas) {
 		$this->customer_rank_datas = $datas;

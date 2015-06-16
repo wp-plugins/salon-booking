@@ -33,7 +33,8 @@ class Promotion_Control extends Salon_Control  {
 	
 	public function do_action() {
 		$this->do_require($this->action_class ,'page',$this->permits);
-		$this->pages = new $this->action_class($this->is_multi_branch);
+		$this->pages = new $this->action_class($this->is_multi_branch,$this->is_use_session);
+		$this->pages->set_config_datas($this->datas->getConfigData());
 
 
 		if ($this->action_class == 'Promotion_Page' ) {
@@ -49,7 +50,6 @@ class Promotion_Control extends Salon_Control  {
 			$this->pages->set_current_user_branch_cd($branch_cd);
 			$this->pages->set_branch_datas($this->datas->getBranchData($branch_cd));
 
-			$this->pages->set_config_datas($this->datas->getConfigData());
 
 
 			$this->pages->set_usable_patern_datas($this->datas->getUsablePaternDatas());

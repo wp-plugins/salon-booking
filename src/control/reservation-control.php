@@ -33,7 +33,8 @@ class Reservation_Control extends Salon_Control  {
 	
 	public function do_action() {
 		$this->do_require($this->action_class ,'page',$this->permits);
-		$this->pages = new $this->action_class($this->is_multi_branch);
+		$this->pages = new $this->action_class($this->is_multi_branch,$this->is_use_session);
+		$this->pages->set_config_datas($this->datas->getConfigData());
 
 
 		if ($this->action_class == 'Reservation_Page' ) {
@@ -52,7 +53,6 @@ class Reservation_Control extends Salon_Control  {
 			$this->pages->set_branch_datas($this->datas->getBranchData($branch_cd));
 			$this->pages->set_item_datas($this->datas->getTargetItemData($branch_cd,true,true));
 			$this->pages->set_staff_datas($this->datas->getTargetStaffData($branch_cd));
-			$this->pages->set_config_datas($this->datas->getConfigData());
 
 		}
 		elseif ($this->action_class == 'Reservation_Edit' ) {

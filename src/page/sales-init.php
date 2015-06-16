@@ -10,8 +10,8 @@ class Sales_Init extends Salon_Page {
 	private $target_day_to = '';
 	private $sub_menu = '';
 	
-	public function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 		$today = date_i18n("Y/m/d");
 		$target_day = parent::calcTargetDate();
 		

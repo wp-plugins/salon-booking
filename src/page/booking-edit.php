@@ -8,11 +8,20 @@ class Booking_Edit extends Salon_Page {
 	
 	protected $table_data = null;
 	protected $reservation_cd = '';
+	private $role = null;
+	private $branch_cd = '';
 
-	public function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
+		$this->branch_cd = $_POST['branch_cd'];
 	}
 
+	public function set_role($role) {
+		$this->role = $role;
+	}
+	private function _is_editBooking() {
+			if (in_array('edit_booking',$this->role) || $this->isSalonAdmin() ) return true;
+	}
 	
 	public function set_table_data($table_data) {
 		$this->table_data = $table_data;
@@ -22,6 +31,9 @@ class Booking_Edit extends Salon_Page {
 		return $this->table_data;
 	}
 	
+	public function get_branch_cd() {
+		return $this->branch_cd;
+	}
 
 	public function set_reservation_cd($reservation_cd) {
 		$this->reservation_cd = $reservation_cd;
@@ -31,12 +43,16 @@ class Booking_Edit extends Salon_Page {
 		return $this->reservation_cd;
 	}
 
+	public function is_editBooking() {
+		return $this->_is_editBooking();
+	}
+
 	
 	public function check_request() {
 		$this->_parse_data();
 
 		$msg = null;
-		if ($this->isSalonAdmin() ) $check_item = array('customer_name','branch_cd','time_from','time_to');
+		if ($this->_is_editBooking() ) $check_item = array('customer_name','branch_cd','time_from','time_to');
 		else  $check_item = array('customer_name','branch_cd','tel','item_cds','mail','time_from','time_to');
 		if (parent::serverCheck($check_item,$msg) == false) {
 			throw new Exception($msg );

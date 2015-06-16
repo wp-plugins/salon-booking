@@ -9,8 +9,8 @@ class Category_Page extends Salon_Page {
 	private $category_patern_datas = null;	
 	private $target_table_datas = null;	
 
-	function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 		$this->set_items = array('category_name','category_patern','category_value','target_table');
 
 	}

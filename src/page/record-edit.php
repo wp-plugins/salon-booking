@@ -8,8 +8,8 @@ class Record_Edit extends Salon_Page {
 	private $table_data = null;
 
 	
-	public function __construct() {
-		parent::__construct(false);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 	}
 
 	
@@ -21,6 +21,9 @@ class Record_Edit extends Salon_Page {
 	public function check_request() {
 		if	( ($_POST['type'] != 'inserted' ) && empty($_POST['reservation_cd']) ) {
 			throw new Exception(Salon_Component::getMsg('E901',basename(__FILE__).':'.__LINE__) );
+		}
+		if (Salon_Page::serverCheck(array(),$msg) == false) {
+			throw new Exception($msg );
 		}
 	}
 

@@ -32,7 +32,8 @@ class Photo_Control extends Salon_Control  {
 	
 	public function do_action() {
 		$this->do_require($this->action_class ,'page',$this->permits);
-		$this->pages = new $this->action_class(true);
+		$this->pages = new $this->action_class(true,$this->is_use_session);
+		$this->pages->set_config_datas($this->datas->getConfigData());
 		if ($this->action_class == 'Photo_Edit' ) {
 			$this->pages->check_request();
 			if ($_REQUEST['type'] == 'inserted' ) {

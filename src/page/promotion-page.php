@@ -12,15 +12,15 @@ class Promotion_Page extends Salon_Page {
 	
 	private $current_user_branch_cd = '';
 
-	private $config_datas = null;
+
 	
 	private $usable_patern_datas = null;
 	private $customer_rank_datas = null;
 	
 	
 
-	function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 		$this->set_items = array('description','set_code','valid_from','valid_to','discount','remark','usable_patern','times','rank_patern','discount_patern');
 	}
 	
@@ -37,9 +37,6 @@ class Promotion_Page extends Salon_Page {
 	}
 
 
-	public function set_config_datas($config_datas) {
-		$this->config_datas = $config_datas;
-	}
 
 	public function set_usable_patern_datas ($datas) {
 		$this->usable_patern_datas = $datas;

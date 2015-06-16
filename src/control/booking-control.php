@@ -40,11 +40,13 @@ class Booking_Control extends Salon_Control  {
 	
 	public function do_action() {
 		$this->do_require($this->action_class ,'page',$this->permits);
-		$this->pages = new $this->action_class($this->is_multi_branch);
+		$this->pages = new $this->action_class($this->is_multi_branch,$this->is_use_session);
+		$this->pages->set_config_datas($this->datas->getConfigData());
 
 		$user_login = $this->datas->getUserLogin();
 		$role = array();
 		$this->pages->set_isSalonAdmin($this->datas->isSalonAdmin($user_login,$role));
+		$this->pages->set_role($role);
 
 		if ($this->action_class == 'BookingFront_Page' ) {
 			$branch_datas = $this->datas->getBranchData($this->branch_cd);
@@ -52,9 +54,7 @@ class Booking_Control extends Salon_Control  {
 			$this->pages->set_item_datas($this->datas->getTargetItemData($this->branch_cd,true,true));
 
 			$this->pages->set_staff_datas($this->comp->getTargetStaffData($this->branch_cd));
-			$this->pages->set_config_datas($this->datas->getConfigData());
 			$this->pages->set_working_datas($this->comp->editWorkingData($this->branch_cd,$branch_datas));
-			$this->pages->set_role($role);
 			
 			$this->pages->set_promotion_datas($this->comp->editPromotionData($this->branch_cd));
 			
@@ -75,7 +75,6 @@ class Booking_Control extends Salon_Control  {
 		}
 		elseif ($this->action_class == 'Booking_Get_Mobile' ) {
 			$this->branch_cd = $this->pages->get_branch_cd();
-			$this->pages->set_config_datas($this->datas->getConfigData());
 			if ($this->pages->check_request() ) {
 				$branch_datas = $this->datas->getBranchData($this->branch_cd);
 				$this->pages->set_reservation_datas($this->datas->getAllEventData($this->pages->get_target_day(),$this->branch_cd,true,$branch_datas));
@@ -86,7 +85,11 @@ class Booking_Control extends Salon_Control  {
 		}
 		elseif ($this->action_class == 'Booking_Edit') { 
 			$this->pages->check_request();
-			$result = $this->comp->editTableData();
+			$this->branch_cd = $this->pages->get_branch_cd();
+			$branch_datas = $this->datas->getBranchData($this->branch_cd);
+		
+
+			$result = $this->comp->editTableData($branch_datas,$this->pages->is_editBooking() );
 			$this->comp->serverCheck($result);
 			$this->pages->set_table_data($result);
 			if ($_POST['type'] == 'inserted' ) {
@@ -103,9 +106,10 @@ class Booking_Control extends Salon_Control  {
 		}
 		//booking_mobile_editはbooking_editを継承
 		elseif ($this->action_class == 'Booking_Mobile_Edit') { 
-			$this->pages->set_config_datas($this->datas->getConfigData());
 			if ($this->pages->check_request() ) {
-				$result = $this->comp->editTableData();
+				$this->branch_cd = $this->pages->get_branch_cd();
+				$branch_datas = $this->datas->getBranchData($this->branch_cd);
+				$result = $this->comp->editTableData($branch_datas,$this->pages->is_editBooking() );
 				//休みやスタッフの2重予約チェックはPC版と同じでよい。
 				$this->comp->serverCheck($result);
 				$this->pages->set_table_data($result);

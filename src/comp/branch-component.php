@@ -53,7 +53,7 @@ class Branch_Component {
 			$set_data['mail'] = $_POST['mail'];
 			$set_data['remark'] = stripslashes($_POST['remark']);
 			$set_data['duplicate_cnt'] = intval($_POST['duplicate_cnt']);
-			$set_data['notes'] = '';
+			$set_data['notes'] = stripslashes($_POST['notes']);
 			$set_data['open_time'] = Salon_Component::replaceTimeToDb($_POST['open_time']);
 			$set_data['close_time'] = Salon_Component::replaceTimeToDb($_POST['close_time']);
 			$set_data['time_step'] = $_POST['time_step'];

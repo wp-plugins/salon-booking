@@ -15,9 +15,8 @@ class Record_Page extends Salon_Page {
 	private $branch_datas = null;
 
 
-	public function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
-//		$this->set_items = array('position_name','wp_role','no_edit_remark','role');
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 
 	}
 	

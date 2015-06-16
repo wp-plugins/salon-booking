@@ -7,18 +7,14 @@ class Mail_Page extends Salon_Page {
 
 	private $set_items = null;
 
-	private $config = null;
 
 	
 
-	public function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 		$this->set_items = array('send_mail_text_on_mail','regist_mail_text_on_mail','mail_from_on_mail','mail_returnPath_on_mail','target_mail_patern','send_mail_subject','regist_mail_subject','information_mail_text_on_mail','information_mail_subject','mail_bcc');
 	}
 	  
-	public function set_config_datas($config) {
-		$this->config = $config;
-	}
 	
 	public function show_page() {
 ?>
@@ -67,18 +63,18 @@ class Mail_Page extends Salon_Page {
 				
 			});
 
-			$j("#send_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n', $this->config['SALON_CONFIG_SEND_MAIL_TEXT']); ?>");
-			$j("#regist_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n', $this->config['SALON_CONFIG_SEND_MAIL_TEXT_USER']); ?>");
-			$j("#information_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n', $this->config['SALON_CONFIG_SEND_MAIL_TEXT_INFORMATION']); ?>");
+			$j("#send_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n', $this->config_datas['SALON_CONFIG_SEND_MAIL_TEXT']); ?>");
+			$j("#regist_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n', $this->config_datas['SALON_CONFIG_SEND_MAIL_TEXT_USER']); ?>");
+			$j("#information_mail_text").val("<?php echo str_replace(array("\r\n","\r","\n"), '\n', $this->config_datas['SALON_CONFIG_SEND_MAIL_TEXT_INFORMATION']); ?>");
 
-			$j("#send_mail_subject").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_SUBJECT']; ?>");
-			$j("#regist_mail_subject").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_SUBJECT_USER']; ?>");
-			$j("#information_mail_subject").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_SUBJECT_INFORMATION']; ?>");
+			$j("#send_mail_subject").val("<?php echo $this->config_datas['SALON_CONFIG_SEND_MAIL_SUBJECT']; ?>");
+			$j("#regist_mail_subject").val("<?php echo $this->config_datas['SALON_CONFIG_SEND_MAIL_SUBJECT_USER']; ?>");
+			$j("#information_mail_subject").val("<?php echo $this->config_datas['SALON_CONFIG_SEND_MAIL_SUBJECT_INFORMATION']; ?>");
 
-			$j("#mail_from").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_FROM']; ?>");
-			$j("#mail_returnPath").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_RETURN_PATH']; ?>");
+			$j("#mail_from").val("<?php echo $this->config_datas['SALON_CONFIG_SEND_MAIL_FROM']; ?>");
+			$j("#mail_returnPath").val("<?php echo $this->config_datas['SALON_CONFIG_SEND_MAIL_RETURN_PATH']; ?>");
 			
-			$j("#mail_bcc").val("<?php echo $this->config['SALON_CONFIG_SEND_MAIL_BCC']; ?>");
+			$j("#mail_bcc").val("<?php echo $this->config_datas['SALON_CONFIG_SEND_MAIL_BCC']; ?>");
 			
 			$j("#target_mail_patern").val("confirm").change();
 

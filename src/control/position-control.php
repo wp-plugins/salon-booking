@@ -35,7 +35,8 @@ class Position_Control extends Salon_Control  {
 	
 	public function do_action() {
 		$this->do_require($this->action_class ,'page',$this->permits);
-		$this->pages = new $this->action_class($this->is_multi_branch);
+		$this->pages = new $this->action_class($this->is_multi_branch,$this->is_use_session);
+		$this->pages->set_config_datas($this->datas->getConfigData());
 
 		if ($this->action_class == 'Position_Page' ) {
 			$this->pages->set_admin_menu_datas($this->comp->getAdminMenuDatas());

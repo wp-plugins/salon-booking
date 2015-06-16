@@ -19,15 +19,14 @@ class Working_Page extends Salon_Page {
 
 	private $reseration_cd = '';
 	
-	private $config_datas = null;
 	
 	private $target_year = '';
 
 
 
 
-	public function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 		$this->target_year = date_i18n("Y");
 	}
 
@@ -69,11 +68,6 @@ class Working_Page extends Salon_Page {
 		$this->is_user_login = ($is_user_login == Salon_Config::USER_LOGIN_OK);
 	}
 	
-	public function set_config_datas($config_datas) {
-		$this->config_datas = $config_datas;
-	}
-
-
 	public function show_page() {
 ?>
 

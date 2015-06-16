@@ -6,6 +6,7 @@ abstract class Salon_Control  {
 
 
 	protected $is_multi_branch = false;
+	protected $is_use_session = true;
 	private $respons_type = Response_Type::JASON;
 	private $is_show_detail_msg = false;
 	
@@ -23,6 +24,7 @@ abstract class Salon_Control  {
 	public function set_config ($config) {
 		$this->is_multi_branch = (Salon_Config::MULTI_BRANCH == $config[ 'SALON_CONFIG_BRANCH' ]);
 		$this->is_show_detail_msg = (Salon_Config::DETAIL_MSG_OK == $config[ 'SALON_CONFIG_SHOW_DETAIL_MSG' ]);
+		$this->is_use_session = (Salon_Config::USE_SESSION == $config[ 'SALON_CONFIG_USE_SESSION_ID' ]);
 	}
 	
 	public function set_response_type ( $response_type) {
@@ -63,7 +65,8 @@ abstract class Salon_Control  {
 	}
 
 	public function _error_handler ( $errno, $errstr, $errfile, $errline, $errcontext ) {
-	    if (error_reporting() === 0) return;
+//defineでfalseにするとエラーがでなくなるのでやめ
+//		if (error_reporting() === 0) return;
 		$detail_msg = '';
 		if ($this->is_show_detail_msg ) $detail_msg ="\n".$errfile.$errline."\n".$errcontext;
 		if ($this->respons_type == Response_Type::JASON || $this->respons_type == Response_Type::JASON_406_RETURN) {

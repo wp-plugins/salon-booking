@@ -30,10 +30,13 @@ class Search_Control extends Salon_Control  {
 	public function do_action() {
 				
 		$this->do_require($this->action_class ,'page',$this->permits);
-		$this->pages = new $this->action_class($this->is_multi_branch);
+		$this->pages = new $this->action_class($this->is_multi_branch,$this->is_use_session);
+
+		$role = array();
 
 		$user_login = $this->datas->getUserLogin();
-		$this->pages->set_isSalonAdmin($this->datas->isSalonAdmin($user_login));
+		$this->pages->set_isSalonAdmin($this->datas->isSalonAdmin($user_login,$role));
+		$this->pages->set_role($role);
 		$this->pages->check_request();
 
 		$result = $this->comp->setSearchCustomerData($this->pages->get_search_items());

@@ -7,8 +7,8 @@ class Branch_Col_Edit extends Salon_Page {
 	
 	private $table_data = null;
 	
-	public function __construct() {
-		parent::__construct(true);
+	public function __construct($use_session) {
+		parent::__construct(true,$use_session);
 	}
 	
 	

@@ -17,15 +17,24 @@ class Booking_Mobile_Edit extends Booking_Edit {
 	private $msg = '';
 	private $checkOk = false;
 
-	private $config_datas = null;
 	private $insert_max_day = '';
+	private $role = null;
 
-	public function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 		$this->branch_cd = $_POST['branch_cd'];
 	}
 
+	public function set_role($role) {
+		$this->role = $role;
+	}
+	private function _is_editBooking() {
+			if (in_array('edit_booking',$this->role) || $this->isSalonAdmin() ) return true;
+	}
 	
+	public function is_editBooking() {
+		return $this->_is_editBooking();
+	}
 
 	public function set_branch_datas ($branch_datas) {
 		$this->branch_datas = $branch_datas;
@@ -58,9 +67,8 @@ class Booking_Mobile_Edit extends Booking_Edit {
 	public function check_request() {
 		$this->_parse_data();
 
-		if ($this->isSalonAdmin() ) $check_item = array('customer_name','staff_cd','branch_cd','item_cds','time_from','time_to');
+		if ($this->_is_editBooking() ) $check_item = array('customer_name','staff_cd','branch_cd','item_cds','time_from','time_to');
 		else  $check_item = array('customer_name','staff_cd','branch_cd','mobile_tel','mail','item_cds','time_from','time_to');
-
 		$this->checkOk = parent::serverCheck($check_item,$this->msg);
 		//ここからスマートフォンのみのチェック
 		//from toの大小(不正かバグしかない）

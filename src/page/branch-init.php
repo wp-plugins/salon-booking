@@ -7,8 +7,8 @@ class Branch_Init extends Salon_Page {
 	
 	private $init_datas =  null;
 	
-	public function __construct() {
-		parent::__construct(true);
+	public function __construct($use_session) {
+		parent::__construct(true,$use_session);
 	}
 
 	public function get_init_datas() {
@@ -26,7 +26,7 @@ class Branch_Init extends Salon_Page {
 			$this->init_datas[$k1]['remark'] = htmlspecialchars($d1['remark'],ENT_QUOTES);
 			$this->init_datas[$k1]['name'] = htmlspecialchars($d1['name'],ENT_QUOTES);
 			$this->init_datas[$k1]['address'] = htmlspecialchars($d1['address'],ENT_QUOTES);
-			unset($this->init_datas[$k1]['notes']);
+//			unset($this->init_datas[$k1]['notes']);
 		}
 		parent::echoInitData($this->init_datas);
 	}

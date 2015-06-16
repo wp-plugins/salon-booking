@@ -8,8 +8,8 @@ class Log_Init extends Salon_Page {
 	private $init_datas =  null;
 	private $get_cnt = '';
 	
-	public function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 
 		$this->get_cnt = intval($_POST['get_cnt']);
 	}

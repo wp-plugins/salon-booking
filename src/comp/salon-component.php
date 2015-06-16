@@ -87,6 +87,15 @@ class Salon_Config {
 	const DEFALUT_RESERVE_DEADLINE_UNIT_MIN = 3;
 	//
 	const NO_REGISTED_CUSTOMER_CD = -1;
+	//
+	const USE_SESSION = 1;
+	const USE_NO_SESSION = 2;
+
+	const SHOW_TAB = 1;
+	const SHOW_NO_TAB = 2;
+
+	const SETTING_PATERN_TIME = 1;
+	const SETTING_PATERN_ORIGINAL = 2;
 	
 }
 
@@ -661,6 +670,9 @@ class Salon_Component {
 				break;	
 			case 'E012':
 				$err_msg = sprintf(__("This reservation updated. [%s]",SL_DOMAIN),$add_char);
+				break;	
+			case 'E013':
+				$err_msg = sprintf(__("This request is invalid nonce. [%s]",SL_DOMAIN),$add_char);
 				break;	
 			case 'E201':
 				$err_msg = sprintf(__("%s required[%s]",SL_DOMAIN),$err_cd,$add_char);

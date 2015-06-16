@@ -3,7 +3,7 @@ Contributors: kuu(Tanaka Hisao)
 Tags: hair salon,salon,appointment,booking,beauty apps,reservation,dental clinic,hospital,mutilingual,散髪予約,美容院予約,美容室予約,サロン予約,エステ予約,予約システム,予約管理
 Requires at least: 4.0
 Tested up to: 4.0
-Stable tag: 1.5.11
+Stable tag: 1.5.12
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,6 +122,16 @@ namely against identity frauds, malicious requests to reserve, SQL injection att
 5. 管理画面（出退勤）
 
 == Changelog ==
+= 1.5.12 =
+* 変更: 予約画面で表示するタブの指定を環境設定から可能にする設定を追加  
+* 変更: nonceのチェックエラーになる場合に、セッションＩＤを使用しない環境設定を追加  
+* 変更: スタッフが終了時間を設定できるオプション（メニューの時間で終了時間を決めない）を、店情報に追加  
+* バグ: メニューのない店舗をスタッフ情報の一覧で割り当てるとメニュー情報が表示されないことへの対処  
+* バグ: 弱い権限のスタッフの場合の予約時の不具合への対処  
+* バグ: スマホ画面で必須項目が効いていないことへの対処  
+* バグ: 表示等もろもろ  
+
+
 = 1.5.11 =
 * バグ: タップで反応しないことへの対処  
 

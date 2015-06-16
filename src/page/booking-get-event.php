@@ -11,12 +11,20 @@ class Booking_Get_Event extends Salon_Page {
 	private $branch_cd = '';
 	
 	private $user_login = '';
+	private $role = null;
 
 	
-	public function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 		$this->branch_cd = $_GET['branch_cd'];
 
+	}
+
+	public function set_role($role) {
+		$this->role = $role;
+	}
+	private function _is_editBooking() {
+			if (in_array('edit_booking',$this->role) || $this->isSalonAdmin() ) return true;
 	}
 	
 	public function get_target_day($before) {
@@ -53,7 +61,7 @@ class Booking_Get_Event extends Salon_Page {
 		echo '<data>';
 		
 		foreach ($this->reservation_datas as $k1 => $d1 ) {
-			if (( ! empty($this->user_login) &&  $this->user_login === $d1['user_login'] ) || 	$this->isSalonAdmin() ) {
+			if (( ! empty($this->user_login) &&  $this->user_login === $d1['user_login'] ) || 	$this->_is_editBooking() ) {
 				$name = htmlspecialchars($d1['name'],ENT_QUOTES);
 				$edit_name = sprintf(__("%s reserved",SL_DOMAIN),$name);
 				$edit_remark = htmlspecialchars($d1['remark'],ENT_QUOTES);

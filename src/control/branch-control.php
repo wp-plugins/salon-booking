@@ -35,9 +35,11 @@ class Branch_Control extends Salon_Control  {
 	
 	public function do_action() {
 		$this->do_require($this->action_class ,'page',$this->permits);
-		$this->pages = new $this->action_class();
+		$this->pages = new $this->action_class($this->is_use_session);
+		$this->pages->set_config_datas($this->datas->getConfigData());
 		if ($this->action_class == 'Branch_Page' ) {
 			$this->pages->set_branch_datas($this->datas->getAllBranchData());
+			$this->pages->set_setting_patern_datas($this->datas->getSettingPaternDatas());
 		}
 		elseif ($this->action_class == 'Branch_Init' ) {
 			$this->pages->set_init_datas($this->comp->editInitDatas());

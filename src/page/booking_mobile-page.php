@@ -356,7 +356,7 @@ EOT3;
 			operate = "inserted";
 			save_id = "";
 			save_user_login = "";
-			<?php if ( is_user_logged_in() && ! $this->isSalonAdmin()) echo 'save_user_login = "'.$this->user_inf['user_login'].'"'; ?>
+			<?php if ( is_user_logged_in() && ! $this->_is_editBooking()) echo 'save_user_login = "'.$this->user_inf['user_login'].'"'; ?>
 				
 			
 			$j("#start_time").val(toHHMM(target_day_from));
@@ -638,7 +638,7 @@ EOT4;
 			if (operate != 'inserted') {
 				temp_p2 = slmSchedule._events[save_id]['p2'];
 			}
-			<?php	if ($this->_is_userlogin() && is_user_logged_in() && ! $this->isSalonAdmin() ) : ?>
+			<?php	if ($this->_is_userlogin() && is_user_logged_in() && ! $this->_is_editBooking() ) : ?>
 				var name = "<?php echo $this->user_inf['user_name']; ?>";
 				<?php
 				if (empty($this->user_inf['tel']) ) {
@@ -823,7 +823,7 @@ EOT4;
 
 
 		<?php 
-			if ($this->_is_userlogin() && is_user_logged_in() && ! $this->isSalonAdmin() ) {
+			if ($this->_is_userlogin() && is_user_logged_in() && ! $this->_is_editBooking() ) {
 					if (empty($this->user_inf['tel']) ) {
 						echo '<ul><li><input type="tel" id="tel" required/></li></ul>';
 					}

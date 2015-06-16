@@ -8,8 +8,8 @@ class Mail_Edit extends Salon_Page {
 	private $table_data = null;
 	private $default_mail = '';
 	
-	public function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 	}
 
 	public function check_request() {

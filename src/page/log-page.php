@@ -6,20 +6,15 @@
 class Log_Page extends Salon_Page {
 
 	private $set_items = null;
-	private $config_datas = null;
-	
 	
 	
 
-	function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 		$this->set_items = array('logged_day','logged_time','operation','logged_remark');
 	}
 	
 
-	public function set_config_datas($config_datas) {
-		$this->config_datas = $config_datas;
-	}
 	
 
 	public function show_page() {

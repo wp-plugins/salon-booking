@@ -10,8 +10,8 @@ class Branch_Edit extends Salon_Page {
 
 	private $branch_name = '';
 	
-	public function __construct() {
-		parent::__construct(true);
+	public function __construct($use_session) {
+		parent::__construct(true,$use_session);
 	}
 
 	

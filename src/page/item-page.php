@@ -15,8 +15,8 @@ class Item_Page extends Salon_Page {
 	private $staff_datas = null;
 	
 
-	function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 		if ($is_multi_branch ) {
 			$this->set_items = array('item_name','short_name','branch_cd','minute','price','remark','exp_from','exp_to','all_flg');
 		}

@@ -11,8 +11,8 @@ class Position_Page extends Salon_Page {
 	
 	
 
-	public function __construct() {
-		parent::__construct(false);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 		$this->set_items = array('position_name','wp_role','no_edit_remark','role');
 
 	}

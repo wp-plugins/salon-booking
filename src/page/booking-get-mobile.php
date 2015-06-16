@@ -14,17 +14,25 @@ class Booking_Get_Mobile extends Salon_Page {
 	
 	private $user_login = '';
 
-	private $config_datas = null;
 	private $checkOk = true;
 	private $msg = '';
+
+	private $role = null;
 		
-	public function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 		$this->branch_cd = $_POST['branch_cd'];
 		$this->first_hour = $_POST['first_hour'];
 		$this->last_hour = $_POST['last_hour'];
 		$this->target_day = $_POST['target_day'];
 
+	}
+
+	public function set_role($role) {
+		$this->role = $role;
+	}
+	private function _is_editBooking() {
+			if (in_array('edit_booking',$this->role) || $this->isSalonAdmin() ) return true;
 	}
 	
 	public function get_target_day() {
@@ -50,9 +58,6 @@ class Booking_Get_Mobile extends Salon_Page {
 		$this->user_login = $user_login;
 	}
 
-	public function set_config_datas($config_datas) {
-		$this->config_datas = $config_datas;
-	}
 
 
 	public function check_request() {

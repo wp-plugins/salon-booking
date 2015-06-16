@@ -14,14 +14,13 @@ class Reservation_Page extends Salon_Page {
 	
 	private $current_user_branch_cd = '';
 
-	private $config_datas = null;
 	
 	private $promotion_data = null;
 	
 	
 
-	function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 		$this->set_items = array('reserved_mail','reserved_tel','customer_name','target_day','staff_cd','item_cds','remark','price','regist_customer','rstatus','coupon');
 	}
 	
@@ -45,9 +44,6 @@ class Reservation_Page extends Salon_Page {
 		$this->staff_datas = $staff_datas;
 	}
 
-	public function set_config_datas($config_datas) {
-		$this->config_datas = $config_datas;
-	}
 	
 	public function get_set_branch_cd () {
 		if (empty($_POST['set_branch_cd']) ) return;

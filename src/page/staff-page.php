@@ -12,12 +12,11 @@ class Staff_Page extends Salon_Page {
 	private $branch_datas = null;
 	private $position_datas = null;
 	
-	private $config_datas = null;
 	
 	private $item_datas = null;
 
-	function __construct($is_multi_branch) {
-		parent::__construct($is_multi_branch);
+	public function __construct($is_multi_branch,$use_session) {
+		parent::__construct($is_multi_branch,$use_session);
 		if ($is_multi_branch ) {
 			$this->branch_column = 4;
 			$this->position_column = 5;
@@ -43,9 +42,6 @@ class Staff_Page extends Salon_Page {
 		$this->position_datas = $position_datas;
 	}
 
-	public function set_config_datas($config_datas) {
-		$this->config_datas = $config_datas;
-	}
 	
 	public function set_item_datas($item_datas) {
 		$this->item_datas = $item_datas;
