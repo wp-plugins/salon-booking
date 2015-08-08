@@ -97,6 +97,9 @@ class Salon_Config {
 	const SETTING_PATERN_TIME = 1;
 	const SETTING_PATERN_ORIGINAL = 2;
 	
+	const CONFIRM_NO = 1; 
+	const CONFIRM_BY_ADMIN = 2;
+	const CONFIRM_BY_MAIL = 3;
 }
 
 class Salon_CRank {

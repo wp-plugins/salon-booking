@@ -47,6 +47,7 @@ class Config_Component {
 
 		$set_data['SALON_CONFIG_USE_SESSION_ID'] = empty($_POST['config_use_session']) ? Salon_Config::USE_NO_SESSION : Salon_Config::USE_SESSION;
 
+		$set_data['SALON_CONFIG_CONFIRM_STYLE'] = empty($_POST['config_confirm_style']) ? Salon_Config::CONFIRM_BY_MAIL : intval($_POST['config_confirm_style']);
 		return $set_data;
 		
 	}

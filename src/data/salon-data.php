@@ -69,6 +69,9 @@ abstract class Salon_Data {
 		
 		if (empty($result['SALON_CONFIG_USE_SESSION_ID']) ) $result['SALON_CONFIG_USE_SESSION_ID'] = Salon_Config::USE_SESSION;
 		
+
+		if (empty($result['SALON_CONFIG_CONFIRM_STYLE']) ) $result['SALON_CONFIG_CONFIRM_STYLE'] =  Salon_Config::CONFIRM_BY_MAIL;
+
 		$this->config = $result;
 	}
 	

@@ -2610,6 +2610,12 @@ EOT2;
 		 ,'label' => __('Setting time of staff member',SL_DOMAIN)
 		 ,'tips' => __('If staff member can set from-to time, check here. ',SL_DOMAIN));
 
+		$item_contents['confirm_style'] =array('id'=>'sl_confirm_style'
+		 ,'class'	=>array("sl_long_width_no_margin")
+		 ,'check' => array("num")
+		 ,'label' => '19.'.__('Reservation confirmation method',SL_DOMAIN)
+		 ,'tips' => __('\"Confirmation by an administrator\":At the point that a user makes a reservation, this is treated as a temporary reservation. The reservation is confirmed when a person with administrator privileges updates the reservation. \"No confirm\":The reservation is confirmed when made by the user. \"Confirmation via user e-mail\":At the point that a user makes a reservation, this is treated as a temporary reservation. A link to the reservation confirmation screen is displayed in the e-mail sent to the user. The reservation is confirmed when the user uses the link to open the reservation confirmation page.',SL_DOMAIN));
+
 		return $item_contents;	
 	
 		

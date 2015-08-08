@@ -20,7 +20,7 @@ class Booking_Edit extends Salon_Page {
 		$this->role = $role;
 	}
 	private function _is_editBooking() {
-			if (in_array('edit_booking',$this->role) || $this->isSalonAdmin() ) return true;
+		if (in_array('edit_booking',$this->role) || $this->isSalonAdmin() ) return true;
 	}
 	
 	public function set_table_data($table_data) {
@@ -79,7 +79,7 @@ class Booking_Edit extends Salon_Page {
 		if (is_user_logged_in()	) {
 			$edit_flg = Salon_Edit::OK;
 			$tid = $this->reservation_cd;
-			$msg = __('reservation is completed',SL_DOMAIN);
+			$msg = __('The reservation is compledted',SL_DOMAIN);
 			$edit_name = '';
 			$p2  = '';
 			if ($_POST['type'] != 'deleted' ) {
@@ -95,8 +95,18 @@ class Booking_Edit extends Salon_Page {
 			$tid = $ID;
 //			$edit_name = __('tempolary reserved',SL_DOMAIN).'('.htmlspecialchars($this->table_data['non_regist_name'],ENT_QUOTES).')';
 			$edit_name = htmlspecialchars($this->table_data['non_regist_name'],ENT_QUOTES);
-			$msg = __('reservation is not completed.Please confirm your reservation by [confirm form] in E-mail ',SL_DOMAIN);
-			$status = Salon_Reservation_Status::TEMPORARY;
+			if ($this->config_datas['SALON_CONFIG_CONFIRM_STYLE'] == Salon_Config::CONFIRM_BY_MAIL ) {
+				$msg = __('The reservation is not completed.Please confirm your reservation by [confirm form] in E-mail ',SL_DOMAIN);
+				$status = Salon_Reservation_Status::TEMPORARY;
+			}
+			else if ($this->config_datas['SALON_CONFIG_CONFIRM_STYLE'] == Salon_Config::CONFIRM_BY_ADMIN ) {
+				$msg = __('The reservation is not completed.After your reservation confirmed by administrator ',SL_DOMAIN);
+				$status = Salon_Reservation_Status::TEMPORARY;
+			}
+			else if ($this->config_datas['SALON_CONFIG_CONFIRM_STYLE'] == Salon_Config::CONFIRM_NO ) {
+				$msg = __('The reservation is compledted',SL_DOMAIN);
+				$status = Salon_Reservation_Status::COMPLETE;
+			}
 			$time_to = $this->table_data['time_to'];
 		}
 		header('Content-type: text/xml');

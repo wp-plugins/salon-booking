@@ -174,8 +174,15 @@ class Booking_Component {
 			
 			$user_login = $this->datas->getUserLogin();	
 			if (  empty($user_login) ) {
-				$set_data['status'] = Salon_Reservation_Status::TEMPORARY;
-				$this->is_need_sendmail = true;
+				if ($this->datas->getConfigData('SALON_CONFIG_CONFIRM_STYLE') == Salon_Config::CONFIRM_NO) {
+					$set_data['status'] = Salon_Reservation_Status::COMPLETE;
+				}
+				else {
+					$set_data['status'] = Salon_Reservation_Status::TEMPORARY;
+					if ($this->datas->getConfigData('SALON_CONFIG_CONFIRM_STYLE') == Salon_Config::CONFIRM_BY_MAIL) {
+						$this->is_need_sendmail = true;
+					}
+				}
 			}
 			else {
 				$set_data['status'] = Salon_Reservation_Status::COMPLETE;

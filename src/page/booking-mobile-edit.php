@@ -124,10 +124,18 @@ class Booking_Mobile_Edit extends Booking_Edit {
 	
 			$res = parent::echoMobileData($this->reservation_datas,$this->target_day ,$first_hour,$last_hour,$this->user_login);
 			if (is_user_logged_in()	) {
-				$msg = __('reservation is compledted',SL_DOMAIN);
+				$msg = __('The reservation is compledted',SL_DOMAIN);
 			}
 			else {
-				$msg = __('reservation is not compledted.Please confirm your reservation by [confirm form] in E-mail ',SL_DOMAIN);
+				if ($this->config_datas['SALON_CONFIG_CONFIRM_STYLE'] == Salon_Config::CONFIRM_BY_MAIL ) {
+					$msg = __('The reservation is not completed.Please confirm your reservation by [confirm form] in E-mail ',SL_DOMAIN);
+				}
+				else if ($this->config_datas['SALON_CONFIG_CONFIRM_STYLE'] == Salon_Config::CONFIRM_BY_ADMIN ) {
+					$msg = __('The reservation is not completed.After your reservation confirmed by administrator ',SL_DOMAIN);
+				}
+				else if ($this->config_datas['SALON_CONFIG_CONFIRM_STYLE'] == Salon_Config::CONFIRM_NO ) {
+					$msg = __('The reservation is compledted',SL_DOMAIN);
+				}
 			}
 			echo '{	"status":"Ok","message":"'.$msg.'",
 			"set_data":'.'{"'.$this->target_day.'":'.$res[$this->target_day].'} }';

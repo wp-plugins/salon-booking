@@ -13,7 +13,14 @@ class Config_Page extends Salon_Page {
 
 	public function __construct($is_multi_branch,$use_session) {
 		parent::__construct($is_multi_branch,$use_session);
-		$this->set_items = array('config_branch','config_user_login','config_staff_holiday_set','config_no_prefernce','before_day','after_day','timeline_y_cnt','config_show_detail_msg','config_name_order_set','config_log','config_delete_record','config_delete_record_period','maintenance_include_staff','mobile_use','load_tab','reserve_deadline','show_tab','config_use_session');
+		$this->set_items = 
+			array('config_branch','config_user_login','config_staff_holiday_set'
+			,'config_no_prefernce','before_day','after_day','timeline_y_cnt'
+			,'config_show_detail_msg','config_name_order_set','config_log'
+			,'config_delete_record','config_delete_record_period'
+			,'maintenance_include_staff','mobile_use','load_tab'
+			,'reserve_deadline','show_tab','config_use_session'
+			,'confirm_style');
 	}
 	  
 	
@@ -53,10 +60,10 @@ class Config_Page extends Salon_Page {
 					}
 
 					if (userAgent.indexOf('msie') != -1) {
-					//ie9à»â∫ÇÕñ≥éã
+					//ie9‰ª•‰∏ã„ÅØÁÑ°Ë¶ñ
 						var lineHeight = parseFloat($j("#"+id+"_lbl .small").css("line-height"))*parseFloat($("body").css("font-size"));
 						var bHeight = Math.round(lineHeight);
-					}else{//ieà»äO
+					}else{//ie‰ª•Â§ñ
 					    var lineHeight = parseFloat($j("#"+id+"_lbl .small").css("line-height"));
 					    var bHeight = Math.round(lineHeight);
 					}
@@ -106,6 +113,7 @@ class Config_Page extends Salon_Page {
 			<?php if ( $this->config_datas['SALON_CONFIG_MOBILE_USE'] == Salon_Config::MOBILE_USE_YES ) $set_boolean = 'true';
 					else $set_boolean = 'false'; ?>
 			$j("#config_mobile_use").attr("checked",<?php echo $set_boolean; ?>);
+
 			
 <?php
 /*							
@@ -151,6 +159,7 @@ class Config_Page extends Salon_Page {
 					else $set_boolean = 'false'; ?>
 			$j("#config_is_use_session").attr("checked",<?php echo $set_boolean; ?>);
 
+			$j("#sl_confirm_style").val(<?php echo $this->config_datas['SALON_CONFIG_CONFIRM_STYLE']; ?>);	
 
 
 		});
@@ -233,6 +242,7 @@ class Config_Page extends Salon_Page {
 						,"config_show_tab_week":config_show_tab_week
 						,"config_show_tab_day":config_show_tab_day
 						,"config_use_session":config_use_session
+						,"config_confirm_style":$j("#sl_confirm_style").val()
 						,"nonce":"<?php echo $this->nonce; ?>"
 						,"menu_func":"Config_Edit"
 
@@ -352,6 +362,13 @@ class Config_Page extends Salon_Page {
 			<input id="config_is_use_session" type="checkbox"  style="width:16px;margin:3px 5px 0px 10px;" value="<?php echo Salon_Config::USE_SESSION; ?>" />
 		</div>
 
+		<div id="config_confirm_wrap" class="config_item_wrap" >
+			<select id="sl_confirm_style"  >
+				<option value="<?php echo Salon_Config::CONFIRM_BY_ADMIN; ?>" ><?php _e('Confirmation by an administrator',SL_DOMAIN); ?></option>
+				<option value="<?php echo Salon_Config::CONFIRM_NO; ?>"  ><?php _e('No confirm',SL_DOMAIN); ?></option>
+				<option value="<?php echo Salon_Config::CONFIRM_BY_MAIL; ?>" ><?php _e('Confirmation via user e-mail',SL_DOMAIN); ?></option>
+			</select>
+		</div>
 
 
 		<div class="spacer"></div>

@@ -3,7 +3,7 @@
 Plugin Name: Salon Booking 
 Plugin URI: http://salon.mallory.jp
 Description: Salon Booking enables the reservation to one-on-one business between a client and a staff member.
-Version: 1.5.12
+Version: 1.5.13
 Author: kuu
 Author URI: http://salon.mallory.jp
 Text Domain: salon
@@ -419,7 +419,7 @@ public function example_remove_dashboard_widgets() {
 //		$user_role = '';
 		$show_menu = $this->_get_userdata($this->user_role);
 		if (isset($show_menu[$this->maintenance]) && $show_menu[$this->maintenance] && count($show_menu[$this->maintenance]) > 0 ) {
-			add_menu_page( __('Salon Maintenance',SL_DOMAIN), __('Salon Maintenance',SL_DOMAIN), 'level_1', $this->maintenance, array( &$this,$show_menu[$this->maintenance][0]),WP_PLUGIN_URL.'/salon-booking/images/menu-icon.png' );
+			add_menu_page( __('Salon Maintenance',SL_DOMAIN), __('Salon Maintenance',SL_DOMAIN), 'manage_options', $this->maintenance, array( &$this,$show_menu[$this->maintenance][0]),WP_PLUGIN_URL.'/salon-booking/images/menu-icon.png' );
 			if (in_array('edit_customer',$show_menu[$this->maintenance]) ) {
 				$file = $show_menu[$this->maintenance][0] == 'edit_customer' ? $this->maintenance : 'salon_customer';
 				$my_admin_page = add_submenu_page(  $this->maintenance, __('Customer Info',SL_DOMAIN), __('Customer Info',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_customer' ) );
@@ -468,7 +468,7 @@ public function example_remove_dashboard_widgets() {
 
 		}
 		if (isset($show_menu[$this->management]) && $show_menu[$this->management] && count($show_menu[$this->management]) > 0 ) {
-			add_menu_page( __('Salon Management',SL_DOMAIN), __('Salon Management',SL_DOMAIN), 'level_1', $this->management, array( &$this,$show_menu[$this->management][0] ),WP_PLUGIN_URL.'/salon-booking/images/menu-icon.png');
+			add_menu_page( __('Salon Management',SL_DOMAIN), __('Salon Management',SL_DOMAIN), 'manage_options', $this->management, array( &$this,$show_menu[$this->management][0] ),WP_PLUGIN_URL.'/salon-booking/images/menu-icon.png');
 			if (in_array('edit_reservation',$show_menu[$this->management]) ) {
 				$file = $show_menu[$this->management][0] == 'edit_reservation' ? $this->management : 'salon_reservation';
 				$my_admin_page = add_submenu_page( $this->management, __('Reservation Regist',SL_DOMAIN), __('Reservation Regist',SL_DOMAIN), 'level_1', $file, array( &$this, 'edit_reservation' ) );
